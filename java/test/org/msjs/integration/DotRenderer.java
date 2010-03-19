@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2010 Sharegrove Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package org.msjs.integration;
+
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import org.apache.log4j.Logger;
+import static org.easymock.EasyMock.*;
+import org.mozilla.javascript.ContextFactory;
+import org.msjs.config.MsjsConfiguration;
+import org.msjs.config.MsjsModule;
+import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.pages.Page;
+import org.msjs.pages.PageContextProvider;
+import org.msjs.pages.ScriptSourceRelativizer;
+import org.msjs.script.FunctionParser;
+import org.msjs.script.MsjsScriptContext;
+import org.msjs.script.ScriptLocator;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+/**
+ * Used to statically create a "DOT" file for the given msjs page, and writes
+ * the result to standard out. This output can then be fed to the external
+ * program GraphViz, which produces nice looking graph images.
+ */
+public class DotRenderer {
+
+    private static final Logger logger = Logger.getLogger(DotRenderer.class);
+    /**
+     * Statically creates a "DOT" file for the given msjs page, and writes
+     * the result to standard out. This is done by loading the msjs script
+     * dotrender and calling the method it provides.
+     * @param args The first command-line argument is used as the name of the
+     * script to locate for rendering
+     * @throws java.io.IOException
+     */
+    public static void main (String[] args) throws IOException {
+        //Later, we could use a different config for this
+        //and even allow config to specify a different Guice
+        //module here
+        MsjsModule msjsModule = new MockModule();
+        Injector injector = Guice.createInjector(msjsModule);
+        MsjsConfiguration config = injector.getInstance(MsjsConfiguration.class);
+
+        String outLocation = config.getString("msjsRoot") + "/out/dotfile.dot";
+        String pageName = args[0];
+
+
+        PageContextProvider provider = injector.getInstance(PageContextProvider.class);
+        Page page = new Page(new ScriptSourceRelativizer(), provider.get(pageName, false));
+        
+        final MsjsScriptContext context =page.getMsjsScriptContext();
+
+        context.loadPackage("msjs.dotrender");
+
+        Object [] empty = {};
+
+        String rendering = (String) context.callMethod("msjs.dotrender", "dotRender" , empty);
+
+        FileWriter writer = new FileWriter(new File(outLocation));
+        writer.write(rendering);
+        writer.flush();
+    }
+
+    private static class MockModule extends MsjsModule {
+        public MockModule() {
+            super(MsjsTestConfigurationFactory.getConfiguration());
+        }
+
+        private static class DottyScriptContext extends MsjsScriptContext{
+
+            /**
+             * Create a new context for msjs script execution.
+             *
+             * @param cxFactory The factory for Rhino execution contexts.
+             * @param locator   ScriptLocator to use to find scripts that are loaded by
+             *                  other scripts, or externally, through
+             *                  {@link org.msjs.script.MsjsScriptContext#loadPackage(String)}
+             */
+            @Inject
+            public DottyScriptContext(ContextFactory cxFactory, ScriptLocator locator) {
+                super(cxFactory, locator, new FunctionParser(cxFactory));
+            }
+
+            @Override
+            public void redirect(final String url) {
+                logger.info("Ignoring redirect: " + url);
+            }
+        }
+
+        public void configure(final Binder binder) {
+            super.configure(binder);
+
+            HttpServletRequest mockRequest = createNiceMock(HttpServletRequest.class);
+            expect(mockRequest.getCookies()).andReturn(new Cookie[0] ).anyTimes();
+            replay(mockRequest);
+            binder.bind(ServletRequest.class).toInstance(mockRequest);
+            binder.bind(MsjsScriptContext.class).to(DottyScriptContext.class);
+        }
+    }
+}

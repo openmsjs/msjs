@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- The context path for the web application. -->
+    <webappPath>/msjs</webappPath>
+
+    <!-- If is not explicitly defined in a configuration file, msjsRoot is the
+         real path of the web application or, if the real path is null, is the
+         value of System.getProperty("msjsRoot"). If msjsRoot isn't found, the
+         configurator will throw an exception. -->
+    <!-- <msjsRoot>yourRootDirectory</msjsRoot> -->
+    <scriptRoot>${msjsRoot}/script</scriptRoot>
+    <fileRoot>${msjsRoot}/file</fileRoot>
+    <log4jConfig>${msjsRoot}/WEB-INF/log4j.properties</log4jConfig>
+    <doCache>false</doCache>
+</configuration>

@@ -1,0 +1,59 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Tomcat" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 6">
+    <option name="OPEN_IN_BROWSER" value="false" />
+    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/msjs/" />
+    <option name="BROWSER_ID" value="system" />
+    <option name="COMMON_VM_ARGUMENTS" value="-Xmx768m" />
+    <JAVAEE_FACET FACET_ID="dev/web/msjs" DEPLOYMENT_SOURCE_NAME="exploded">
+      <option name="CONTEXT_PATH" value="/msjs" />
+      <option name="DEPLOY" value="true" />
+    </JAVAEE_FACET>
+    <server-settings>
+      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
+      <option name="BASE_DIRECTORY_NAME" value="Tomcat_msjs8ac678512" />
+    </server-settings>
+    <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
+    <option name="BASE_DIRECTORY_NAME" value="Tomcat_msjs8ac678512" />
+    <log_file path="/Users/pablokang/Library/Caches/IntelliJIDEA8x/tomcat/Unnamed_msjsb816b776/logs/localhost*" checked="true" skipped="true" show_all="false" alias="Tomcat Log" />
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="51336" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
+    <RunnerSettings RunnerId="Run" />
+    <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
+      <option name="USE_ENV_VARIABLES" value="true" />
+      <STARTUP>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="/Users/pablokang/apache-tomcat-6.0.18/bin/catalina.sh" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value=" run" />
+      </STARTUP>
+      <SHUTDOWN>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="/Users/pablokang/apache-tomcat-6.0.18/bin/catalina.sh" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value=" stop" />
+      </SHUTDOWN>
+    </ConfigurationWrapper>
+    <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
+      <option name="USE_ENV_VARIABLES" value="true" />
+      <STARTUP>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="/Users/pablokang/apache-tomcat-6.0.18/bin/catalina.sh" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value=" run" />
+      </STARTUP>
+      <SHUTDOWN>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="/Users/pablokang/apache-tomcat-6.0.18/bin/catalina.sh" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value=" stop" />
+      </SHUTDOWN>
+    </ConfigurationWrapper>
+    <method>
+      <option name="Run Ant target" value="false" />
+      <option name="Make" value="true" />
+    </method>
+  </configuration>
+</component>

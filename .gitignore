@@ -1,0 +1,11 @@
+msjs-local-config.xml
+local-log4j.properties
+out
+*.dot
+*.swp
+*.ipr
+*.iws
+.idea/workspace.xml
+.idea/webContexts.xml
+WEB-INF/log
+WEB-INF/classes/org

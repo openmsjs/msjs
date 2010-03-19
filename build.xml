@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Copyright (c) 2010 Sharegrove Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  use this file except in compliance with the License. You may obtain a copy of
+  the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  License for the specific language governing permissions and limitations under
+  the License.
+  -->
+
+<project name="msjs" default="build">
+    <property name="src" location="java/src"/>
+    <property name="testsrc" location="java/test"/>
+    <property name="out.dir" value="out"/>
+
+    <property name="classes" location="${out.dir}/classes"/>
+    <property name="staging.dir" value="${out.dir}/msjs"/>
+    <property name="obfuscated.dir" value="${out.dir}/obfuscated"/>
+    <property name="out.doc.dir" value="${out.dir}/doc"/>
+    <property name="test.reports.dir" value="${out.dir}/reports"/>
+    <property name="war.file" value="${out.dir}/msjs.war" />
+
+    <path id="build.classpath">
+        <pathelement location="${classes}"/>
+        <fileset dir="WEB-INF/lib" includes="**/*.jar"/>
+        <fileset dir="WEB-INF/lib" includes="**/*.properties"/>
+        <fileset dir="noship" includes="**/*.jar"/>
+    </path>
+
+    <taskdef name="jsdoctoolkit"
+             classname="uk.co.darrenhurley.ant.tasks.JsDocToolkit"
+             classpathref="build.classpath"/>
+
+    <target name="init">
+        <tstamp/>
+    </target>
+
+    <target name="build" depends="clean,test,doc,war"
+            description="Clean, run unit tests, then build the war"/>
+
+    <target name="clean" description="delete build directory">
+         <delete dir="${out.dir}"/>
+     </target>
+
+    <target name="compile" depends="init" description="Compile the server">
+        <mkdir dir="${classes}"/>
+        <javac srcdir="${src}" destdir="${classes}" classpathref="build.classpath" debug="true">
+            <exclude name="**/package-info.java"/>
+        </javac>
+    </target>
+
+    <target name="compile-tests" depends="compile">
+        <javac srcdir="${testsrc}" destdir="${classes}" classpathref="build.classpath"
+               debug="true">
+            <exclude name="**/package-info.java"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="init,compile">
+        <property environment="env" />
+
+        <propertyfile file="${out.dir}/classes/build.properties">
+            <entry key="build.tag" value="${env.BUILD_NUMBER}" /> <!-- set by hudson -->
+            <entry key="sha" value="${last.sha}" />
+            <entry key="build.date" type="date" value="now" pattern="dd MMM yyyy HH:mm"/>
+            <entry key="java.version" value="${ant.java.version}" />
+        </propertyfile>
+
+        <copy toDir="${out.dir}/classes">
+            <fileset dir="script">
+                <include name="document.js"/>
+                <include name="msjs.js"/>
+                <include name="msjs/**"/>
+            </fileset>
+        </copy>
+        <jar destfile="${out.dir}/msjs.jar" basedir="${out.dir}/classes"/>
+    </target>
+            
+    <target name="war" depends="init,clean,jar" description="Build the war">
+        <mkdir dir="${staging.dir}"/>
+
+        <copy toDir="${staging.dir}/WEB-INF">
+            <fileset dir="WEB-INF">
+                <exclude name="**/local.*"/>
+                <exclude name="**/log/*"/>
+            </fileset>
+        </copy>
+
+        <copy toDir="${staging.dir}/WEB-INF/lib">
+            <fileset dir="${out.dir}">
+                <include name="msjs.jar"/>
+            </fileset>
+        </copy>
+
+        <copy toDir="${staging.dir}/file">
+            <fileset dir="file/"/>
+        </copy>
+
+        <copy toDir="${staging.dir}/script">
+            <fileset dir="script/">
+                <exclude name="document.js"/>
+                <exclude name="msjs.js"/>
+                <exclude name="msjs/**"/>
+                <exclude name="test/**"/>
+            </fileset>
+        </copy>
+
+        <copy toDir="${staging.dir}" file="COPYING"/>
+
+        <exec executable="git" outputproperty="last.sha">
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--pretty=format:%H"/>
+        </exec>
+
+        <war destfile="${war.file}"
+             basedir="${staging.dir}"
+             webxml="${staging.dir}/WEB-INF/web.xml"
+             duplicate="fail"
+             compress="false">
+        </war>
+    </target>
+
+    <!-- .......................... testing tasks  .............................. -->
+    <target name="test-all" depends="test, test-integration"
+            description="Run unit and integration tests.">
+        <echo>Ran 'em all</echo>
+    </target>
+
+    <target name="test" depends="compile-tests" description="Run unit tests">
+        <mkdir dir="${test.reports.dir}"/>
+        <junit fork="no" haltonfailure="no"
+               errorproperty="test.results.error"
+               failureproperty="test.results.failure">
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <classpath refid="build.classpath"/>
+            <batchtest fork="no" todir="${test.reports.dir}">
+                <fileset dir="${testsrc}">
+                    <include name="**/Test*.java"/>
+                    <exclude name="**/integration/*.java"/>
+                    <exclude name="**/selenium/*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail message="At least one test failed or had an error.">
+            <condition>
+                <or>
+                    <isset property="test.results.error"/>
+                    <isset property="test.results.failure"/>
+                </or>
+            </condition>
+        </fail>
+    </target>
+
+    <!-- The servlet must be running for this test to work. If ant is called
+         with a property named "config", that property is used for the config
+         name of the integration tests. -->
+    <property name="config" value="default" />
+
+    <target name="test-integration" depends="compile-tests"
+            description="Run integration tests">
+        <echo message="Running integration tests against '${config}' config"/>
+        <mkdir dir="${test.reports.dir}"/>
+        <junit fork="yes" errorproperty="test.results.error"
+               failureproperty="test.results.failure">
+            <!-- Tell the integration test what config to use and where the
+                 configuration directory is. -->
+            <sysproperty key="config.name" value="${config}" />
+            <classpath refid="build.classpath"/>
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="${test.reports.dir}">
+                <fileset dir="${testsrc}">
+                    <include name="**/integration/Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail message="At least one test failed or had an error.">
+            <condition>
+                <or>
+                    <isset property="test.results.error"/>
+                    <isset property="test.results.failure"/>
+                </or>
+            </condition>
+        </fail>
+    </target>
+
+    <!-- This can run more than one test if the property matches -->
+    <target name="test-one" depends="compile-tests"
+            description="Run a single test, given by the property test">
+        <fail unless="test" message="test property required"/>
+        <mkdir dir="${test.reports.dir}"/>
+        <junit fork="yes" errorproperty="test.results.error"
+               failureproperty="test.results.failure">
+            <!-- Tell the integration test what config to use and where the
+                 configuration directory is. -->
+            <sysproperty key="config.name" value="${config}" />
+            <classpath refid="build.classpath"/>
+            <formatter type="plain" usefile="false"/>
+            <batchtest todir="${test.reports.dir}">
+                <fileset dir="${testsrc}">
+                    <include name="**/*${test}*java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <!--  ....................      dotty                ........................ -->
+    <target name="dot" depends="compile,compile-tests"
+            description="Render msjs dot file">
+        <fail message="Please specify a script to run with a property named 'script'"
+              unless="script"/>
+        <java classname="org.msjs.integration.DotRenderer" classpathref="build.classpath"
+              failonerror="true">
+            <arg value="${script}"/>
+        </java>
+    </target>
+
+    <!-- ....................      documentation      ........................ -->
+    <target name="doc" depends="javadoc,jsdoc"/>
+
+    <target name="javadoc">
+        <delete dir="${out.doc.dir}/javadoc" failonerror="false" />
+        <javadoc classpathref="build.classpath" destdir="${out.doc.dir}/javadoc"
+                 overview="java/overview.html">
+            <sourcepath path="${src}" />
+            <fileset dir="java/test/org/msjs/integration">
+                <exclude name="Test*"/>
+            </fileset>
+        </javadoc>
+    </target>
+
+    <target name="jsdoc" >
+        <delete dir="${out.doc.dir}/jsdoc" failonerror="false" />
+        <jsdoctoolkit jsdochome="noship/jsdoc-toolkit/" template="jsdoc"
+                      outputdir="${out.doc.dir}/jsdoc" inputdir="script/msjs">
+        </jsdoctoolkit>
+    </target>
+
+</project>
