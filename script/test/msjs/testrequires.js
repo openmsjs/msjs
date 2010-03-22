@@ -17,10 +17,10 @@
 var assert = msjs.require("msjs.assert");
 var caughtException = false;
 try{
-    msjs.require("test.required");
+    msjs.require("test.msjs.required");
 }catch (e){
     caughtException = true;
 }
 //make sure it doesn't load again - if it does, we'll see an exception
-var includedValue = msjs.require("test.required");
+var includedValue = msjs.require("test.msjs.required");
 assert(10 == includedValue);
