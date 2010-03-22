@@ -14,7 +14,20 @@
  * the License.
  */
 
+/**
+    An object that forms the root of the msjs API.
+    @name msjs
+    @class msjs exposes the require/publish system, as well some
+    useful convenience methods.
+
+*/
 var msjs = {};
+/**
+    The context is the link between msjs and the environment in which
+    it's running. In the web browser, the context is a simple javascript
+    object. On the server, it's the instance of MsjsScriptContext that
+    contains the running environment.
+*/
 msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
@@ -74,7 +87,6 @@ msjs.context = {
         if (this.console) this.console.log.apply(this.console, args);
         //else, integrate a debugger
     },
-    isclient : true,
     getWriteArg : function(o, ignoreEl) {
         if(o && o._getDebugName){
             return o._getDebugName();
@@ -102,11 +114,17 @@ msjs.context = {
            /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)
 };
 
+/**
+    Can be checked to determine if msjs is running in the browser or on the server.
+    If true, msjs is running in the browser.
+*/
+msjs.isClient = true;
+
 //global scope on the client is simple
 var bindings = { global : this, msjs : msjs};
 
 /**
-    This is just syntatic sugar for {@link msjs.graph#make}
+    This is just syntatic sugar for {@link graph#make}
 */
 msjs.make = function(produceMsj){
     return this.require("msjs.graph").make(produceMsj);
@@ -230,7 +248,7 @@ msjs.isArray = function( value ){
     context. This method is variadic.
 */
 msjs.log = function(){
-    if (this.context.isclient){
+    if (this.isClient){
         this.context.log(arguments);
         return;
     }
@@ -318,7 +336,7 @@ msjs.toJSON = function(value, depth, quoteFunctions) {
     if (depth > 500) throw( "Max depth reached in " + value + "." );
     //icky server-dependent stuff -- but make sure we're not sticking something
     //where it doesn't belong
-    if (!this.context.isclient){
+    if (!this.isClient){
         if (value instanceof java.lang.String){
             value = String(value);
         } else if (value instanceof java.lang.Object){
@@ -435,6 +453,7 @@ msjs.getClosure = function(scopeNum, index){
 
 
 /*! msjs.server-only **/
+msjs.isClient = false;
 msjs.bindContext = function(context, global){
     // Server overrides context value
     this.context = context;
