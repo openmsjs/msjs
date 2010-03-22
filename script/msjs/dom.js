@@ -100,6 +100,12 @@ dom._selectorPartApplies = function(el, selectorPart){
     return true;
 }
 
+dom.getCssId = function(el){
+    this._ensureHasId(el);
+    return "#" + el.id;
+}
+
+
 dom._attrMatcher = /\[.*?\]/g;
 dom._parseSelector = function (selector){
     var parsedSelectors = [];
@@ -651,6 +657,8 @@ dom.pack = function(){
         msjs.toJSON(listeners) +
     ")";
 
+    this._renderCssRules();
+
     return document.renderAsXHTML(script);
 
 }
@@ -711,3 +719,42 @@ dom.handle = function(){
 
 };
 
+dom._cssRules = [];
+dom.addCss = function(){
+    var selector = "";
+
+    for (var i=0; i<arguments.length-1; i++){
+        if (selector) selector += " ";
+        var arg = arguments[i];
+        selector += typeof arg == "string" ? arg : this.getCssId(arg);
+    }
+
+    var rules = arguments[arguments.length-1];//last arg is always the rule
+    var r = {
+        selector : selector,
+        rules : rules
+    };
+    this._cssRules.push(r);
+    return r;
+}
+
+var styleConversion = msjs.require("msjs.styleconversion");
+dom._renderCssRules = function(){
+    if (!this._cssRules.length) return null;
+
+    var block = document.head.appendChild(document.createElement( "style" ));
+    block.type = "text/css";
+
+    for (var i=0; i<this._cssRules.length; i++){
+        var s = this._cssRules[i].selector + " {";
+        var rules = this._cssRules[i].rules;
+        for(var k in rules){
+            var sK = styleConversion[k];
+            if (sK == null) sK = k;
+            s += sK + ":" + rules[k] + ";";
+        }
+        s += "}\n";
+
+        block.appendChild( document.createTextNode(s) );
+    }
+}

@@ -47,15 +47,15 @@ dom.handle("onmouseover", list, ".item", function(event, selected){
     msjs.log('over item', selected);
 });
 
-document.addCss(list.getCssId(), {
+dom.addCss(list, {
     width : "200px",
     backgroundColor: "silver"
 });
 
-document.addCss(list.getCssId() + " .item", {
+dom.addCss(list, " .item", {
     color : "red"
 });
 
-document.addCss(list.getCssId() + " .item span", {
+dom.addCss(list, " .item", "span", {
     color : "green"
 });

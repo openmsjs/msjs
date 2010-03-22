@@ -15,6 +15,7 @@
  */
 
 msjs.require("document");
+var dom = msjs.require("msjs.dom");
 //Return a string representation of the current msjs.graph in DOT
 //language
 msjs.publish({dotRender: function(){
@@ -27,7 +28,7 @@ msjs.publish({dotRender: function(){
 
     function getDomElementName(domel){
         if (domel == document) return "document";
-        var s = '"'  + domel.getCssId();
+        var s = '"'  + dom.getCssId(domel);
         if (domel._debugRef) s += " " + domel._debugRef;
         return s + '"';
         

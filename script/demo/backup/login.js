@@ -53,6 +53,6 @@ var authError = msjs.make(function(msj){
 authError.push(login, "login");
 
 var dom = msjs.require("msjs.dom");
-document.addCss(form.getCssId() + ".error", dom.find(form, "input[name=pass]"), {
+dom.addCss(dom.getCssId(form) + ".error", dom.find(form, "input[name=pass]"), {
     backgroundColor : "red"
 });

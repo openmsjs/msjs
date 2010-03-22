@@ -38,7 +38,7 @@ var username = msjs.make(function(msj){
 });
 
 
-document.addCss("img.who", {
+dom.addCss("img.who", {
     cssFloat : "left",
     width : "50px",
     minHeight : "50px",
@@ -83,16 +83,16 @@ var renderer = msjs.make(function(msj){
 });
 renderer.push(statusList, "statii");
 
-document.addCss(statusDiv, "div.status", {
+dom.addCss(statusDiv, "div.status", {
     clear : "both"
 });
 
-document.addCss(imgPicker, {
+dom.addCss(imgPicker, {
     clear : "both",
     display : "none"
 });
 
-document.addCss(imgPicker.getCssId() + ".shown", {
+dom.addCss(dom.getCssId(imgPicker) + ".shown", {
     display : "block"
 });
 

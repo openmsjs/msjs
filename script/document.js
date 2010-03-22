@@ -84,7 +84,7 @@ domelement.parseStyle = function(styleString){
     for (var i =0; matches && i<matches.length; i++){
         var parsed = matches[i].match(this._stylePropertyMatcher);
         var k = parsed[1];
-        k = this.reverseStyleConversion[k] || k;
+        k = reverseStyleConversion[k] || k;
         style[k] = parsed[2];
     }
     return style;
@@ -168,10 +168,6 @@ domelement.focus = function(){
 domelement.generateId = function(){
     if (!this.id) this.id = "_msjs_de-" + this._elId;
     return this.id;
-}
-
-domelement.getCssId = function(){
-    return "#" + this.generateId();
 }
 
 domelement._getDebugName = function(){
@@ -263,12 +259,13 @@ domelement.toJDOM = function(){
 
 domelement._getMsjClass = msjs.require("msjs.getmsjclass");
 
+var styleConversion = msjs.require("msjs.styleconversion");
 domelement.assembleStyle = function(styleObj){
     var style = "";
     for (var sK in styleObj){
         var sV= styleObj[sK];
         if (sV == null) continue;
-        var sK = this.styleConversion[sK] || sK;
+        var sK = styleConversion[sK] || sK;
         style += sK + ":" + sV + ";";
     }
 
@@ -287,73 +284,10 @@ domelement.createElement = function(xmlOrName){
 
 
 
-domelement.styleConversion = {
-    backgroundColor    : "background-color"     ,
-    marginLeft         : "margin-left"          ,
-    marginRight        : "margin-right"         ,
-    marginTop          : "margin-top"           ,
-    marginBottom       : "margin-bottom"        ,
-    paddingLeft        : "padding-left"         ,
-    paddingRight       : "padding-right"        ,
-    paddingTop         : "padding-top"          ,
-    paddingBottom      : "padding-bottom"       ,
-    fontWeight         : "font-weight"          ,
-    fontStyle          : "font-style"           ,
-    fontSize           : "font-size"            ,
-    borderColor        : "border-color"         ,
-    zIndex             : "z-index"              ,
-    verticalAlign      : "vertical-align"       ,
-    borderStyle        : "border-style"         ,
-    borderWidth        : "border-width"         ,
-    borderCollapse     : "border-collapse"      ,
-    borderSpacing      : "border-spacing"       ,      
-    verticalAlign      : "vertical-align"       ,      
-    borderLeft         : "border-left"          ,      
-    borderTop          : "border-top"           ,      
-    borderRight        : "border-right"         ,      
-    borderBottom       : "border-bottom"        ,      
-    fontFamily         : "font-family"          ,      
-    fontSize           : "font-size"            ,      
-    cssFloat           : "float"                ,      
-    maxWidth           : "max-width"            ,      
-    minWidth           : "min-width"            ,      
-    maxHeight           : "max-height"          ,      
-    minHeight           : "min-height"          ,      
-    verticalAlign      : "vertical-align"       ,      
-    textAlign          : "text-align"           ,      
-    overflowX          : "overflow-x"           ,
-    overflowY          : "overflow-y"           ,
-    textDecoration     : "text-decoration"      ,
-    lineHeight         : "line-height"          ,
-    tableLayout        : "table-layout"         ,
-    whiteSpace         : "white-space"          ,
-    outlineStyle       : "outline-style"        ,
-    textShadow         : "text-shadow"          ,
-    borderRightStyle   : "border-right-style"   ,
-    borderRightWidth   : "border-right-width"   ,
-    borderRightColor   : "border-right-color"   ,
-    borderLeftStyle    : "border-left-style"    ,
-    borderLeftWidth    : "border-left-width"    ,
-    borderLeftColor    : "border-left-color"    ,
-    borderTopStyle     : "border-top-style"     ,
-    borderTopWidth     : "border-top-width"     ,
-    borderTopColor     : "border-top-color"     ,
-    borderBottomStyle  : "border-bottom-style"  ,
-    borderBottomWidth  : "border-bottom-width"  ,
-    borderBottomColor  : "border-bottom-color"  ,
-    backgroundPosition : "background-position"  ,
-    backgroundImage    : "background-image"     ,
-    backgroundRepeat   : "background-repeat"    ,
-    listStyle          : "list-style"           ,
-    listStyleType      : "list-style-type"      ,
-    listStylePosition  : "list-style-position"
-};
 
-domelement.reverseStyleConversion = {};
-with (domelement){
-    for (var k in styleConversion){
-        reverseStyleConversion[styleConversion[k]] = k;
-    }
+var reverseStyleConversion = {};
+for (var k in styleConversion){
+    reverseStyleConversion[styleConversion[k]] = k;
 }
 
 domelement.getPackRef = function() {
@@ -444,8 +378,6 @@ document.renderAsXHTML = function(script){
         head.appendChild(node);
     });
 
-    this._renderCssRules();
-
     // place all unattached nodes in hidden div
     var unattachedEl = null;
     var all = domelement._all;
@@ -483,44 +415,7 @@ document.renderAsXHTML = function(script){
 }
 
 
-document.cssRules = [];
-document.addCss = function(){
-    var selector = "";
 
-    for (var i=0; i<arguments.length-1; i++){
-        if (selector) selector += " ";
-        var arg = arguments[i];
-        selector += arg.getCssId ? arg.getCssId() : arg;
-    }
-
-    var rules = arguments[arguments.length-1];//last arg is always the rule
-    var r = {
-        selector : selector,
-        rules : rules
-    };
-    this.cssRules.push(r);
-    return r;
-}
-
-document._renderCssRules = function(){
-    if (!this.cssRules.length) return;
-
-    var block = domelement.make(<style type="text/css"/>);
-    this.head.appendChild(block);
-
-    for (var i=0; i<this.cssRules.length; i++){
-        var s = this.cssRules[i].selector + " {";
-        var rules = this.cssRules[i].rules; 
-        for(var k in rules){
-            var sK = this.styleConversion[k];
-            if (sK == null) sK = k;
-            s += sK + ":" + rules[k] + ";";
-        }
-        s += "}\n";
-
-        block.appendChild( this.createTextNode(s) );
-    }
-}
 
 document.isElement = function(value){
     return value && value instanceof domelement;
