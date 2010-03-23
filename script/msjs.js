@@ -608,6 +608,14 @@ msjs.getExecutor = function(){
     return this._executor;
 }
 
+msjs._dontPackNames = {
+    "document" : true, 
+    "msjs" : true, 
+    "arguments" : true,
+    "Number" : true,
+    "String" : true,
+
+}
 msjs._getPackList=  function(){
     var unpackPairs = [];
     var i =0;
@@ -621,7 +629,7 @@ msjs._getPackList=  function(){
                 var freeVariables = msjs.context.getFreeVariables(item);
                 for (var k in freeVariables){
                     var val = scope[k];
-                    if (k == "document" || k == "msjs" || k == "arguments") continue;
+                    if (k in msjs._dontPackNames) continue;
                     if (val instanceof java.lang.String) val = String(val);
                     if (val instanceof java.lang.Object) continue;
                     if (val && val.packMe == false) continue;

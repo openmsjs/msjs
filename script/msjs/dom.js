@@ -624,7 +624,7 @@ dom._unpackListeners = function(listeners){
             listener.eventName,
             document.getElementById(listener.domId),
             listener.selector,
-            listener.callback.unpackRef()
+            msjs.unpack(listener.callback)
         );
     });
 }
