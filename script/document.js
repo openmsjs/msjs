@@ -91,6 +91,9 @@ domelement.parseStyle = function(styleString){
 }
 
 domelement.appendChild = function(child){
+    //jQuery does this with a comment node for testing
+    if (child == null) return null;
+
     if (! (child instanceof domelement) ){
         child  = domelement.make(child);
     }
@@ -272,17 +275,6 @@ domelement.assembleStyle = function(styleObj){
     return style;
 }
 
-domelement.createTextNode = function(text){
-    return domelement.make(text);
-}
-
-domelement.createElement = function(xmlOrName){
-    var xml = xmlOrName;
-    if (typeof xmlOrName == "string") xml = <{xmlOrName}/>;;
-    return domelement.make(xml);
-}
-
-
 
 
 var reverseStyleConversion = {};
@@ -300,7 +292,11 @@ domelement.getPackRef = function() {
 };
 
 domelement.cloneNode = function(deep) {
-    var clone = this.createElement(this.nodeName);
+    if (this.nodeName == "#text"){
+        return document.createTextNode(this.nodeValue);
+    }
+
+    var clone = document.createElement(this.nodeName);
 
     for (var k in this){
         if (this._isAttribute(k)) {
@@ -345,7 +341,51 @@ domelement._isAttribute = function(attr) {
 };
 
 var onload = "(" + function(){msjs.require('msjs.graph').bodyOnLoad()} +")()";
-var document = domelement.make(
+var document = {};
+
+document.createTextNode = function(text){
+    return domelement.make(text);
+}
+
+document.createElement = function(xmlOrName){
+    var xml = xmlOrName;
+    if (typeof xmlOrName == "string") xml = <{xmlOrName}/>;;
+    return domelement.make(xml);
+}
+
+/* jquery compatibility */
+document.createComment = function(){};
+
+var documentFragment = function(){
+    this.childNodes = [];
+}
+
+document.createDocumentFragment = function(){
+    var frag = new documentFragment();
+    return frag;
+}
+
+documentFragment.prototype = new domElementConstructor();
+documentFragment.prototype.cloneNode = function(){
+    var frag = new documentFragment();
+
+    msjs.each(this.childNodes, function(el){
+        frag.childNodes.push(el.cloneNode(true));
+    });
+
+    return frag;
+}
+
+documentFragment.prototype.toJDOM = function(){
+    return new Packages.org.jdom.Text( "fraggit" );
+}
+
+domelement.createDocumentFragment = document.createDocumentFragment;
+
+
+/*end jquery stuff */
+
+document.documentElement = domelement.make(
     <html lang="en">
         <head>
             <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
@@ -355,8 +395,8 @@ var document = domelement.make(
 );
 document.title = "Msjs Page";
 
-document.head = document.childNodes[0];
-document.body = document.childNodes[1];
+document.head = document.documentElement.childNodes[0];
+document.body = document.documentElement.childNodes[1];
 
 document._initialfocus = null;
 
@@ -383,7 +423,7 @@ document.renderAsXHTML = function(script){
     var all = domelement._all;
     for (var i=0; i < all.length; i++){
         var el = all[i];
-        if (el.parentNode == null && el != this && !el._removed){
+        if (el.parentNode == null && el != this.documentElement && !el._removed){
             if (!unattachedEl) {
                 unattachedEl = this.body.appendChild(<div id="_msjs_unattached" style="display: none"/>);
             }
@@ -411,7 +451,7 @@ document.renderAsXHTML = function(script){
     }
 
 
-    return this.toJDOM();
+    return this.documentElement.toJDOM();
 }
 
 
@@ -437,7 +477,7 @@ domelement.__defineSetter__("id", function(id){
 domelement.__defineSetter__("innerHTML", function(html){
     var name = this.nodeName.toLowerCase(); 
     var xml = "<" + name + ">" + html + "</" + name + ">";
-    var made = this.createElement(new XML(xml));
+    var made = document.createElement(new XML(xml));
     while (this.childNodes.length){
         this.removeChild(this.childNodes[0]);
     }
@@ -483,6 +523,41 @@ domelement._findSibling = function(direction){
     return null;
 }
 
+
 //document puts itself in the global scope, just like document on the client
-msjs.require("global").document = document;
+var global =msjs.require("global"); 
+global.document = document;
+global.location = {}; //TODO: href
+global.window = global;
+
+msjs.require("global").navigator = {
+    cookieEnabled : true,
+    mimeTypes : [],
+    plugins : [],
+    userAgent : "msjs fake window", 
+    javaEnabled : false //ironic, no?
+}
 msjs.publish(document);
+domelement.__defineGetter__("nodeType", function(){
+    return nameToType[this.nodeName] || 1;
+});
+
+var nameToType = {
+    "#text" : 3,
+    "html" : 9,
+    "#document-fragment" : 11
+}
+/*
+1	ELEMENT_NODE
+2	ATTRIBUTE_NODE
+3	TEXT_NODE
+4	CDATA_SECTION_NODE
+5	ENTITY_REFERENCE_NODE
+6	ENTITY_NODE
+7	PROCESSING_INSTRUCTION_NODE
+8	COMMENT_NODE
+9	DOCUMENT_NODE
+10	DOCUMENT_TYPE_NODE
+11	DOCUMENT_FRAGMENT_NODE
+12	NOTATION_NODE
+*/

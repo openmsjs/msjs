@@ -618,7 +618,7 @@ msjs._getScopes=  function(){
 
         for (var k in scope){
             var val = scope[k];
-            if (k == "document" || k == "msjs" || k == "arguments") continue;
+            if (k == "window" || k == "document" || k == "msjs" || k == "arguments") continue;
             if (val instanceof java.lang.String) val = String(val);
             if (val instanceof java.lang.Object) continue;
             if (val && val.packMe == false) continue;
