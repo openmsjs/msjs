@@ -989,7 +989,9 @@ jQuery.props = {
 	usemap: "useMap",
 	frameborder: "frameBorder"
 };
-var expando = "jQuery" + now(), uuid = 0, windowData = {};
+//FIXME: msjs hack
+//var expando = "jQuery" + now(), uuid = 0, windowData = {};
+var expando = "jQuerymsjs", uuid = 0, windowData = {};
 
 jQuery.extend({
 	cache: {},
@@ -6246,13 +6248,36 @@ window.jQuery = window.$ = jQuery;
 })(window);
 
 var fns;
+var unpackedFns = [];
 jQuery.getFnN = function(n){
-    return null;
+    if (!unpackedFns[n]){
+        var fn = jQuery();
+        for (var k in fns[n]){
+            fn[k] = fns[n][k];
+        }
+
+        unpackedFns[n] = fn;
+    }
+    return unpackedFns[n];
 }
 
-jQuery.unpack = function(packInfo){
+jQuery.unpack = function(cacheInfo, packInfo){
+    delete cacheInfo._expando;
     fns = packInfo;
-    msjs.log(fns);
+    this.cache = this._unpackObj(cacheInfo);
+}
+
+jQuery._unpackObj = function(val){
+    if (val && val.unpackRef) return val.unpackRef();
+
+    if(val && typeof val == "object"){
+        for (var k in val){
+            if (val.hasOwnProperty(k)){
+                val[k] = jQuery._unpackObj(val[k]);
+            }
+        }
+    }
+    return val;
 }
 
 
@@ -6262,17 +6287,39 @@ jQuery.unpack = function(packInfo){
 var fns = [];
 
 jQuery.fn.getPackRef = function(){
-    if (fns.indexOf(this) == -1){
-        fns.push(this);
-    }
+    var index = fns.indexOf(this);
+    if ( index == -1) index = fns.push(this)-1;
 
     return {
         unpackRef: function() {
             return jQuery.getFnN(this.fnN);
         },
-        fnN : fns.indexOf(this)
+        fnN : index
     }
 
+}
+
+jQuery._packObj = function(val){
+    switch(typeof val){
+        case "function":
+            return msjs.pack(val);
+        case "object":
+            if (val){
+                for (var k in val){
+                    if (val.hasOwnProperty(k)){
+                        val[k] = jQuery._packObj(val[k]);
+                    }
+                }
+            }
+            //fall through
+        default:
+            return val;
+    }
+}
+
+jQuery.getCacheInfo = function(){
+    //This is stupid -- just for now
+    return msjs.toJSON(jQuery._packObj(this.cache));
 }
 
 jQuery.getPackInfo = function(){
@@ -6287,8 +6334,8 @@ jQuery.getPackInfo = function(){
         return obj;
     });
 
-    msjs.log(packedFns);
     return msjs.toJSON(packedFns);
 }
 
 msjs.publish(jQuery, "Client");
+

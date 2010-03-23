@@ -567,8 +567,8 @@ msjs.pack = function(value){
             this._scopeFunctions[scopeNum] = [];
         }
 
-        this._scopeFunctions[scopeNum].push(value);
-        var index = this._scopeFunctions[scopeNum].length-1;
+        var index = this._scopeFunctions[scopeNum].indexOf(value);
+        if (index == -1) index = this._scopeFunctions[scopeNum].push(value)-1;
         //Create packRef
         return {
             unpackRef: function() {

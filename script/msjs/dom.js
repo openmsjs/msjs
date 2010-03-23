@@ -600,11 +600,20 @@ dom._select = function(selector, target, listenerEl){
     return pos < 0 ? selected : null;
 }
 
-dom.unpack =  function(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners){
+dom.unpack =  function(graphInfo, scopeInfo, documentInfo, jQueryCacheInfo, jQueryInfo, listeners){
     var graph = msjs.require("msjs.graph");
     graph.unpack(graphInfo);
-    jQuery.unpack(jQueryInfo);
     msjs.makeClosures(scopeInfo);
+    jQuery.unpack(jQueryCacheInfo, jQueryInfo);
+    msjs.each(documentInfo, function(listener){
+        var handler = listener.callback.unpackRef();
+        var element = listener.element.unpackRef();
+        if (msjs.context.isIE){
+            element.attachEvent("on" + listener.type, handler);
+        } else {
+            element.addEventListener(listener.type, handler, listener.useCapture);
+        }
+    });
     this._unpackListeners(listeners);
     graph.unpackNodes();
     this._unattachElements();
@@ -644,12 +653,13 @@ dom.pack = function(){
         }
     });
 
-    var unpackF = function(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners){
-        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners);
+    var unpackF = function(graphInfo, scopeInfo, documentInfo, jQueryCacheInfo, jQueryInfo, listeners){
+        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, documentInfo, jQueryCacheInfo, jQueryInfo, listeners);
     }
 
     var graphPackInfo =graph.getPackInfo(); 
     var documentPackInfo =document.getPackInfo(); 
+    var jQueryCacheInfo = jQuery.getCacheInfo();
 
     //Do this last
     var scopePackInfo =msjs.getPackInfo(); 
@@ -660,6 +670,7 @@ dom.pack = function(){
         graphPackInfo+ "," + 
         scopePackInfo  + "," + 
         documentPackInfo  + "," + 
+        jQueryCacheInfo  + "," + 
         jQueryPackInfo  + "," + 
         msjs.toJSON(listeners) +
     ")";

@@ -464,8 +464,6 @@ document.renderAsXHTML = function(script){
         this.body.appendChild( <script>{script}</script>);
     }
 
-    //now unpack listeners
-
     if (this._initialfocus){
         this.body.appendChild(
             <script>"document.getElementById('" + this._initialfocus + "').focus()"</script>);
@@ -480,14 +478,15 @@ document.renderAsXHTML = function(script){
 
 
 document.getPackInfo = function(){
-    var listenerJSON = msjs.map(this._listeners, function(listener){
-        return msjs.toJSON({
+    var packedListeners = msjs.map(this._listeners, function(listener){
+        return {
             type: listener.type,
-            elementId : listener.element.generateId(),
+            useCapture : listener.useCapture,
+            element : msjs.pack(listener.element),
             callback :  msjs.pack(listener.callback)
-        });
+        };
     });
-    return "[" + listenerJSON + "]";
+    return msjs.toJSON(packedListeners);
 }
 
 document.isElement = function(value){
