@@ -48,7 +48,7 @@ public class PageContextProvider {
         this.scriptContextProvider = scriptContextProvider;
         this.executorService = executorService;
         contexts = new ConcurrentHashMap<String, BlockingQueue<Future<MsjsScriptContext>>>();
-        enablePrefetch = config.getBoolean("doCache");
+        enablePrefetch = config.getBoolean("msjs.doCache");
         logger.info("Page prefetch " + (enablePrefetch ? "enabled" : "disabled"));
     }
 

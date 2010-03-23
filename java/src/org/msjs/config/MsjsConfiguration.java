@@ -17,21 +17,16 @@
 package org.msjs.config;
 
 import com.google.inject.Singleton;
-import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileReader;
+import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Provides configuration values to classes within msjs. Configurations are loaded
@@ -63,44 +58,56 @@ import java.util.Set;
  * {@link org.apache.commons.configuration.Configuration}
  */
 @Singleton
-public class MsjsConfiguration extends MapConfiguration {
+public class MsjsConfiguration extends PropertiesConfiguration {
 
     private static final Logger logger = Logger.getLogger(MsjsConfiguration.class);
 
-    private static final String MSJS_ROOT = "msjsRoot";
-    private static final String SCRIPT_ROOT = "scriptRoot";
-    private static final String FILE_ROOT = "fileRoot";
-    private static final String LOG4J_CONFIG = "log4jConfig";
-    private static final String WEBAPP_PATH = "webappPath";
+    private static final String WEBAPP_PATH = "msjs.webappPath";
 
-    private static final String MSJS_CONFIG = "msjs-config.xml";
-    private static final String LOCAL_CONFIG = "msjs-local-config.xml";
+    private static final String MSJS_CONFIG = "msjs.properties";
+    private static final String LOCAL_CONFIG = "msjs-local.properties";
+
+    private static final String MSJS_ROOT = "msjs.root";
+    private static final String SCRIPT_ROOT = "msjs.scriptRoot";
+    private static final String FILE_ROOT = "msjs.fileRoot";
+    private static final String DO_CACHE = "msjs.doCache";
+
+    private static final String LOG4J_PROPERTY = "log4j.appender.msjs.File";
 
     private final String configDir;
     private final String defaultMsjsRoot;
+    private final String webappPath;
     private final Properties log4jProperties = new Properties();
+    private File localConfig;
+    private File msjsConfig;
 
     /**
      * @param configDir       The directory where configuration exists.
      * @param defaultMsjsRoot The default directory for msjs.
      */
     public MsjsConfiguration(final String configDir, final String defaultMsjsRoot) {
-        super(new HashMap());
+        this(configDir, defaultMsjsRoot, null);
+    }
+
+    public MsjsConfiguration(final String configDir, final String defaultMsjsRoot, final String webappPath) {
         this.configDir = configDir;
         this.defaultMsjsRoot = defaultMsjsRoot;
-        reload();
+        this.webappPath = webappPath;
+        reset();
     }
 
 
-    public void reload() {
+    public void reset() {
         clear();
 
-        readConfigValues(new File(configDir + "/" + MSJS_CONFIG));
-        File localConfig = new File(configDir + "/" + LOCAL_CONFIG);
-        if (localConfig.exists()) readConfigValues(localConfig);
+        msjsConfig = new File(configDir + "/" + MSJS_CONFIG);
+        localConfig = new File(configDir + "/" + LOCAL_CONFIG);
+
+        loadConfig(msjsConfig);
+        if (localConfig.exists()) loadConfig(localConfig);
 
 
-        String msjsRoot = (String) getProperty(MSJS_ROOT);
+        String msjsRoot = getString(MSJS_ROOT);
         if (isEmpty(msjsRoot)) {
             msjsRoot = defaultMsjsRoot;
             if (isEmpty(msjsRoot)) {
@@ -117,35 +124,34 @@ public class MsjsConfiguration extends MapConfiguration {
         System.setProperty(MSJS_ROOT, msjsRoot);
         setProperty(MSJS_ROOT, msjsRoot);
 
+        if (webappPath != null) {
+            setProperty(WEBAPP_PATH, webappPath);
+        }
 
         configureLogger();
     }
 
     public void log() {
         logger.info("==== CONFIG ====");
-        logger.info("config directory: " + configDir);
-        logger.info(WEBAPP_PATH + ": " + getWebappPath());
+        logger.info("Loaded " + msjsConfig);
+        if (localConfig.exists()) logger.info("Loaded " + localConfig);
+        if (webappPath != null) {
+            logger.info(WEBAPP_PATH + ": " + webappPath);
+        }
         logger.info(MSJS_ROOT + ": " + getMsjsRoot());
         logger.info(SCRIPT_ROOT + ": " + getScriptRoot());
         logger.info(FILE_ROOT + ": " + getFileRoot());
-        logger.info(LOG4J_CONFIG + ": " + getLog4jConfig());
-        logger.info("log file: " + log4jProperties.get("log4j.appender.msjs.File"));
+        logger.info(DO_CACHE + ": " + getString(DO_CACHE));
+        logger.info(LOG4J_PROPERTY + ": " + getString(LOG4J_PROPERTY));
         if (logger.isDebugEnabled()) {
-            for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
-                String key = (String) entry.getKey();
-                if (key.equals(WEBAPP_PATH) ||key.equals(MSJS_ROOT) || key.equals(SCRIPT_ROOT) ||
-                        key.equals(FILE_ROOT) || key.equals(LOG4J_CONFIG)) continue;
+            Iterator<String> iter = getKeys();
+            while (iter.hasNext()) {
+                String key = iter.next();
+                if (key.equals(WEBAPP_PATH) || key.equals(MSJS_ROOT) || key.equals(SCRIPT_ROOT) ||
+                        key.equals(FILE_ROOT)) continue;
                 logger.debug(key + ": " + getString(key));
             }
         }
-    }
-
-    public String getWebappPath() {
-        return getString(WEBAPP_PATH);
-    }
-
-    public void setWebappPath(String webappPath) {
-        setProperty(WEBAPP_PATH, webappPath);
     }
 
     public String getMsjsRoot() {
@@ -160,17 +166,13 @@ public class MsjsConfiguration extends MapConfiguration {
         return getString(FILE_ROOT);
     }
 
-    public String getLog4jConfig() {
-        return getString(LOG4J_CONFIG);
+    public String getWebappPath() {
+        return getString(WEBAPP_PATH);
     }
 
-
-    private void readConfigValues(File configFile) {
+    private void loadConfig(File config) {
         try {
-            Element config = new SAXBuilder().build(configFile).getRootElement();
-            for (Element el : (List<Element>) config.getChildren()) {
-                setProperty(el.getName(), el.getValue());
-            }
+            load(new FileReader(config));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -178,15 +180,19 @@ public class MsjsConfiguration extends MapConfiguration {
 
     private void configureLogger() {
         log4jProperties.clear();
-        final String config = getLog4jConfig();
-        if (!isEmpty(config)) {
-            try {
-                log4jProperties.load(new FileInputStream(config));
-            } catch (IOException e) {
-                logger.error("Could not load log4j config at " + config);
-                throw new RuntimeException(e);
+
+        try {
+            log4jProperties.load(new FileInputStream(msjsConfig));
+            if (localConfig.exists()) {
+                final FileInputStream inputStream = new FileInputStream(localConfig);
+                log4jProperties.load(inputStream);
+                inputStream.close();
             }
+        } catch (Exception e) {
+            logger.error("Could not load log4j config");
+            throw new RuntimeException(e);
         }
+
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(log4jProperties);
     }
