@@ -450,8 +450,6 @@ msjs.getClosure = function(scopeNum, index){
     return this._closures[scopeNum][index];
 }
 
-
-
 /*! msjs.server-only **/
 msjs.isClient = false;
 msjs.bindContext = function(context, global){
@@ -514,7 +512,6 @@ msjs.require = function(packageName){
     }
 
     return bindings[packageName];
-
 }
 
 msjs.assignDebugNames = function(packageName, scope){
@@ -589,7 +586,6 @@ msjs.getPackInfo = function(){
     return this._getScopes();
 }
 
-
 //Only call inject if needed; otherwise you always need to invoke Guice
 //in order to run msjs
 msjs.getExecutor = function(){
@@ -599,7 +595,7 @@ msjs.getExecutor = function(){
     return this._executor;
 }
 
-msjs._getScopes=  function(){
+msjs.getPackInfo = function(){
     var scopes = [];
     var freeVariableValues = [];
     var allScopeFunctions = this._scopeFunctions;
@@ -663,4 +659,3 @@ msjs._getScopes=  function(){
     scopes.push("[" + freeVariableFunctions.join() + "]");
     return "[" + scopes.join() + "]";
 }
-

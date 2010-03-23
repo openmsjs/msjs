@@ -14,9 +14,8 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var el = dom.add(
-    <div>
+msjs.require("jquery");
+var el = $(<div>
         <button style="margin-bottom:20px">clear</button><br/>
         <input/>
         <form style="margin-bottom:20px;margin-top:20px"><div>
@@ -26,17 +25,18 @@ var el = dom.add(
             <input name="rad" type="radio" value="two"/> two
             <input name="go" type="submit" value="go"/>
         </div></form>
-    </div>
-);
+</div>).appendTo(document.body);
 
-var input = el.getElementsByTagName("input")[0];
-var form = el.getElementsByTagName("form")[0];
+var input = el.find("input[0]");
+var form = el.find("form[0]");
 
-var clearButton = dom.handle("onclick", dom.find(el, "button"), function(){
+var clearButton = msjs.make();
+
+var x = el.find("button").click(function(){
     input.value = "";
     form.reset();
-    return true;
 });
+/*
 
 var typing = msjs.make(function(){
     return input.value || "";
@@ -101,4 +101,4 @@ var view = msjs.make(function(msj){
 view.set("input", typing);
 view.set("clearButton", clearButton, true);
 view.set("form", submit);
-
+*/

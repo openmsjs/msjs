@@ -164,6 +164,10 @@ domelement.getElementsByTagName = function(name){
     return r;
 }
 
+domelement.getAttribute = function(name){
+    return this[name];
+}
+
 domelement.focus = function(){
     document._initialfocus = this.generateId();
 }
@@ -312,6 +316,7 @@ domelement.cloneNode = function(deep) {
     return clone;
 };
 
+
 domelement._isAttribute = function(attr) {
     if (!this.hasOwnProperty(attr)) return false;
     if (this[attr] instanceof Function) return false;
@@ -334,6 +339,7 @@ domelement._isAttribute = function(attr) {
         case "_removed":
         case "packMe":
         case "_debugRef":
+        case "_listeners":
             return false;
     }
 
@@ -342,6 +348,20 @@ domelement._isAttribute = function(attr) {
 
 var onload = "(" + function(){msjs.require('msjs.graph').bodyOnLoad()} +")()";
 var document = {};
+document._listeners = [];
+
+domelement.addEventListener = function(type, callback, useCapture){
+    document._listeners.push( {
+        type : type,
+        element : this,
+        callback : callback,
+        useCapture : useCapture
+    });
+}
+
+domelement.removeEventListener = function(type, listener, useCapture){
+    throw "TODO";
+}
 
 document.createTextNode = function(text){
     return domelement.make(text);
@@ -444,6 +464,8 @@ document.renderAsXHTML = function(script){
         this.body.appendChild( <script>{script}</script>);
     }
 
+    //now unpack listeners
+
     if (this._initialfocus){
         this.body.appendChild(
             <script>"document.getElementById('" + this._initialfocus + "').focus()"</script>);
@@ -456,6 +478,17 @@ document.renderAsXHTML = function(script){
 
 
 
+
+document.getPackInfo = function(){
+    var listenerJSON = msjs.map(this._listeners, function(listener){
+        return msjs.toJSON({
+            type: listener.type,
+            elementId : listener.element.generateId(),
+            callback :  msjs.pack(listener.callback)
+        });
+    });
+    return "[" + listenerJSON + "]";
+}
 
 document.isElement = function(value){
     return value && value instanceof domelement;

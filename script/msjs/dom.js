@@ -19,6 +19,7 @@ var dom = msjs.publish({}, "Client");
 //dom is the interface to java-land, so these require statements
 //are necessary to load the modules that Page uses
 msjs.require("document");
+msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
 dom.make = function(xmlOrName){
@@ -599,9 +600,10 @@ dom._select = function(selector, target, listenerEl){
     return pos < 0 ? selected : null;
 }
 
-dom.unpack = function(graphInfo, scopeInfo, listeners){
+dom.unpack =  function(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners){
     var graph = msjs.require("msjs.graph");
     graph.unpack(graphInfo);
+    jQuery.unpack(jQueryInfo);
     msjs.makeClosures(scopeInfo);
     this._unpackListeners(listeners);
     graph.unpackNodes();
@@ -642,18 +644,23 @@ dom.pack = function(){
         }
     });
 
-    var unpackF = function(graphInfo, scopeInfo, listeners){
-        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, listeners);
+    var unpackF = function(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners){
+        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, documentInfo, jQueryInfo, listeners);
     }
 
     var graphPackInfo =graph.getPackInfo(); 
+    var documentPackInfo =document.getPackInfo(); 
 
     //Do this last
     var scopePackInfo =msjs.getPackInfo(); 
 
+    var jQueryPackInfo =jQuery.getPackInfo(); 
+
     var script = "("+ unpackF.toString() +")("+ 
         graphPackInfo+ "," + 
         scopePackInfo  + "," + 
+        documentPackInfo  + "," + 
+        jQueryPackInfo  + "," + 
         msjs.toJSON(listeners) +
     ")";
 

@@ -19,6 +19,9 @@
 
 // Define a local copy of jQuery
 var jQuery = function( selector, context ) {
+        //FIXME: msjs modifications
+        if (typeof selector == "xml") selector = selector.toXMLString();
+
 		// The jQuery object is actually just the init constructor 'enhanced'
 		return new jQuery.fn.init( selector, context );
 	},
@@ -4394,7 +4397,6 @@ jQuery.each({
 	replaceAll: "replaceWith"
 }, function( name, original ) {
 	jQuery.fn[ name ] = function( selector ) {
-        msjs.log('fn', name, original, selector);
 		var ret = [], insert = jQuery( selector ),
 			parent = this.length === 1 && this[0].parentNode;
 		
@@ -6243,18 +6245,50 @@ window.jQuery = window.$ = jQuery;
 
 })(window);
 
+var fns;
+jQuery.getFnN = function(n){
+    return null;
+}
 
-//msjs only modifications
-if (!msjs.isClient){
-    //E4X is supported on server
-    var originalJQuery = window.jQuery;
-    window.jQuery = window.$ = function(){
-        if (typeof arguments[0] == "xml"){
-            arguments[0] =arguments[0].toXMLString(); 
+jQuery.unpack = function(packInfo){
+    fns = packInfo;
+    msjs.log(fns);
+}
+
+
+//FIXME: msjs modifications
+
+/*! msjs.server-only **/
+var fns = [];
+
+jQuery.fn.getPackRef = function(){
+    if (fns.indexOf(this) == -1){
+        fns.push(this);
+    }
+
+    return {
+        unpackRef: function() {
+            return jQuery.getFnN(this.fnN);
+        },
+        fnN : fns.indexOf(this)
+    }
+
+}
+
+jQuery.getPackInfo = function(){
+    var packedFns = msjs.map(fns, function(fn){
+        var obj = {};
+        for (var k in fn){
+            if (fn.hasOwnProperty(k)){
+                obj[k] = msjs.pack(fn[k]);
+            }
         }
 
-        return originalJQuery.apply(this, arguments);
-    }
+        return obj;
+    });
+
+    msjs.log(packedFns);
+    return msjs.toJSON(packedFns);
 }
 
 msjs.publish(jQuery, "Client");
