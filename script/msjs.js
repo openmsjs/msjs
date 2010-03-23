@@ -450,6 +450,14 @@ msjs.getClosure = function(scopeNum, index){
     return this._closures[scopeNum][index];
 }
 
+msjs.unpack = function(value){
+    if (value && value.unpackRef){
+        return value.unpackRef();
+    }
+
+    return value;
+}
+
 
 
 /*! msjs.server-only **/
