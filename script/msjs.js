@@ -429,12 +429,8 @@ msjs._newlines = /\n/g;
 //caution, this is ready-only. don't ever modify it
 msjs.THE_EMPTY_LIST = [];
 
-msjs.makeClosures = function(scopeInfo){
-    //unpack closures
-    this._closureValues = scopeInfo.pop();
-
-    this._closureFunctions = scopeInfo;
-    this._closures = [];
+msjs.setPackInfo = function(packInfo){
+    this._packInfo = packInfo;
 }
 
 msjs.getClosure = function(scopeNum, index){
@@ -450,9 +446,26 @@ msjs.getClosure = function(scopeNum, index){
     return this._closures[scopeNum][index];
 }
 
+msjs._unpacked = [];
 msjs.unpack = function(value){
+    if (value && value._msjs_Packed != null){
+        var n = value._msjs_Packed; 
+        if (msjs._unpacked[n] === void 0){
+            //Don't use "this" in here, so we can call this directly from msjs.map (below)
+            var freeVariables = msjs.unpack(msjs._packInfo[n*2+1]);
+            var unpackedVal = msjs._packInfo[n*2].apply(msjs.require("global"), freeVariables);
+            msjs._unpacked[n] = unpackedVal;
+        }
+
+        return msjs._unpacked[n];
+    }
+
     if (value && value.unpackRef){
         return value.unpackRef();
+    }
+
+    if (msjs.isArray(value)){
+        return msjs.map(value, msjs.unpack);
     }
 
     return value;
@@ -472,8 +485,6 @@ msjs.bindContext = function(context, global){
 
 msjs.clientPackages = ["msjs"];
 msjs._clientPublished = new java.util.HashMap();
-msjs._scopeList = [];
-msjs._scopeFunctions = [];
 msjs.require = function(packageName){
     var isJava = packageName.indexOf("java.") == 0;
 
@@ -560,6 +571,7 @@ msjs.publish = function(value, scope){
     return value;
 }
 
+msjs._packList = [];
 msjs.pack = function(value){
     if (this._clientPublished.containsKey(value)) {
         return {
@@ -569,32 +581,21 @@ msjs.pack = function(value){
             packageName: this._clientPublished.get(value)
         };
     } else if (typeof value == "function" ){
-        //TODO: Canonicalize function references
-        var scope = this.context.getScope(value);
-        var scopeNum = this._scopeList.indexOf(scope);
-        if (scopeNum == -1){
-            this._scopeList.push(scope);
-            scopeNum = this._scopeList.length-1;
-            this._scopeFunctions[scopeNum] = [];
+        var index = this._packList.indexOf(value);
+        if (index == -1){
+            index = this._packList.push(value) - 1;
         }
-
-        this._scopeFunctions[scopeNum].push(value);
-        var index = this._scopeFunctions[scopeNum].length-1;
-        //Create packRef
         return {
-            unpackRef: function() {
-                return msjs.getClosure(this.scopeNum, this.index);
-            },
-            scopeNum: scopeNum,
-            index : index
-        };
+            _msjs_Packed : index 
+        }
     }
 
     return (value && value.getPackRef) ? value.getPackRef() : value;
 }
 
 msjs.getPackInfo = function(){
-    return this._getScopes();
+    var pl = this._getPackList();
+    return pl;
 }
 
 
@@ -607,68 +608,41 @@ msjs.getExecutor = function(){
     return this._executor;
 }
 
-msjs._getScopes=  function(){
-    var scopes = [];
-    var freeVariableValues = [];
-    var allScopeFunctions = this._scopeFunctions;
-    msjs.each(this._scopeList, function(scope, scopeNum){
-        //function(x, y){ //free variables passed as params
-        // return [
-        //      function(a){...},
-        //      function(a, b){...}
-        // ];
-        //}
+msjs._getPackList=  function(){
+    var unpackPairs = [];
+    var i =0;
+    while(i < this._packList.length){
+        var item = this._packList[i++];
+        switch (typeof item){
+            case "function":
+                var names = [];
+                var values = [];
+                var scope = msjs.context.getScope(item);
+                var freeVariables = msjs.context.getFreeVariables(item);
+                for (var k in freeVariables){
+                    var val = scope[k];
+                    if (k == "document" || k == "msjs" || k == "arguments") continue;
+                    if (val instanceof java.lang.String) val = String(val);
+                    if (val instanceof java.lang.Object) continue;
+                    if (val && val.packMe == false) continue;
+                    if (val === void 0) continue;
 
-        var scopeVariables = [];
-        var values = [];
-        var freeScopeFunctions = "";
-        var scopeFunctions = allScopeFunctions[scopeNum];
+                    if (item == val) throw "here " + k;
 
-        for (var k in scope){
-            var val = scope[k];
-            if (k == "document" || k == "msjs" || k == "arguments") continue;
-            if (val instanceof java.lang.String) val = String(val);
-            if (val instanceof java.lang.Object) continue;
-            if (val && val.packMe == false) continue;
-            if (val === void 0) continue;
-
-            var jsonVal = null;
-
-            if (typeof val == "function"  && msjs.context.getScope(val) == scope){
-                //this is a function within this scope; it needs to be defined locally
-                //rather than passed in
-                freeScopeFunctions += "var " + k + "=" + msjs.toJSON(val) + ";\n";
-            } else {
-                val = msjs.pack(val);
-                if (val && val.unpackRef){
-                    //msjs object
-                    jsonVal = "("+ msjs.toJSON(val)+ ").unpackRef()";
-                } else {
-                    jsonVal = msjs.toJSON(val);
+                    names.push(k);
+                    values.push(msjs.pack(scope[k]));
                 }
-                //try json pack
 
-                if (jsonVal){
-                    scopeVariables.push(k);
-                    values.push(jsonVal);
-                }
-            }
+                unpackPairs.push( "function(" + names.join() + "){" + 
+                    "return (" + item + 
+                ");}");
+                unpackPairs.push( msjs.toJSON(values) );
+
         }
 
-        var makeClosures = "function(" + scopeVariables.join() + "){";
-        makeClosures += freeScopeFunctions;
-        makeClosures += "return " + msjs.toJSON(scopeFunctions) + "}";
 
-        scopes[scopeNum] = makeClosures;
-        freeVariableValues[scopeNum] = "[" + values.join() + "]";
-    });
+    };
 
-    //last item on scopes list is the function that gets the values
-    //var getFreeVariableValues = "function(){ return [" + freeVariableValues.join() + "]}";
-    var freeVariableFunctions = msjs.map(freeVariableValues, function(freeVars){
-        return "function(){ return " + freeVars + ";}";
-    });
-    scopes.push("[" + freeVariableFunctions.join() + "]");
-    return "[" + scopes.join() + "]";
+    return "[" + unpackPairs.join() + "]";
 }
 

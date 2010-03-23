@@ -19,24 +19,18 @@ var f = function(){
     return a;
 }
 
-var n = msjs.make(function(){
+var n = function(){
     return f();
-});
-n.packMe = true;
+};
 
-msjs.require("msjs.graph").pack();
+var packedN = msjs.pack(n);
 
-var scopes = eval(msjs.getPackInfo());
-
-//Last function on scopes list is the values getter
-var scopeValues = (scopes.pop());
-//should be only one scope
-
-var scope = (scopes[0]).apply(this, (scopeValues[0])());
-var nProduce = scope[0];
+var packInfo = eval(msjs.getPackInfo());
+msjs.setPackInfo(packInfo);
+packedN = msjs.unpack(packedN);
 
 var assert = msjs.require("msjs.assert");
 //Make sure that f is bound in the packed produce function
 //This will error if f is not bound within the packed version
 //of n's produce method
-assert(nProduce());
+assert(packedN());

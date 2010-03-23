@@ -599,10 +599,10 @@ dom._select = function(selector, target, listenerEl){
     return pos < 0 ? selected : null;
 }
 
-dom.unpack = function(graphInfo, scopeInfo, listeners){
+dom.unpack = function(graphInfo, packInfo, listeners){
     var graph = msjs.require("msjs.graph");
     graph.unpack(graphInfo);
-    msjs.makeClosures(scopeInfo);
+    msjs.setPackInfo(packInfo);
     this._unpackListeners(listeners);
     graph.unpackNodes();
     this._unattachElements();
@@ -642,14 +642,14 @@ dom.pack = function(){
         }
     });
 
-    var unpackF = function(graphInfo, scopeInfo, listeners){
-        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, listeners);
+    var unpackF = function(graphInfo, packInfo, listeners){
+        msjs.require('msjs.dom').unpack(graphInfo, packInfo, listeners);
     }
 
     var graphPackInfo =graph.getPackInfo(); 
 
     //Do this last
-    var scopePackInfo =msjs.getPackInfo(); 
+    var packInfo =msjs.getPackInfo(); 
 
     var script = "("+ unpackF.toString() +")("+ 
         graphPackInfo+ "," + 
