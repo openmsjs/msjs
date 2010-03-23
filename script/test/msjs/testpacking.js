@@ -36,7 +36,8 @@ assert(countProperties(packed) == 2);
 
 assert(packed != null);
 //produceMsj should be packed as a reference to a closure
-assert(typeof packed.produceMsj.unpackRef == 'function');
+assert(typeof packed.produceMsj == 'object');
+assert(packed.produceMsj._msjs_Packed != null);
 
 var notPackedNode = msjs.make(msjF);
 packed = notPackedNode.pack("notPacked");

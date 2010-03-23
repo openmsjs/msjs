@@ -653,7 +653,7 @@ dom.pack = function(){
 
     var script = "("+ unpackF.toString() +")("+ 
         graphPackInfo+ "," + 
-        scopePackInfo  + "," + 
+        packInfo  + "," + 
         msjs.toJSON(listeners) +
     ")";
 
