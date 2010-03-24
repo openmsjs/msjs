@@ -161,6 +161,7 @@ msjs.copy = function( base ){
 
     if (base){
         for( var k in base ){
+            if (!base.hasOwnProperty(k)) continue;
             r[k] = msjs.copy(base[k]);
         }
     }
@@ -620,11 +621,14 @@ msjs._getPackList=  function(){
                         item.getPackInfo ? item.getPackInfo() : null];
             unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSON(args));
         } else if (item._msjs_getUnpacker){
-            var unpackInfo = item._msjs_getUnpacker();
-            unpackPairs.push(unpackInfo[0], unpackInfo[1]);
+            msjs.each(item._msjs_getUnpacker(), function(unpackInfo){
+                unpackPairs.push(msjs.toJSON(unpackInfo));
+            });
         } else if (typeof item == "function"){
             var names = [];
             var values = [];
+            var aliases = null;
+
             var scope = msjs.context.getScope(item);
             var freeVariables = msjs.context.getFreeVariables(item);
             for (var k in freeVariables){
@@ -635,26 +639,34 @@ msjs._getPackList=  function(){
                 if (val && val.packMe == false) continue;
                 if (val === void 0) continue;
 
-                if (item == val) throw "here " + k;
-
-                names.push(k);
-                values.push(msjs.pack(scope[k]));
+                if (val == item){
+                    //in-scope alias for item
+                    if (!aliases) aliases = [];
+                    aliases.push(k);
+                } else {
+                    names.push(k);
+                    values.push(msjs.pack(scope[k]));
+                }
             }
 
             var members = null;
             for (var k in item){
                 if (item.hasOwnProperty(k)){
                     if (members == null) members = {};
+                    if (item[k] == item) throw "Unhandled self reference";
                     members[k] = msjs.pack(item[k]);
                 }
             }
             //last argument to closure unpacker is unnamed, and contains
             //members of function, if any
-            values.push(members);
+            values.push(members, aliases);
+
+            var aliases = aliases ? aliases.join("=") : "$msjsNoAliases";
 
             var unpackF = this._unpackClosure.toString();
             unpackF = unpackF.replace("$_args_$", names.join());
             unpackF = unpackF.replace("$_function_$", item.toString());
+            unpackF = unpackF.replace("$_aliases_$", aliases);
             unpackPairs.push( unpackF, msjs.toJSON(values) );
         }
     };
@@ -666,14 +678,15 @@ msjs._getPackList=  function(){
 //Local variables must have obscure names,
 //so they don't hide free variables
 msjs._unpackClosure = function( $_args_$ ){
-    var $msjsF = ($_function_$);
-    var $msjsM = arguments[arguments.length-1];
-    if ($msjsM){
-        for (var $msjsK in $msjsM){
-            $msjsF[$msjsK] = msjs.unpack($msjsM[$msjsK]);
+    var $msjsFunction = ($_function_$);
+    var $_aliases_$ = $msjsFunction;
+    var $msjsMembers = arguments[arguments.length-1];
+    if ($msjsMembers){
+        for (var $msjsMemberName in $msjsMembers){
+            $msjsFunction[$msjsMemberName] = msjs.unpack($msjsMembers[$msjsMemberName]);
         }
     }
-    return $msjsF;
+    return $msjsFunction;
 }
 
 msjs._unpackClientPublished = function(packageName, packInfo){
