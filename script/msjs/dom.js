@@ -100,6 +100,12 @@ dom._selectorPartApplies = function(el, selectorPart){
     return true;
 }
 
+dom.getCssId = function(el){
+    this._ensureHasId(el);
+    return "#" + el.id;
+}
+
+
 dom._attrMatcher = /\[.*?\]/g;
 dom._parseSelector = function (selector){
     var parsedSelectors = [];
@@ -593,10 +599,10 @@ dom._select = function(selector, target, listenerEl){
     return pos < 0 ? selected : null;
 }
 
-dom.unpack = function(graphInfo, scopeInfo, listeners){
+dom.unpack = function(graphInfo, packInfo, listeners){
     var graph = msjs.require("msjs.graph");
     graph.unpack(graphInfo);
-    msjs.makeClosures(scopeInfo);
+    msjs.setPackInfo(packInfo);
     this._unpackListeners(listeners);
     graph.unpackNodes();
     this._unattachElements();
@@ -618,7 +624,7 @@ dom._unpackListeners = function(listeners){
             listener.eventName,
             document.getElementById(listener.domId),
             listener.selector,
-            listener.callback.unpackRef()
+            msjs.unpack(listener.callback)
         );
     });
 }
@@ -636,20 +642,22 @@ dom.pack = function(){
         }
     });
 
-    var unpackF = function(graphInfo, scopeInfo, listeners){
-        msjs.require('msjs.dom').unpack(graphInfo, scopeInfo, listeners);
+    var unpackF = function(graphInfo, packInfo, listeners){
+        msjs.require('msjs.dom').unpack(graphInfo, packInfo, listeners);
     }
 
     var graphPackInfo =graph.getPackInfo(); 
 
     //Do this last
-    var scopePackInfo =msjs.getPackInfo(); 
+    var packInfo =msjs.getPackInfo(); 
 
     var script = "("+ unpackF.toString() +")("+ 
         graphPackInfo+ "," + 
-        scopePackInfo  + "," + 
+        packInfo  + "," + 
         msjs.toJSON(listeners) +
     ")";
+
+    this._renderCssRules();
 
     return document.renderAsXHTML(script);
 
@@ -711,3 +719,42 @@ dom.handle = function(){
 
 };
 
+dom._cssRules = [];
+dom.addCss = function(){
+    var selector = "";
+
+    for (var i=0; i<arguments.length-1; i++){
+        if (selector) selector += " ";
+        var arg = arguments[i];
+        selector += typeof arg == "string" ? arg : this.getCssId(arg);
+    }
+
+    var rules = arguments[arguments.length-1];//last arg is always the rule
+    var r = {
+        selector : selector,
+        rules : rules
+    };
+    this._cssRules.push(r);
+    return r;
+}
+
+var styleConversion = msjs.require("msjs.styleconversion");
+dom._renderCssRules = function(){
+    if (!this._cssRules.length) return null;
+
+    var block = document.head.appendChild(document.createElement( "style" ));
+    block.type = "text/css";
+
+    for (var i=0; i<this._cssRules.length; i++){
+        var s = this._cssRules[i].selector + " {";
+        var rules = this._cssRules[i].rules;
+        for(var k in rules){
+            var sK = styleConversion[k];
+            if (sK == null) sK = k;
+            s += sK + ":" + rules[k] + ";";
+        }
+        s += "}\n";
+
+        block.appendChild( document.createTextNode(s) );
+    }
+}

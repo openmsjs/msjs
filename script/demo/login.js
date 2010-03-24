@@ -47,6 +47,6 @@ var error = msjs.make(function(msj){
 });
 error.push(login, "login");
 
-document.addCss(form.getCssId() + ".error", "input[name=password]",{
+dom.addCss(dom.getCssId(form) + ".error", "input[name=password]",{
     backgroundColor : "red"
 });

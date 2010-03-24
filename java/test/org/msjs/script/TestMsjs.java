@@ -104,11 +104,6 @@ public class TestMsjs extends BaseScriptTest {
     }
 
     @Test
-    public void testClientPublish() {
-        runTest("testclientpublish.js");
-    }
-
-    @Test
     public void testFunctionPack() {
         runTest("testfunctionpack.js");
     }

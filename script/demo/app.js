@@ -32,7 +32,7 @@ var username = msjs.make(function(msj){
     return name;
 });
 
-document.addCss("img.who", {
+dom.addCss("img.who", {
     border : "solid 1px black",
     cssFloat  : "left",
     width : "50px",

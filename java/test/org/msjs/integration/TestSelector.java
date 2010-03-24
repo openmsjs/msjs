@@ -14,4 +14,14 @@
  * the License.
  */
 
-msjs.publish({name : "a"}, "Client");
+package org.msjs.integration;
+
+public class TestSelector extends BaseIntegrationTest{
+    @Override
+    protected String getPageLocation() {
+        return "/test/pages/submit";
+    }
+
+    //TODO: Test behaviors
+
+}

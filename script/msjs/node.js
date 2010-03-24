@@ -118,16 +118,8 @@ node.onLoad = null;
 node.onConnectionError = null;
 node.unpack = function(packed){
     for (var k in packed){
-        this[k] = this._unpackValue(packed[k]);
+        this[k] = msjs.unpack(packed[k]);
     }
-}
-
-node._unpackValue = function(value){
-    if (value && value.unpackRef){
-        return value.unpackRef();
-    }
-
-    return value;
 }
 
 /**

@@ -27,7 +27,7 @@ msjs.publish(function(){
         var description = arguments.length > 1 ? arguments[0] : 
                           (f ? f.toString() : "Failed assertion");
 
-        if (msjs.context.isclient) {
+        if (msjs.isClient) {
             var el = document.body.appendChild(document.createElement("h1"));
             el.style.color = "red";
             el.appendChild(document.createTextNode("Failed: " + description));

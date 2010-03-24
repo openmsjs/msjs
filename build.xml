@@ -244,7 +244,12 @@
     <target name="jsdoc" >
         <delete dir="${out.doc.dir}/jsdoc" failonerror="false" />
         <jsdoctoolkit jsdochome="noship/jsdoc-toolkit/" template="jsdoc"
-                      outputdir="${out.doc.dir}/jsdoc" inputdir="script/msjs">
+                      outputdir="${out.doc.dir}/jsdoc">
+            <!-- Same as toDir in jar task -->
+            <fileset dir="script">
+                <include name="msjs.js"/>
+                <include name="msjs/**"/>
+            </fileset>
         </jsdoctoolkit>
     </target>
 

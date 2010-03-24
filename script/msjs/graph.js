@@ -15,9 +15,10 @@
  */
 
 /**
-    The graph instance shared by all nodes.
-    @class The graph is really an instance and not a class, but jsdoc doesn't
-    know that.
+    The graph instance that connects the {@link node}s
+    @name graph
+    @class The object responsible for coordinating the relationships
+    among the {@link node}s in the program.
 */
 var graph = {};
 graph._nodes = [];
@@ -48,7 +49,7 @@ graph.make = function(produceFunction){
 /**
     The graph tracks state changes with a clock. Whenever a node is marked
     dirty, the "time" on the clock is recorded, and the clock is advanced. The
-    clock may be ready freely, even during an update, but never written to.
+    clock may be read freely, even during an update, but never written to.
 */
 graph.clock = 0;
 
@@ -618,7 +619,7 @@ graph._processUpdate = function(update, secure){
 
             //For security reasons, don't allow the client to update nodes which
             //aren't packed
-            if (!secure && !this.isClient() && node.isLocal) {
+            if (!secure && !msjs.isClient && node.isLocal) {
                 msjs.log('Permission denied for update of', node);
                 throw "Can't update server node";
             }
@@ -738,10 +739,6 @@ graph._getMinimumDistances = function(map){
     return result;
 }
 
-graph.isClient = function(){
-    return true;
-}
-
 //Override
 graph._getDebugName = function(){
     return "graph " + this.id;
@@ -752,11 +749,6 @@ msjs.publish(graph, "Client");
 
 /*! msjs.server-only **/
 graph._valve = msjs.require("java.org.msjs.script.Valve");
-
-graph.isClient = function(){
-    return false;
-}
-
 
 /**
     Any nodes in the graph which are mutually accessible, are participants in a
