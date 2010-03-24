@@ -665,7 +665,7 @@ msjs._getPackList=  function(){
             }
             //last argument to closure unpacker is unnamed, and contains
             //members of function, if any
-            values.push(members, aliases);
+            values.push(members);
 
             var aliases = aliases ? aliases.join("=") : "$msjsNoAliases";
 
