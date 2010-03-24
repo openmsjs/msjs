@@ -15,8 +15,9 @@
  */
 
 /**
- * Provides configuration to msjs classes. This system extends Commons Configuration to provide
- * over-ridable configuration sets. Configuration in msjs is kept distinct from dependency
- * injection, which is done via {@link org.msjs.guice} and is generally relatively simple.
+ * Provides configuration to msjs classes. This system extends Apache Commons
+ * Configuration to provide overridable configuration sets. Configuration in
+ * msjs is kept distinct from dependency injection, which is done via Guice
+ * using {@link org.msjs.config.MsjsModule}.
  */
 package org.msjs.config;
