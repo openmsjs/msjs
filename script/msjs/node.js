@@ -347,8 +347,6 @@ node.pack = function(packType){
     if (!isPacked) packed.isLocal = false;
     for (var k in this){
         if (this._selectForPack(packType,k)){
-            //FIXME
-            if (k == "unpackRef") throw "This happens";
             packed[k] = msjs.pack(this[k]);
         }
     }

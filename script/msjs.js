@@ -585,7 +585,7 @@ msjs.pack = function(value){
         return { _msjs_Packed : index };
     }
 
-    return (value && value.getPackRef) ? value.getPackRef() : value;
+    return value;
 }
 
 msjs.getPackInfo = function(){

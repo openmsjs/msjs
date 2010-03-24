@@ -290,14 +290,13 @@ for (var k in styleConversion){
     reverseStyleConversion[styleConversion[k]] = k;
 }
 
-domelement.getPackRef = function() {
-    return {
-        unpackRef: function() {
-            return document.getElementById(this.id);
-        },
-        id: this.generateId()
-    };
+domelement._msjs_getUnpacker = function() {
+    return [this._unpackF.toString(), msjs.toJSON([this.generateId()])];
 };
+
+domelement._unpackF = function(domId){
+    return document.getElementById(domId);
+}
 
 domelement.cloneNode = function(deep) {
     var clone = this.createElement(this.nodeName);
