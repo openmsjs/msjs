@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Page {
 
-    private final ScriptSourceRelativizer scriptSourceRelativizer;
     private final MsjsScriptContext context;
     private static final Logger logger = Logger.getLogger(Page.class);
 
@@ -46,31 +45,25 @@ public class Page {
     private static final AtomicInteger pollCount = new AtomicInteger(0);
 
     @Inject
-    public Page(ScriptSourceRelativizer scriptSourceRelativizer,
-                MsjsScriptContext context) {
-        this.scriptSourceRelativizer = scriptSourceRelativizer;
+    public Page(MsjsScriptContext context) {
         this.context = context;
         jsonReader = new JSONReader(context);
         updateActiveTime();
     }
 
 
-    public Document render(){
+    public Document render() {
         //careful with this order. msjs packs/unpacks info about closures
         //but graph calls msjs after the nodes are constructed and before
         //they're unpacked so that references to graph nodes are handled
         //properly
         NativeJavaObject rendering =
-                (NativeJavaObject) context.callMethod("msjs.dom", "pack",
-                                                      EMPTY_LIST);
-        Element html = (Element) rendering.unwrap();
-        scriptSourceRelativizer.relativizeScriptSources(html);
+                (NativeJavaObject) context.callMethod("msjs.dom", "pack", EMPTY_LIST);
         final DocType dt = new DocType("html",
-                                       "-//W3C//DTD XHTML 1.0 Transitional//EN",
-                                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
-
+                "-//W3C//DTD XHTML 1.0 Transitional//EN",
+                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
         updateActiveTime();
-        return new Document(html, dt);
+        return new Document((Element) rendering.unwrap(), dt);
     }
 
     public void acceptMsj(String stringMsj) {
@@ -89,19 +82,19 @@ public class Page {
      */
     public Result getMsjForRemote() {
         pollCount.incrementAndGet();
-        try{
+        try {
             String result = (String) context.callMethod("msjs.graph", "getMsjForRemoteAsJSON",
-                                                        EMPTY_LIST);
+                    EMPTY_LIST);
             logger.trace("Outbound queue:" + result);
             return new Result("acceptmsj", result);
-        } finally{
+        } finally {
             pollCount.decrementAndGet();
             updateActiveTime();
         }
 
     }
 
-    public Result prepareReconnect(final String stringMsj){
+    public Result prepareReconnect(final String stringMsj) {
         final ScriptableObject msj = (ScriptableObject)
                 jsonReader.read(new StringReader(stringMsj));
 
@@ -114,8 +107,6 @@ public class Page {
         updateActiveTime();
         return result;
     }
-
-
 
 
     /**
@@ -132,16 +123,17 @@ public class Page {
      *
      * @return true if the page was shutdown
      */
-    /*package-private*/ synchronized boolean requestShutdown() {
+    /*package-private*/
+    synchronized boolean requestShutdown() {
         boolean inactive = isInactive();
         if (inactive) shutdown();
         return inactive;
     }
 
     public void shutdown() {
-        try{
+        try {
             context.callMethod("msjs.graph", "shutdown", EMPTY_LIST);
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Page did not shut down cleanly", e);
         }
     }
@@ -158,7 +150,8 @@ public class Page {
         return System.currentTimeMillis() - lastActiveTime > INACTIVE_WAIT_TIME;
     }
 
-    /*package-private*/ synchronized void updateActiveTime() {
+    /*package-private*/
+    synchronized void updateActiveTime() {
         lastActiveTime = System.currentTimeMillis();
     }
 
@@ -167,10 +160,10 @@ public class Page {
         obj.put("message", obj, e.getMessage());
         Object[] args = {obj};
         String errorInfo = (String) context.callMethod("msjs", "toJSON", args);
-        return new Result("error",  errorInfo);
+        return new Result("error", errorInfo);
     }
 
-    public static int getPollCount(){
+    public static int getPollCount() {
         return pollCount.get();
     }
 

@@ -44,14 +44,14 @@ public class TestPage {
 
     @Test
     public void basicTest() throws FileNotFoundException {
-        Page page = new Page(new ScriptSourceRelativizer(), provider.get(testRoot + "/empty", false));
+        Page page = new Page(provider.get(testRoot + "/empty", false));
         Document rendering = page.render();
         assertEquals("html", rendering.getRootElement().getName());
     }
 
     @Test
     public void documentStuff() throws FileNotFoundException {
-        Page page = new Page(new ScriptSourceRelativizer(), provider.get(testRoot + "/empty", false));
+        Page page = new Page(provider.get(testRoot + "/empty", false));
         Document rendering = page.render();
 
         Element e = rendering.getRootElement();

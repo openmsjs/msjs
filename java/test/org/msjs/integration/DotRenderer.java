@@ -32,7 +32,6 @@ import org.msjs.config.MsjsModule;
 import org.msjs.config.MsjsTestConfigurationFactory;
 import org.msjs.pages.Page;
 import org.msjs.pages.PageContextProvider;
-import org.msjs.pages.ScriptSourceRelativizer;
 import org.msjs.script.FunctionParser;
 import org.msjs.script.MsjsScriptContext;
 import org.msjs.script.ScriptLocator;
@@ -52,15 +51,17 @@ import java.io.IOException;
 public class DotRenderer {
 
     private static final Logger logger = Logger.getLogger(DotRenderer.class);
+
     /**
      * Statically creates a "DOT" file for the given msjs page, and writes
      * the result to standard out. This is done by loading the msjs script
      * dotrender and calling the method it provides.
+     *
      * @param args The first command-line argument is used as the name of the
-     * script to locate for rendering
+     *             script to locate for rendering
      * @throws java.io.IOException
      */
-    public static void main (String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         //Later, we could use a different config for this
         //and even allow config to specify a different Guice
         //mockModule here
@@ -72,17 +73,16 @@ public class DotRenderer {
         String outLocation = config.getMsjsRoot() + "/out/dotfile.dot";
         String pageName = args[0];
 
-
         PageContextProvider provider = injector.getInstance(PageContextProvider.class);
-        Page page = new Page(new ScriptSourceRelativizer(), provider.get(pageName, false));
-        
-        final MsjsScriptContext context =page.getMsjsScriptContext();
+        Page page = new Page(provider.get(pageName, false));
+
+        final MsjsScriptContext context = page.getMsjsScriptContext();
 
         context.loadPackage("msjs.dotrender");
 
-        Object [] empty = {};
+        Object[] empty = {};
 
-        String rendering = (String) context.callMethod("msjs.dotrender", "dotRender" , empty);
+        String rendering = (String) context.callMethod("msjs.dotrender", "dotRender", empty);
 
         FileWriter writer = new FileWriter(new File(outLocation));
         writer.write(rendering);
@@ -90,7 +90,7 @@ public class DotRenderer {
     }
 
     private static class MockModule implements Module {
-        private static class DottyScriptContext extends MsjsScriptContext{
+        private static class DottyScriptContext extends MsjsScriptContext {
             /**
              * Create a new context for msjs script execution.
              *
@@ -112,7 +112,7 @@ public class DotRenderer {
 
         public void configure(final Binder binder) {
             HttpServletRequest mockRequest = createNiceMock(HttpServletRequest.class);
-            expect(mockRequest.getCookies()).andReturn(new Cookie[0] ).anyTimes();
+            expect(mockRequest.getCookies()).andReturn(new Cookie[0]).anyTimes();
             replay(mockRequest);
             binder.bind(ServletRequest.class).toInstance(mockRequest);
             binder.bind(MsjsScriptContext.class).to(DottyScriptContext.class);

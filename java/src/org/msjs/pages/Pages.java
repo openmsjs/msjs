@@ -32,24 +32,20 @@ public class Pages {
     private static final long REAPER_INTERVAL = 1 * 60 * 1000;//1 minute
 
     private static final Logger logger = Logger.getLogger(Pages.class);
-    private final ScriptSourceRelativizer scriptSourceRelativizer;
     private final PageContextProvider contextProvider;
 
 
     @Inject
-    public Pages(final ScriptSourceRelativizer scriptSourceRelativizer,
-                 final PageContextProvider contextProvider,
-                 final Timer timer) {
-        this.scriptSourceRelativizer = scriptSourceRelativizer;
+    public Pages(final PageContextProvider contextProvider, final Timer timer) {
         this.contextProvider = contextProvider;
 
         final TimerTask reaper = new TimerTask() {
             @Override
             public void run() {
-                for (Page page : map.values()){
-                    if (page.isInactive()){
+                for (Page page : map.values()) {
+                    if (page.isInactive()) {
                         //shutdown catches exceptions, so no need for try
-                        if (page.requestShutdown()){
+                        if (page.requestShutdown()) {
                             logger.trace("Expiring page: " + page.getId());
                             removePage(page);
                         }
@@ -62,11 +58,12 @@ public class Pages {
         logger.info("Page reaper started with interval of " + REAPER_INTERVAL);
     }
 
-    private void removePage(final Page page) {map.remove(page.getId());}
+    private void removePage(final Page page) {
+        map.remove(page.getId());
+    }
 
     public Page getNew(final String scriptPath, final boolean allowCache) throws FileNotFoundException {
-        Page newPage = new Page(scriptSourceRelativizer,
-                                contextProvider.get(scriptPath, allowCache));
+        Page newPage = new Page(contextProvider.get(scriptPath, allowCache));
         map.put(newPage.getId(), newPage);
         return newPage;
     }
@@ -78,13 +75,13 @@ public class Pages {
     }
 
     public synchronized void clear() {
-        for (Page page : map.values()){
+        for (Page page : map.values()) {
             page.shutdown();
             removePage(page);
         }
     }
 
-    public int count(){
+    public int count() {
         return map.values().size();
     }
 
