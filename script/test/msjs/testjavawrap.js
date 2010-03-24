@@ -14,20 +14,8 @@
  * the License.
  */
 
-package org.msjs.script;
+var assert = msjs.require("msjs.assert");
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-
-/**
- * Defaults Rhino's ContextFactory's Java primitive wrap to false. This means that String, Number, Boolean and
- * Character objects are returned as JavaScript primitive types.
- */
-public class MsjsContextFactory extends ContextFactory {
-    @Override
-    protected Context makeContext() {
-        Context context = super.makeContext();
-        context.getWrapFactory().setJavaPrimitiveWrap(false);
-        return context;
-    }
-}
+var str = new java.lang.String("string wrap");
+assert(typeof str == "object");
+assert(typeof str.toString() == "string");

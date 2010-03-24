@@ -107,4 +107,9 @@ public class TestMsjs extends BaseScriptTest {
     public void testFunctionPack() {
         runTest("testfunctionpack.js");
     }
+
+    @Test
+    public void testJavaWrap() {
+        runTest("testjavawrap.js");
+    }
 }

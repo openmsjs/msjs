@@ -20,6 +20,7 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.mozilla.javascript.Context;
@@ -27,6 +28,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
 import org.msjs.config.MsjsConfiguration;
+import org.msjs.config.MsjsModule;
 import org.msjs.config.MsjsTestConfigurationFactory;
 
 import java.io.File;
@@ -69,12 +71,7 @@ public abstract class BaseScriptTest {
     abstract protected String getTestDirectory();
 
     protected Injector getInjector(final MsjsConfiguration config) {
-        Module module = getModule(config);
-        return Guice.createInjector(module);
-    }
-
-    protected Module getModule(final MsjsConfiguration config) {
-        return new Module(){
+        Module module = Modules.override(new MsjsModule(config)).with(new Module() {
             @Override
             public void configure(final Binder binder) {
                 //guarantees to run tasks in order
@@ -82,7 +79,8 @@ public abstract class BaseScriptTest {
                 binder.bind(ExecutorService.class).toInstance(executor);
                 binder.bind(MsjsConfiguration.class).toInstance(config);
             }
-        };
+        });
+        return Guice.createInjector(module);
     }
 
     public Script getScript(Reader reader){

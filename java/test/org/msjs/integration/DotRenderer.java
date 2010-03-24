@@ -20,8 +20,12 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import org.apache.log4j.Logger;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.config.MsjsModule;
@@ -59,9 +63,10 @@ public class DotRenderer {
     public static void main (String[] args) throws IOException {
         //Later, we could use a different config for this
         //and even allow config to specify a different Guice
-        //module here
-        MsjsModule msjsModule = new MockModule();
-        Injector injector = Guice.createInjector(msjsModule);
+        //mockModule here
+        final MsjsModule msjsModule = new MsjsModule(MsjsTestConfigurationFactory.getConfiguration());
+        final Module mockModule = Modules.override(msjsModule).with(new MockModule());
+        Injector injector = Guice.createInjector(mockModule);
         MsjsConfiguration config = injector.getInstance(MsjsConfiguration.class);
 
         String outLocation = config.getMsjsRoot() + "/out/dotfile.dot";
@@ -84,13 +89,8 @@ public class DotRenderer {
         writer.flush();
     }
 
-    private static class MockModule extends MsjsModule {
-        public MockModule() {
-            super(MsjsTestConfigurationFactory.getConfiguration());
-        }
-
+    private static class MockModule implements Module {
         private static class DottyScriptContext extends MsjsScriptContext{
-
             /**
              * Create a new context for msjs script execution.
              *
@@ -111,8 +111,6 @@ public class DotRenderer {
         }
 
         public void configure(final Binder binder) {
-            super.configure(binder);
-
             HttpServletRequest mockRequest = createNiceMock(HttpServletRequest.class);
             expect(mockRequest.getCookies()).andReturn(new Cookie[0] ).anyTimes();
             replay(mockRequest);
