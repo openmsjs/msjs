@@ -165,7 +165,6 @@
 
     <target name="test-integration" depends="compile-tests"
             description="Run integration tests">
-        <echo message="Running integration tests against '${config}' config"/>
         <mkdir dir="${test.reports.dir}"/>
         <junit fork="yes" errorproperty="test.results.error"
                failureproperty="test.results.failure">
