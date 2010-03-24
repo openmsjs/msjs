@@ -476,8 +476,8 @@ document.renderAsXHTML = function(script){
 
 
 
-document.getPackInfo = function(){
-    var packedListeners = msjs.map(this._listeners, function(listener){
+document.getEventHandlers = function(){
+    return msjs.map(this._listeners, function(listener){
         return {
             type: listener.type,
             useCapture : listener.useCapture,
@@ -485,7 +485,6 @@ document.getPackInfo = function(){
             callback :  msjs.pack(listener.callback)
         };
     });
-    return msjs.toJSON(packedListeners);
 }
 
 document.isElement = function(value){

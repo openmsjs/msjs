@@ -1,5 +1,3 @@
-
-
 /*!
  * jQuery JavaScript Library v1.4.2
  * http://jquery.com/
@@ -15,6 +13,8 @@
  *
  * Date: Sat Feb 13 22:33:48 2010 -0500
  */
+
+
 (function( window, undefined ) {
 
 // Define a local copy of jQuery
@@ -6247,95 +6247,90 @@ window.jQuery = window.$ = jQuery;
 
 })(window);
 
-var fns;
-var unpackedFns = [];
-jQuery.getFnN = function(n){
-    if (!unpackedFns[n]){
-        var fn = jQuery();
-        for (var k in fns[n]){
-            fn[k] = fns[n][k];
-        }
-
-        unpackedFns[n] = fn;
-    }
-    return unpackedFns[n];
-}
-
-jQuery.unpack = function(cacheInfo, packInfo){
-    delete cacheInfo._expando;
-    fns = packInfo;
-    this.cache = this._unpackObj(cacheInfo);
+//FIXME: msjs modifications
+/*
+ * Copyright (c) 2010 Sharegrove Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+jQuery.setPackInfo = function(packInfo){
+    msjs.log(packInfo);
+    this.cache = this._unpackObj(packInfo);
+    msjs.log(this.cache);
 }
 
 jQuery._unpackObj = function(val){
-    if (val && val.unpackRef) return val.unpackRef();
-
-    if(val && typeof val == "object"){
+    if(val && !val._msjs_packed && typeof val == "object"){
+        var r = {};
         for (var k in val){
             if (val.hasOwnProperty(k)){
-                val[k] = jQuery._unpackObj(val[k]);
+                r[k] = jQuery._unpackObj(val[k]);
             }
         }
+
+        return r;
     }
-    return val;
+
+    return msjs.unpack(val);
 }
 
 
-//FIXME: msjs modifications
+msjs.publish(jQuery, "Client");
 
 /*! msjs.server-only **/
-var fns = [];
+var fnUnpackF = function(members){
+    var obj = jQuery();
 
-jQuery.fn.getPackRef = function(){
-    var index = fns.indexOf(this);
-    if ( index == -1) index = fns.push(this)-1;
-
-    return {
-        unpackRef: function() {
-            return jQuery.getFnN(this.fnN);
-        },
-        fnN : index
+    for (var k in members){
+        obj[k] = members[k];
     }
 
+    return obj;
+}
+
+jQuery.fn._msjs_getUnpacker = function(){
+    var members = {};
+    for (var k in this){
+        if (this.hasOwnProperty(k)){
+            members[k] = msjs.pack(this[k]);
+        }
+    }
+
+    return [fnUnpackF, [members]];
+}
+
+jQuery.Event.prototype._msjs_getUnpacker = function(){
+    throw "I see you";
 }
 
 jQuery._packObj = function(val){
-    switch(typeof val){
-        case "function":
-            return msjs.pack(val);
-        case "object":
-            if (val){
-                for (var k in val){
-                    if (val.hasOwnProperty(k)){
-                        val[k] = jQuery._packObj(val[k]);
-                    }
-                }
-            }
-            //fall through
-        default:
-            return val;
-    }
-}
-
-jQuery.getCacheInfo = function(){
-    //This is stupid -- just for now
-    return msjs.toJSON(jQuery._packObj(this.cache));
-}
-
-jQuery.getPackInfo = function(){
-    var packedFns = msjs.map(fns, function(fn){
-        var obj = {};
-        for (var k in fn){
-            if (fn.hasOwnProperty(k)){
-                obj[k] = msjs.pack(fn[k]);
+    if(val && typeof val == "object" && !val._msjs_getUnpacker){
+        var r = {};
+        for (var k in val){
+            if (val.hasOwnProperty(k)){
+                if (k == "handler") msjs.log("handler", val[k]);
+                if (k == "prototype") msjs.log("proto", val[k]);
+                r[k] = jQuery._packObj(val[k]);
             }
         }
 
-        return obj;
-    });
+        return r;
+    }
 
-    return msjs.toJSON(packedFns);
+    return msjs.pack(val);
 }
 
-msjs.publish(jQuery, "Client");
+jQuery.getPackInfo = function(){
+    return this._packObj(this.cache);
+}
 

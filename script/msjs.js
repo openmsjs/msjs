@@ -448,13 +448,19 @@ msjs.getClosure = function(scopeNum, index){
 }
 
 msjs._unpacked = [];
+msjs._isUnpacking = {};
 msjs.unpack = function(value){
-    if (value && value._msjs_Packed != null){
-        var n = value._msjs_Packed; 
-        if (msjs._unpacked[n] === void 0){
+    if (value && value._msjs_packed != null){
+        var n = value._msjs_packed;
+        if (msjs._unpacked[n] == msjs._isUnpacking) {
+            msjs.log("Circular packing reference",msjs._packInfo[n*2], msjs._packInfo[n*2+1]);
+            throw "Circular unpacking reference";
+        } if (msjs._unpacked[n] === void 0){
+            msjs._unpacked[n] = msjs._isUnpacking;
             //Don't use "this" in here, so we can call this directly from msjs.map (below)
             var freeVariables = msjs.unpack(msjs._packInfo[n*2+1]);
-            var unpackedVal = msjs._packInfo[n*2].apply(msjs.require("global"), freeVariables);
+            var unpackF = msjs._packInfo[n*2];
+            var unpackedVal = unpackF.apply(msjs.require("global"), freeVariables);
             msjs._unpacked[n] = unpackedVal;
         }
 
@@ -581,8 +587,8 @@ msjs.pack = function(value){
 
     if (putInPackList){
         var index = this._packList.indexOf(value);
-        if (index == -1) index = this._packList.push(value) - 1;
-        return { _msjs_Packed : index };
+        if (index == -1 ) index = this._packList.push(value) - 1;
+        return { _msjs_packed : index };
     }
 
     return value;

@@ -619,15 +619,27 @@ dom._unattachElements = function() {
     document.body.removeChild(el);
 }
 
-dom.setPackInfo = function(listeners){
-    msjs.each(listeners, function(listener){
-
+dom.setPackInfo = function(packInfo){
+    msjs.each(packInfo.listeners, function(listener){
         dom.addListener(
             listener.eventName,
             document.getElementById(listener.domId),
             listener.selector,
             msjs.unpack(listener.callback)
         );
+    });
+
+    msjs.each(packInfo.newListeners, function(listener){
+        var el = msjs.unpack(listener.element);
+        var callback = msjs.unpack(listener.callback);
+
+        if (msjs.context.isIE){
+            el.attachEvent("on" + listener.type, callback);
+        } else {
+            el.addEventListener(listener.type, callback,
+                                             listener.useCapture);
+        }
+
     });
 }
 
@@ -677,7 +689,10 @@ dom.getPackInfo = function(){
         }
     });
 
-    return listeners;
+    return {
+        listeners: listeners,
+        newListeners: document.getEventHandlers()
+    }
 }
 
 dom.setDomMsj = function(msj, el){
