@@ -1100,15 +1100,6 @@ graph.shutdown = function(){
     });
 }
 
-graph.getPackRef = function() {
-    return {
-        unpackRef: function() {
-            return msjs.require("msjs.graph");
-        },
-    };
-};
-
-
 graph._getTC = msjs.require("msjs.gettc");
 graph.getTransitiveClosure = function(){
     return this._getTC(this._adjacencyMatrix);
