@@ -47,8 +47,8 @@ public abstract class BaseTest {
     @BeforeClass
     public static void setup() {
         config = MsjsTestConfigurationFactory.getConfiguration();
-        host = config.getString("testHost", "http://localhost:8080/msjs");
-        waitTime = config.getLong("testWaitTime", 10000);
+        host = config.getString("msjs.testHost", "http://localhost:8080/msjs");
+        waitTime = config.getLong("msjs.testWaitTime", 10000);
     }
 
     protected WebResponse validate(final String pageUrl) throws IOException {
