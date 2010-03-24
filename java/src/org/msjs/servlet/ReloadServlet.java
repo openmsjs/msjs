@@ -52,7 +52,7 @@ public class ReloadServlet extends HttpServlet {
             throws ServletException {
         response.setHeader("Content-Type", "text/html");
         try{
-            msjsConfig.reload();
+            msjsConfig.reset();
             locator.reset(msjsConfig);
             MsjsScriptContext.clearSingletonScope();
             pages.clear();

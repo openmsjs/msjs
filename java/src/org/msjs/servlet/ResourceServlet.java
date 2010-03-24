@@ -40,7 +40,7 @@ public abstract class ResourceServlet extends HttpServlet {
         super.init();
         ServletContext servletContext = config.getServletContext();
         Injector injector = (Injector) servletContext.getAttribute(ServletListener.INJECTOR);
-        doCache = injector.getInstance(MsjsConfiguration.class).getBoolean("doCache");
+        doCache = injector.getInstance(MsjsConfiguration.class).getBoolean("msjs.doCache");
     }
 
     @Override

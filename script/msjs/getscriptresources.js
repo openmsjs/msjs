@@ -23,7 +23,6 @@ var contentMap = msjs.require("java.org.msjs.script.ScriptCache");
 var lock = new java.util.concurrent.locks.ReentrantLock();
 var md5er = msjs.require("java.org.msjs.service.MD5");
 var config= msjs.require("java.org.msjs.config.MsjsConfiguration");
-var doCache = config.getBoolean("doCache");
 var scriptLocator = msjs.require("java.org.msjs.script.ScriptLocator");
 
 //this is a function so that it can be obfuscated;
@@ -67,10 +66,10 @@ var makeCachedScript = function(scripts){
     }
 }
 
+var doCache = config.getBoolean("msjs.doCache");
+var webappPath = config.getWebappPath();
 msjs.publish(function(scripts){
     var scriptNodes = [];
-    var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
-    var webappPath = config.getString("webappPath");
     if (doCache){
         var key = new java.lang.String(msjs.toJSON(scripts));
 

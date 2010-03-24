@@ -142,9 +142,6 @@ public class ScriptLocator {
     public synchronized void reset(final MsjsConfiguration config) {
         cache = new HashMap<String, Script>();
         scriptRoot = config.getScriptRoot();
-        doCache = config.getBoolean("doCache", true);
-        logger.trace("ScriptLocator root: " + scriptRoot);
-        logger.trace("Script cache is " + (doCache ? "ON" : "OFF"));
     }
 
 }

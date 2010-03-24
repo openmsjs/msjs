@@ -286,14 +286,13 @@ for (var k in styleConversion){
     reverseStyleConversion[styleConversion[k]] = k;
 }
 
-domelement.getPackRef = function() {
-    return {
-        unpackRef: function() {
-            return document.getElementById(this.id);
-        },
-        id: this.generateId()
-    };
+domelement._msjs_getUnpacker = function() {
+    return [this._unpackF.toString(), msjs.toJSON([this.generateId()])];
 };
+
+domelement._unpackF = function(domId){
+    return document.getElementById(domId);
+}
 
 domelement.cloneNode = function(deep) {
     if (this.nodeName == "#text"){
@@ -452,7 +451,7 @@ document.renderAsXHTML = function(script){
     }
 
     var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
-    var webappPath = config.getString("webappPath");
+    var webappPath = config.getWebappPath();
 
     //append callback iframe
     this.body.appendChild(

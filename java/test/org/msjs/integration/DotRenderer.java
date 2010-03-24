@@ -64,7 +64,7 @@ public class DotRenderer {
         Injector injector = Guice.createInjector(msjsModule);
         MsjsConfiguration config = injector.getInstance(MsjsConfiguration.class);
 
-        String outLocation = config.getString("msjsRoot") + "/out/dotfile.dot";
+        String outLocation = config.getMsjsRoot() + "/out/dotfile.dot";
         String pageName = args[0];
 
 
