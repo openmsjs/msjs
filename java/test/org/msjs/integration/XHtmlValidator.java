@@ -75,7 +75,7 @@ public class XHtmlValidator {
             logger.trace("Seek entity: " + systemId);
             String[] pathParts = systemId.split("/");
             String fileName = pathParts[pathParts.length - 1];
-            File f = new File(config.getString("msjsRoot") + "/noship/" + fileName);
+            File f = new File(config.getMsjsRoot() + "/noship/" + fileName);
             if (f.exists()){
                 try{
                     logger.trace("Found entity: " + f);

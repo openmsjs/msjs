@@ -1,5 +1,4 @@
-msjs-local-config.xml
-local-log4j.properties
+msjs-local.properties
 out
 *.dot
 *.swp

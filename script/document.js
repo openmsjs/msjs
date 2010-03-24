@@ -392,7 +392,7 @@ document.renderAsXHTML = function(script){
     }
 
     var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
-    var webappPath = config.getString("webappPath");
+    var webappPath = config.getWebappPath();
 
     //append callback iframe
     this.body.appendChild(

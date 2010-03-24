@@ -42,14 +42,12 @@ public abstract class BaseTest {
     private static final Logger logger = Logger.getLogger(BaseTest.class);
 
     private static String host;
-    private static String webappPath;
     protected static long waitTime;
 
     @BeforeClass
     public static void setup() {
         config = MsjsTestConfigurationFactory.getConfiguration();
-        host = config.getString("testHost", "http://localhost:8080");
-        webappPath = config.getString("webappPath", "/msjs");
+        host = config.getString("testHost", "http://localhost:8080/msjs");
         waitTime = config.getLong("testWaitTime", 10000);
     }
 
@@ -66,11 +64,11 @@ public abstract class BaseTest {
      * Gets the full URL of the page under test, using the configuration properties
      * "host", and {@link BaseIntegrationTest#getPageLocation}
      *
-     * @param url 
+     * @param url Relative URL after host, port and servlet context path.
      * @return The full URL of the page for this test
      */
     protected String getFullUrl(String url) {
-        return host + webappPath + url + ".msjs?nocache";
+        return host + url + ".msjs?nocache";
     }
 
 

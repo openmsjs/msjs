@@ -64,20 +64,11 @@ public class ServletListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         try {
-            ServletContext context = servletContextEvent.getServletContext();
-            String defaultMsjsRoot = getRealPath(context);
-
-            String configDir = defaultMsjsRoot + "/WEB-INF";
-            MsjsConfiguration config = new MsjsConfiguration(configDir, defaultMsjsRoot);
-
-            String contextPath = context.getContextPath();
-            String webappPath = config.getWebappPath();
-            if (!contextPath.equals(webappPath)) {
-                logger.warn("Mismatch! Servlet context path: \"" + contextPath +"\", config webapp path: \"" + webappPath+ "\"");
-                logger.warn("Setting config webapp path to \"" + contextPath + "\"");
-                config.setWebappPath(contextPath);
-            }
-
+            final ServletContext context = servletContextEvent.getServletContext();
+            final String defaultMsjsRoot = getRealPath(context);
+            final String configDir = defaultMsjsRoot + "/WEB-INF";
+            final String webappPath = context.getContextPath();
+            MsjsConfiguration config = new MsjsConfiguration(configDir, defaultMsjsRoot, webappPath);
             context.setAttribute(INJECTOR, getInjector(config));
             config.log();
         } catch (Exception e) {
