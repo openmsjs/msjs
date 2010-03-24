@@ -573,24 +573,19 @@ msjs.publish = function(value, scope){
 
 msjs._packList = [];
 msjs.pack = function(value){
-    if (this._clientPublished.containsKey(value)) {
-        return {
-            unpackRef: function() {
-                return msjs.require(this.packageName);
-            },
-            packageName: this._clientPublished.get(value)
-        };
-    } else if (typeof value == "function" ){
+    var putInPackList = value && (
+            typeof value == "function" ||
+            value._msjs_getUnpacker ||
+            this._clientPublished.containsKey(value)
+    );
+
+    if (putInPackList){
         var index = this._packList.indexOf(value);
-        if (index == -1){
-            index = this._packList.push(value) - 1;
-        }
-        return {
-            _msjs_Packed : index 
-        }
+        if (index == -1) index = this._packList.push(value) - 1;
+        return { _msjs_Packed : index };
     }
 
-    return (value && value.getPackRef) ? value.getPackRef() : value;
+    return value;
 }
 
 msjs.getPackInfo = function(){
@@ -621,36 +616,70 @@ msjs._getPackList=  function(){
     var i =0;
     while(i < this._packList.length){
         var item = this._packList[i++];
-        switch (typeof item){
-            case "function":
-                var names = [];
-                var values = [];
-                var scope = msjs.context.getScope(item);
-                var freeVariables = msjs.context.getFreeVariables(item);
-                for (var k in freeVariables){
-                    var val = scope[k];
-                    if (k in msjs._dontPackNames) continue;
-                    if (val instanceof java.lang.String) val = String(val);
-                    if (val instanceof java.lang.Object) continue;
-                    if (val && val.packMe == false) continue;
-                    if (val === void 0) continue;
 
-                    if (item == val) throw "here " + k;
+        if ( this._clientPublished.containsKey(item)){
+            var args = [this._clientPublished.get(item), 
+                        item.getPackInfo ? item.getPackInfo() : null];
+            unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSON(args));
+        } else if (item._msjs_getUnpacker){
+            var unpackInfo = item._msjs_getUnpacker();
+            unpackPairs.push(unpackInfo[0], unpackInfo[1]);
+        } else if (typeof item == "function"){
+            var names = [];
+            var values = [];
+            var scope = msjs.context.getScope(item);
+            var freeVariables = msjs.context.getFreeVariables(item);
+            for (var k in freeVariables){
+                var val = scope[k];
+                if (k in msjs._dontPackNames) continue;
+                if (val instanceof java.lang.String) val = String(val);
+                if (val instanceof java.lang.Object) continue;
+                if (val && val.packMe == false) continue;
+                if (val === void 0) continue;
 
-                    names.push(k);
-                    values.push(msjs.pack(scope[k]));
+                if (item == val) throw "here " + k;
+
+                names.push(k);
+                values.push(msjs.pack(scope[k]));
+            }
+
+            var members = null;
+            for (var k in item){
+                if (item.hasOwnProperty(k)){
+                    if (members == null) members = {};
+                    members[k] = msjs.pack(item[k]);
                 }
+            }
+            //last argument to closure unpacker is unnamed, and contains
+            //members of function, if any
+            values.push(members);
 
-                unpackPairs.push( "function(" + names.join() + "){" + 
-                    "return (" + item + 
-                ");}");
-                unpackPairs.push( msjs.toJSON(values) );
-
+            var unpackF = this._unpackClosure.toString();
+            unpackF = unpackF.replace("$_args_$", names.join());
+            unpackF = unpackF.replace("$_function_$", item.toString());
+            unpackPairs.push( unpackF, msjs.toJSON(values) );
         }
-
-
     };
 
     return "[" + unpackPairs.join() + "]";
 }
 
+//This is the template for unpacking closures
+//Local variables must have obscure names,
+//so they don't hide free variables
+msjs._unpackClosure = function( $_args_$ ){
+    var $msjsF = ($_function_$);
+    var $msjsM = arguments[arguments.length-1];
+    if ($msjsM){
+        for (var $msjsK in $msjsM){
+            $msjsF[$msjsK] = msjs.unpack($msjsM[$msjsK]);
+        }
+    }
+    return $msjsF;
+}
+
+msjs._unpackClientPublished = function(packageName, packInfo){
+    var published = msjs.require(packageName);
+    if (packInfo) published.setPackInfo(packInfo);
+    return published;
+}

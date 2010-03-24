@@ -347,8 +347,6 @@ node.pack = function(packType){
     if (!isPacked) packed.isLocal = false;
     for (var k in this){
         if (this._selectForPack(packType,k)){
-            //FIXME
-            if (k == "unpackRef") throw "This happens";
             packed[k] = msjs.pack(this[k]);
         }
     }
@@ -367,13 +365,13 @@ node.pack = function(packType){
     return packed;
 }
 
-node.getPackRef = function() {
-    return {
-        unpackRef: function() {
-            return msjs.require("msjs.graph").getNode(this.id);
-        },
-        id: this.getId()
-    };
+node._msjs_getUnpacker = function(){
+    return [this._unpackF.toString(), msjs.toJSON([this.getId()]) ];
+}
+
+//just a template for unpacking
+node._unpackF = function(id){
+    return msjs.require("msjs.graph").getNode(id);
 };
 
 node._selectForPack = function(packType, k){
