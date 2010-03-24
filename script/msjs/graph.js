@@ -484,7 +484,7 @@ graph._abortConnections = function() {
     specified by the given data, and insert into this graph. Client-only
     @param {Object} contents An object returned by {@link graph.pack}
 */
-graph.unpack = function(packed){
+graph.setPackInfo = function(packed){
     this.id = packed.id;
     this.clock =packed.clock;
     this.hasRemote = true;
@@ -497,23 +497,21 @@ graph.unpack = function(packed){
     var self = this;
 
     var packedNodes = packed.nodes;
+    var self = this;
+    //Do this in two steps, so nodes can refer to one another
     this._nodes = msjs.map(packedNodes, function(packedNode){
-        var node = self._createNode(packedNode); 
-        node._packedInfo = packedNode;
+        var node =  msjs.require("msjs.node").rawMake();
+        node._graph = self;
         return node;
+    });
+
+    msjs.each(this._nodes, function(node, n){
+        node.unpack(packedNodes[n]);
     });
 
     //FIXME: Can this cause a race condition?
     this._remoteHasPendingUpdates = packed.hasPendingUpdates;
 }
-
-graph.unpackNodes = function(){
-    msjs.each(this._nodes, function(node){
-        var packedInfo = node._packedInfo;
-        delete node._packedInfo;
-        node.unpack(packedInfo);
-    });
-};
 
 graph.start = function() {
     msjs.each(this._nodes, function(node, nid){
@@ -568,13 +566,6 @@ graph.bodyOnLoad =function(){
         self._doNotReconnect = true;
     }
 
-}
-
-graph._createNode = function(packed){
-    //msjs.log(packed.unpacker);
-    var node =  msjs.require("msjs.node").rawMake();
-    node._graph = this;
-    return node;
 }
 
 //This allows us to mock this call on the server
@@ -998,7 +989,7 @@ graph._printDependencies = function(node){
 }
 
 graph.getPackInfo = function(){
-    return msjs.toJSON(this.pack());
+    return this.pack();
 }
 
 graph._determinePack = function(node){

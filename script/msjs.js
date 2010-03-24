@@ -575,17 +575,11 @@ msjs._packList = [];
 msjs.pack = function(value){
     var putInPackList = value && (
             typeof value == "function" ||
-            value._msjs_getUnpacker
+            value._msjs_getUnpacker ||
+            this._clientPublished.containsKey(value)
     );
 
-    if (this._clientPublished.containsKey(value)) {
-        return {
-            unpackRef: function() {
-                return msjs.require(this.packageName);
-            },
-            packageName: this._clientPublished.get(value)
-        };
-    } else if (putInPackList){
+    if (putInPackList){
         var index = this._packList.indexOf(value);
         if (index == -1) index = this._packList.push(value) - 1;
         return { _msjs_Packed : index };
@@ -622,10 +616,15 @@ msjs._getPackList=  function(){
     var i =0;
     while(i < this._packList.length){
         var item = this._packList[i++];
-        if (item._msjs_getUnpacker){
+
+        if ( this._clientPublished.containsKey(item)){
+            var args = [this._clientPublished.get(item), 
+                        item.getPackInfo ? item.getPackInfo() : null];
+            unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSON(args));
+        } else if (item._msjs_getUnpacker){
             var unpackInfo = item._msjs_getUnpacker();
             unpackPairs.push(unpackInfo[0], unpackInfo[1]);
-        }else if (typeof item == "function"){
+        } else if (typeof item == "function"){
             var names = [];
             var values = [];
             var scope = msjs.context.getScope(item);
@@ -658,8 +657,7 @@ msjs._getPackList=  function(){
             var unpackF = this._unpackClosure.toString();
             unpackF = unpackF.replace("$_args_$", names.join());
             unpackF = unpackF.replace("$_function_$", item.toString());
-            unpackPairs.push( unpackF);
-            unpackPairs.push( msjs.toJSON(values) );
+            unpackPairs.push( unpackF, msjs.toJSON(values) );
         }
     };
 
@@ -678,4 +676,10 @@ msjs._unpackClosure = function( $_args_$ ){
         }
     }
     return $msjsF;
+}
+
+msjs._unpackClientPublished = function(packageName, packInfo){
+    var published = msjs.require(packageName);
+    if (packInfo) published.setPackInfo(packInfo);
+    return published;
 }

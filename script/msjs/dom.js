@@ -599,12 +599,12 @@ dom._select = function(selector, target, listenerEl){
     return pos < 0 ? selected : null;
 }
 
-dom.unpack = function(graphInfo, packInfo, listeners){
-    var graph = msjs.require("msjs.graph");
-    graph.unpack(graphInfo);
+dom.unpack = function(packInfo, packedClientPackages){
     msjs.setPackInfo(packInfo);
-    this._unpackListeners(listeners);
-    graph.unpackNodes();
+    //make sure each client package is unpacked
+    msjs.each(packedClientPackages, function(packed){
+        msjs.unpack(packed);
+    });
     this._unattachElements();
     graph.start();
 }
@@ -618,8 +618,9 @@ dom._unattachElements = function() {
     document.body.removeChild(el);
 }
 
-dom._unpackListeners = function(listeners){
+dom.setPackInfo = function(listeners){
     msjs.each(listeners, function(listener){
+
         dom.addListener(
             listener.eventName,
             document.getElementById(listener.domId),
@@ -633,28 +634,25 @@ dom._unpackListeners = function(listeners){
 
 /*! msjs.server-only **/
 dom.pack = function(){
-    var listeners = msjs.map(this._listeners, function(args){
-        return {
-            domId: args.domElement.id,
-            eventName : args.eventName,
-            selector :  args.selector,
-            callback :  msjs.pack(args.callback)
-        }
-    });
 
-    var unpackF = function(graphInfo, packInfo, listeners){
-        msjs.require('msjs.dom').unpack(graphInfo, packInfo, listeners);
+    var unpackF = function(packInfo, clientPackages){
+        msjs.require('msjs.dom').unpack(packInfo, clientPackages);
     }
 
-    var graphPackInfo =graph.getPackInfo(); 
+    var packedClientPackages = [];
 
-    //Do this last
-    var packInfo =msjs.getPackInfo(); 
+    msjs.each(msjs.clientPackages, function(packageName){
+        //make sure it's packed
+        if (packageName == "msjs") return;
+        var packed = msjs.pack(msjs.require(packageName));
+        //graph must go first
+        if (packageName == "msjs.graph") packedClientPackages.unshift(packed);
+        else packedClientPackages.push(packed)
+    });
 
     var script = "("+ unpackF.toString() +")("+ 
-        graphPackInfo+ "," + 
-        packInfo  + "," + 
-        msjs.toJSON(listeners) +
+        msjs.getPackInfo() + "," +
+        msjs.toJSON(packedClientPackages) + 
     ")";
 
     this._renderCssRules();
@@ -665,6 +663,19 @@ dom.pack = function(){
 
 dom.getDomMsj = function(el){
     return el.msj;
+}
+
+dom.getPackInfo = function(){
+    var listeners = msjs.map(this._listeners, function(args){
+        return {
+            domId: args.domElement.id,
+            eventName : args.eventName,
+            selector :  args.selector,
+            callback :  msjs.pack(args.callback)
+        }
+    });
+
+    return listeners;
 }
 
 dom.setDomMsj = function(msj, el){
