@@ -287,7 +287,7 @@ for (var k in styleConversion){
 }
 
 domelement._msjs_getUnpacker = function() {
-    return [this._unpackF.toString(), msjs.toJSON([this.generateId()])];
+    return [this._unpackF, [this.generateId()]];
 };
 
 domelement._unpackF = function(domId){

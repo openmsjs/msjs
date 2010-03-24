@@ -636,8 +636,9 @@ dom.setPackInfo = function(listeners){
 /*! msjs.server-only **/
 dom.pack = function(){
 
-    var unpackF = function(packInfo, clientPackages){
-        msjs.require('msjs.dom').unpack(packInfo, clientPackages);
+    var unpackF = function(){
+        var dom = msjs.require('msjs.dom');
+        dom.unpack.apply(dom, arguments);
     }
 
     var packedClientPackages = [];
@@ -650,8 +651,6 @@ dom.pack = function(){
         if (packageName == "msjs.graph") packedClientPackages.unshift(packed);
         else packedClientPackages.push(packed)
     });
-
-    var jQueryPackInfo =jQuery.getPackInfo(); 
 
     var script = "("+ unpackF.toString() +")("+ 
         msjs.getPackInfo() + "," +
