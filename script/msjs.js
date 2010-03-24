@@ -623,8 +623,7 @@ msjs._getPackList=  function(){
         var item = this._packList[i++];
 
         if ( this._clientPublished.containsKey(item)){
-            var args = [this._clientPublished.get(item), 
-                        item.getPackInfo ? item.getPackInfo() : null];
+            var args = [this._clientPublished.get(item)]; 
             unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSON(args));
         } else if (item._msjs_getUnpacker){
             msjs.each(item._msjs_getUnpacker(), function(unpackInfo){
@@ -695,8 +694,6 @@ msjs._unpackClosure = function( $_args_$ ){
     return $msjsFunction;
 }
 
-msjs._unpackClientPublished = function(packageName, packInfo){
-    var published = msjs.require(packageName);
-    if (packInfo) published.setPackInfo(packInfo);
-    return published;
+msjs._unpackClientPublished = function(packageName){
+    return msjs.require(packageName);
 }

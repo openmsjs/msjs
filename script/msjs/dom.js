@@ -602,10 +602,21 @@ dom._select = function(selector, target, listenerEl){
 
 dom.unpack = function(packInfo, packedClientPackages){
     msjs.setPackInfo(packInfo);
-    //make sure each client package is unpacked
-    msjs.each(packedClientPackages, function(packed){
-        msjs.unpack(packed);
-    });
+
+    function unpackPackage(packageName){
+        var packInfo = packedClientPackages[packageName];
+        packedClientPackages[packageName] = null;
+        if (packInfo) msjs.require(packageName).setPackInfo(packInfo);
+    }
+
+    //some ordering dependencies
+    msjs.map(["msjs", "msjs.graph", "jquery"], unpackPackage);
+
+    //now do the rest
+    for (var k in packedClientPackages){
+        unpackPackage(k);
+    }
+    
     this._unattachElements();
     graph.start();
 }
@@ -653,15 +664,14 @@ dom.pack = function(){
         dom.unpack.apply(dom, arguments);
     }
 
-    var packedClientPackages = [];
+    var packedClientPackages = {};
 
     msjs.each(msjs.clientPackages, function(packageName){
         //make sure it's packed
         if (packageName == "msjs") return;
-        var packed = msjs.pack(msjs.require(packageName));
-        //graph must go first
-        if (packageName == "msjs.graph") packedClientPackages.unshift(packed);
-        else packedClientPackages.push(packed)
+        var published = msjs.require(packageName);
+        var packInfo = published.getPackInfo ? published.getPackInfo() : null;
+        packedClientPackages[packageName] = packInfo;
     });
 
     var script = "("+ unpackF.toString() +")("+ 
