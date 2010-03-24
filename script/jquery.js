@@ -989,9 +989,7 @@ jQuery.props = {
 	usemap: "useMap",
 	frameborder: "frameBorder"
 };
-//FIXME: msjs hack
-//var expando = "jQuery" + now(), uuid = 0, windowData = {};
-var expando = "jQuerymsjs", uuid = 0, windowData = {};
+var expando = "jQuery" + now(), uuid = 0, windowData = {};
 
 jQuery.extend({
 	cache: {},
@@ -1016,6 +1014,7 @@ jQuery.extend({
 			elem;
 
 		var id = elem[ expando ], cache = jQuery.cache, thisCache;
+        msjs.log('data', id, elem, expando);
 
 		if ( !id && typeof name === "string" && data === undefined ) {
 			return null;
@@ -1924,6 +1923,7 @@ jQuery.event = {
 			namespace = new RegExp("(^|\\.)" + namespaces.slice(0).sort().join("\\.(?:.*\\.)?") + "(\\.|$)");
 		}
 
+        msjs.log('eh',this);
 		var events = jQuery.data(this, "events"), handlers = events[ event.type ];
 
 		if ( events && handlers ) {
@@ -6264,8 +6264,10 @@ window.jQuery = window.$ = jQuery;
  * the License.
  */
 jQuery.setPackInfo = function(packInfo){
-    msjs.log(packInfo);
-    this.cache = this._unpackObj(packInfo);
+    this.cache = this._unpackObj(packInfo.cache);
+    for (var id in packInfo.ids){
+        msjs.unpack(packInfo.ids[id])[this.expando] = id;
+    }
     msjs.log(this.cache);
 }
 
@@ -6309,17 +6311,11 @@ jQuery.fn._msjs_getUnpacker = function(){
     return [fnUnpackF, [members]];
 }
 
-jQuery.Event.prototype._msjs_getUnpacker = function(){
-    throw "I see you";
-}
-
 jQuery._packObj = function(val){
     if(val && typeof val == "object" && !val._msjs_getUnpacker){
         var r = {};
         for (var k in val){
             if (val.hasOwnProperty(k)){
-                if (k == "handler") msjs.log("handler", val[k]);
-                if (k == "prototype") msjs.log("proto", val[k]);
                 r[k] = jQuery._packObj(val[k]);
             }
         }
@@ -6331,6 +6327,17 @@ jQuery._packObj = function(val){
 }
 
 jQuery.getPackInfo = function(){
-    return this._packObj(this.cache);
+    var expando = this.expando;
+    var ids = {};
+    msjs.each(document.getElementsByTagName("*"), function(el){
+        var id = el[expando];
+        if (id != null) {
+            ids[id] = msjs.pack(el);
+            delete el[expando];
+        }
+    });
+    return {
+        cache: this._packObj(this.cache),
+        ids : ids
+    }
 }
-
