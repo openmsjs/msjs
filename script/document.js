@@ -149,7 +149,7 @@ domelement.getElementsByTagName = function(name){
     for (var i=0; i<all.length; i++){
         var el = all[i];
         if (el.nodeName == "#text") continue;
-        if (el.nodeName != uName) continue;
+        if (name != "*" && el.nodeName != uName) continue;
 
         var isChild = false;
         var p = el;
@@ -166,6 +166,10 @@ domelement.getElementsByTagName = function(name){
 
 domelement.getAttribute = function(name){
     return this[name];
+}
+
+domelement.setAttribute = function(name, val){
+    return this[name] = val;
 }
 
 domelement.focus = function(){
@@ -370,6 +374,10 @@ document.createElement = function(xmlOrName){
     var xml = xmlOrName;
     if (typeof xmlOrName == "string") xml = <{xmlOrName}/>;;
     return domelement.make(xml);
+}
+
+document.getElementsByTagName = function(name){
+    return document.documentElement.getElementsByTagName(name);
 }
 
 /* jquery compatibility */
