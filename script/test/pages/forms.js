@@ -27,14 +27,14 @@ var el = $(<div>
         </div></form>
 </div>).appendTo(document.body);
 
-var input = el.find("input[0]");
-var form = el.find("form[0]");
+var input = el.find("input").first();
+var form = el.find("form");
 
 var clearButton = msjs.make();
 
 var x = el.find("button").click(function(){
-    input.value = "";
-    form.reset();
+    input.val("");
+    form[0].reset();
 });
 /*
 

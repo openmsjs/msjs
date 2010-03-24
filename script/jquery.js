@@ -1014,7 +1014,6 @@ jQuery.extend({
 			elem;
 
 		var id = elem[ expando ], cache = jQuery.cache, thisCache;
-        msjs.log('data', id, elem, expando);
 
 		if ( !id && typeof name === "string" && data === undefined ) {
 			return null;
@@ -1923,7 +1922,6 @@ jQuery.event = {
 			namespace = new RegExp("(^|\\.)" + namespaces.slice(0).sort().join("\\.(?:.*\\.)?") + "(\\.|$)");
 		}
 
-        msjs.log('eh',this);
 		var events = jQuery.data(this, "events"), handlers = events[ event.type ];
 
 		if ( events && handlers ) {
@@ -6273,14 +6271,12 @@ jQuery.setPackInfo = function(packInfo){
 
 jQuery._unpackObj = function(val){
     if(val && !val._msjs_packed && typeof val == "object"){
-        var r = {};
         for (var k in val){
             if (val.hasOwnProperty(k)){
-                r[k] = jQuery._unpackObj(val[k]);
+                val[k] = jQuery._unpackObj(val[k]);
             }
         }
-
-        return r;
+        return val;
     }
 
     return msjs.unpack(val);
@@ -6294,7 +6290,7 @@ var fnUnpackF = function(members){
     var obj = jQuery();
 
     for (var k in members){
-        obj[k] = members[k];
+        obj[k] = msjs.unpack(members[k]);
     }
 
     return obj;
@@ -6313,7 +6309,7 @@ jQuery.fn._msjs_getUnpacker = function(){
 
 jQuery._packObj = function(val){
     if(val && typeof val == "object" && !val._msjs_getUnpacker){
-        var r = {};
+        var r = msjs.isArray(val) ? [] : {};
         for (var k in val){
             if (val.hasOwnProperty(k)){
                 r[k] = jQuery._packObj(val[k]);
