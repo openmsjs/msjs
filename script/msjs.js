@@ -641,9 +641,21 @@ msjs._getPackList=  function(){
                     values.push(msjs.pack(scope[k]));
                 }
 
-                unpackPairs.push( "function(" + names.join() + "){" + 
-                    "return (" + item + 
-                ");}");
+                var members = null;
+                for (var k in item){
+                    if (item.hasOwnProperty(k)){
+                        if (members == null) members = {};
+                        members[k] = msjs.pack(item[k]);
+                    }
+                }
+                //last argument to closure unpacker is unnamed, and contains
+                //members of function, if any
+                values.push(members);
+
+                var unpackF = this._unpackClosure.toString();
+                unpackF = unpackF.replace("$_args_$", names.join());
+                unpackF = unpackF.replace("$_function_$", item.toString());
+                unpackPairs.push( unpackF);
                 unpackPairs.push( msjs.toJSON(values) );
 
         }
@@ -654,3 +666,16 @@ msjs._getPackList=  function(){
     return "[" + unpackPairs.join() + "]";
 }
 
+//This is the template for unpacking closures
+//Local variables must have obscure names,
+//so they don't hide free variables
+msjs._unpackClosure = function( $_args_$ ){
+    var $msjsF = ($_function_$);
+    var $msjsM = arguments[arguments.length-1];
+    if ($msjsM){
+        for (var $msjsK in $msjsM){
+            $msjsF[$msjsK] = msjs.unpack($msjsM[$msjsK]);
+        }
+    }
+    return $msjsF;
+}

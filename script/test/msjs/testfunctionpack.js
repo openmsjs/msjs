@@ -23,6 +23,9 @@ var n = function(){
     return f();
 };
 
+n.x = 4;
+n.y = function(){return 44;};
+
 var packedN = msjs.pack(n);
 
 var packInfo = eval(msjs.getPackInfo());
@@ -33,4 +36,8 @@ var assert = msjs.require("msjs.assert");
 //Make sure that f is bound in the packed produce function
 //This will error if f is not bound within the packed version
 //of n's produce method
-assert(packedN());
+assert("functions are packed with free variables", packedN());
+assert("literal function members",packedN.x == 4);
+assert("function function members",packedN.y() == 44);
+
+
