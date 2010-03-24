@@ -126,6 +126,9 @@
              duplicate="fail"
              compress="false">
         </war>
+
+        <delete file="${staging.dir}/WEB-INF/lib/msjs.jar"/>
+
     </target>
 
     <!-- .......................... testing tasks  .............................. -->
