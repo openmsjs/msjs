@@ -502,6 +502,11 @@ msjs.assignDebugNames = function(packageName, scope){
     }
 }
 
+/**
+    Prepares a value for transport to the client
+    @return a packing refernce, or the original value
+    @memberOf msjs
+*/
 msjs.pack = function(value){
     var putInPackList = value && (
             typeof value == "function" ||

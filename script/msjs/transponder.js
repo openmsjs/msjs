@@ -14,6 +14,10 @@
  * the License.
  */
 
+/**
+    @namespace A special {@link msjs.node} instance which can connect graphs
+    @name msjs.transponder
+*/
 var transponder = msjs.publish(msjs.make());
 transponder.packMe = false;
 var transponders = msjs.require("msjs.transponders");
@@ -62,6 +66,12 @@ transponder.getGraphId = function(){
     return this._graph.id;
 }
 
+/**
+    Get the list of other environment ids to which to pass the msj along.
+    It's ok to pass this environment id, it won't be called.
+    @methodOf msjs.transponder#
+    @name getOtherGraphIds
+*/
 transponder.getOtherGraphIds = function (msj){
     return msjs.THE_EMPTY_LIST;
 }

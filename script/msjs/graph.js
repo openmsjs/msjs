@@ -438,6 +438,11 @@ graph._addConnection = function(connection) {
 }
 
 graph._isConnected = false;
+/**
+    Forces the connection to stay open between the client and the server
+    @name setConnected
+    @methodOf msjs.graph#
+*/
 graph.setConnected = function(){
     this._isConnected = true;
 }

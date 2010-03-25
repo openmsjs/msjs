@@ -15,18 +15,11 @@
  */
 
 /**
-    @namespace Publishes the assert function
-    @name msjs.assert
-*/
-
-/**
-    @name assert
-    @memberOf msjs.assert
-    @function
-    @description Tests the last argument for truthiness, throwing an exception
+    Tests the last argument for truthiness, throwing an exception
     if it's not.  The exception is the first argument or the string "Failed
     assertion"
-
+    @namespace Publishes the assert function
+    @name msjs.assert
 */
 msjs.publish(function(){
     var val = arguments[arguments.length-1];
