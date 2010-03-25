@@ -59,11 +59,6 @@ public class TestMsjs extends BaseScriptTest {
     }
 
     @Test
-    public void testDom() {
-        runTest("testdom.js");
-    }
-
-    @Test
     public void testInclude() {
         runTest("testinclude.js");
     }

@@ -14,8 +14,6 @@
  * the License.
  */
 
-msjs.require("jquery");
-var dom = msjs.require("msjs.dom");
 var el = $(<div>
         <button style="margin-bottom:20px">clear</button><br/>
         <input/>
