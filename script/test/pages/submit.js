@@ -29,6 +29,7 @@ var list = msjs.make( function(msj){
 });
 
 var model = msjs.make(function(msj){
+    msjs.log(msj);
     if (msj.form && msj.form.first){
         this._msj.push(msj.form);
     }
@@ -46,35 +47,26 @@ model._msj = [
 
 list.set("model", model);
 
-var form = dom.add(
+var form = $(
     <form><div>
         <input type="text" name="first"/>
         <input type="text" name="last"/>
         <input type="submit" value="go"/>
     </div></form>
-);
+).appendTo(document.body);
 
-var submit = dom.handle("onsubmit", form, function(event){
+var submit = msjs.make();
+//FIXME: Get rid of this
+submit.packMe = true;
+form.submit( function(event){
     var r = {
-        first : form.first.value,
-        last : form.last.value
+        first : form.get(0).first.value,
+        last : form.get(0).last.value
     };
 
-    form.reset();
-    form.first.focus(); //:)
-    return r;
+    form.get(0).reset();
+    form.find("input").first().focus(); //:)
+    submit.update(r);
 });
 
 model.push(submit, "form");
-
-/*
-var nodes = msjs.node._graph._nodes;
-for (var i=0; i < nodes.length; i++){
-    msjs.log(i, nodes[i] );
-}
-
-var tc = msjs.node._graph.getTransitiveClosure();
-for (var i =0; i<tc.length; i++){
-    msjs.log(tc[i]);
-}
-*/
