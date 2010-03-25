@@ -19,6 +19,7 @@ var dom = msjs.publish({}, "Client");
 //dom is the interface to java-land, so these require statements
 //are necessary to load the modules that Page uses
 msjs.require("document");
+msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
 dom.make = function(xmlOrName){
@@ -601,10 +602,21 @@ dom._select = function(selector, target, listenerEl){
 
 dom.unpack = function(packInfo, packedClientPackages){
     msjs.setPackInfo(packInfo);
-    //make sure each client package is unpacked
-    msjs.each(packedClientPackages, function(packed){
-        msjs.unpack(packed);
-    });
+
+    function unpackPackage(packageName){
+        var packInfo = packedClientPackages[packageName];
+        packedClientPackages[packageName] = null;
+        if (packInfo) msjs.require(packageName).setPackInfo(packInfo);
+    }
+
+    //some ordering dependencies
+    msjs.map(["msjs", "msjs.graph", "jquery"], unpackPackage);
+
+    //now do the rest
+    for (var k in packedClientPackages){
+        unpackPackage(k);
+    }
+    
     this._unattachElements();
     graph.start();
 }
@@ -618,15 +630,27 @@ dom._unattachElements = function() {
     document.body.removeChild(el);
 }
 
-dom.setPackInfo = function(listeners){
-    msjs.each(listeners, function(listener){
-
+dom.setPackInfo = function(packInfo){
+    msjs.each(packInfo.listeners, function(listener){
         dom.addListener(
             listener.eventName,
             document.getElementById(listener.domId),
             listener.selector,
             msjs.unpack(listener.callback)
         );
+    });
+
+    msjs.each(packInfo.newListeners, function(listener){
+        var el = msjs.unpack(listener.element);
+        var callback = msjs.unpack(listener.callback);
+
+        if (msjs.context.isIE){
+            el.attachEvent("on" + listener.type, callback);
+        } else {
+            el.addEventListener(listener.type, callback,
+                                             listener.useCapture);
+        }
+
     });
 }
 
@@ -635,19 +659,19 @@ dom.setPackInfo = function(listeners){
 /*! msjs.server-only **/
 dom.pack = function(){
 
-    var unpackF = function(packInfo, clientPackages){
-        msjs.require('msjs.dom').unpack(packInfo, clientPackages);
+    var unpackF = function(){
+        var dom = msjs.require('msjs.dom');
+        dom.unpack.apply(dom, arguments);
     }
 
-    var packedClientPackages = [];
+    var packedClientPackages = {};
 
     msjs.each(msjs.clientPackages, function(packageName){
         //make sure it's packed
         if (packageName == "msjs") return;
-        var packed = msjs.pack(msjs.require(packageName));
-        //graph must go first
-        if (packageName == "msjs.graph") packedClientPackages.unshift(packed);
-        else packedClientPackages.push(packed)
+        var published = msjs.require(packageName);
+        var packInfo = published.getPackInfo ? published.getPackInfo() : null;
+        packedClientPackages[packageName] = packInfo;
     });
 
     var script = "("+ unpackF.toString() +")("+ 
@@ -675,7 +699,10 @@ dom.getPackInfo = function(){
         }
     });
 
-    return listeners;
+    return {
+        listeners: listeners,
+        newListeners: document.getEventHandlers()
+    }
 }
 
 dom.setDomMsj = function(msj, el){

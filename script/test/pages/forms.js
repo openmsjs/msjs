@@ -14,9 +14,9 @@
  * the License.
  */
 
+msjs.require("jquery");
 var dom = msjs.require("msjs.dom");
-var el = dom.add(
-    <div>
+var el = $(<div>
         <button style="margin-bottom:20px">clear</button><br/>
         <input/>
         <form style="margin-bottom:20px;margin-top:20px"><div>
@@ -26,34 +26,33 @@ var el = dom.add(
             <input name="rad" type="radio" value="two"/> two
             <input name="go" type="submit" value="go"/>
         </div></form>
-    </div>
-);
+</div>).appendTo(document.body);
 
-var input = el.getElementsByTagName("input")[0];
-var form = el.getElementsByTagName("form")[0];
+var input = el.find("input").first();
+var form = el.find("form");
 
-var clearButton = dom.handle("onclick", dom.find(el, "button"), function(){
-    input.value = "";
-    form.reset();
-    return true;
+var clearButton = msjs.make();
+
+el.find("button").click(function(){
+    input.val("");
+    form[0].reset();
+    clearButton.update(true);
 });
 
 var typing = msjs.make(function(){
-    return input.value || "";
+    return input.val() || "";
 });
 typing.depends(clearButton);
 
-dom.addListener("onkeyup", input, function(){
+input.keyup( function(){
     typing.update();
 });
 
-//var submit = dom.handle("onsubmit", form, function(){
 var submit = msjs.make(function(){
-    //Can't use normal form[named input] here, since that's not
-    //implemented on the server in msjs
+    //TODO: Can't use normal form[named input] here, since that's not
+    //implemented on the server in msjs (yet!)
     var values = {};
-
-    msjs.each(form.getElementsByTagName("input"), function(el){
+    form.find("input").each(function(n, el){
         var name = el["name"];
         if (!name) return;
         switch (el["type"]){
@@ -77,28 +76,21 @@ var submit = msjs.make(function(){
 });
 submit.depends(clearButton);
 
-dom.addListener("onsubmit", form, function(){
+form.submit(function(){
     submit.update();
 });
 
 
-var out = el.appendChild(dom.make(<div/>));
+var out = $(<div/>).appendTo(document.body);
 var view = msjs.make(function(msj){
-    var i=0;
+    out.children().remove();
+
     for (var k in msj){
         if (msj[k] === void 0) continue;
-        if (!out.childNodes[i]) {
-            out.appendChild(dom.make("pre"));
-        }
-
-        dom.setText(k.toUpperCase() +": " + msjs.toJSON(msj[k]), out.childNodes[i++]);
+        out.append($("<pre>"+k+"<>").text( k.toUpperCase() + ": " + msjs.toJSON(msj[k]) ));
     }
 
-    for (; i<out.childNodes.length; i++){
-        out.removeChild(out.childNodes[i]);
-    }
 });
 view.set("input", typing);
 view.set("clearButton", clearButton, true);
 view.set("form", submit);
-

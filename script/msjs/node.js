@@ -366,7 +366,7 @@ node.pack = function(packType){
 }
 
 node._msjs_getUnpacker = function(){
-    return [this._unpackF.toString(), msjs.toJSON([this.getId()]) ];
+    return [this._unpackF, [this.getId()] ];
 }
 
 //just a template for unpacking

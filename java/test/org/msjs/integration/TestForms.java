@@ -42,10 +42,9 @@ public class TestForms extends BaseIntegrationTest{
         input.type("hi");
         assertNull(getPreWithLabel(page, "CLEARBUTTON"));
 
-        HtmlPreformattedText pre = getPreWithLabel(page, "INPUT");
-        assertEquals("INPUT: \"hi\"", pre.getTextContent());
+        assertEquals("INPUT: \"hi\"", getPreWithLabel(page, "INPUT").getTextContent());
         clearButton.click();
-        assertEquals("INPUT: \"\"", pre.getTextContent());
+        assertEquals("INPUT: \"\"", getPreWithLabel(page, "INPUT").getTextContent());
         assertNotNull(getPreWithLabel(page, "CLEARBUTTON"));
 
     }

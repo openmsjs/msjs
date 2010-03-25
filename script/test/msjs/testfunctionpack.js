@@ -28,9 +28,17 @@ n.y = function(){return 44;};
 
 var packedN = msjs.pack(n);
 
+//Test references to self
+var  name1 = name2 = function(){ 
+    return name1 == name2 && name1 == arguments.callee;
+}
+
+var packedNamed = msjs.pack(name1);
+
 var packInfo = eval(msjs.getPackInfo());
 msjs.setPackInfo(packInfo);
 packedN = msjs.unpack(packedN);
+packedNamed = msjs.unpack(packedNamed);
 
 var assert = msjs.require("msjs.assert");
 //Make sure that f is bound in the packed produce function
@@ -40,4 +48,4 @@ assert("functions are packed with free variables", packedN());
 assert("literal function members",packedN.x == 4);
 assert("function function members",packedN.y() == 44);
 
-
+assert("free variable synonyms", packedNamed());
