@@ -6266,7 +6266,6 @@ jQuery.setPackInfo = function(packInfo){
     for (var id in packInfo.ids){
         msjs.unpack(packInfo.ids[id])[this.expando] = id;
     }
-    msjs.log(this.cache);
 }
 
 jQuery._unpackObj = function(val){
