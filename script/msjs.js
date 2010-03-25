@@ -16,10 +16,9 @@
 
 /**
     An object that forms the root of the msjs API.
-    @name msjs
-    @class msjs exposes the require/publish system, as well some
+    @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
-
+    @name msjs
 */
 var msjs = {};
 /**
@@ -119,6 +118,7 @@ msjs.context = {
 /**
     Can be checked to determine if msjs is running in the browser or on the server.
     If true, msjs is running in the browser.
+    @field
 */
 msjs.isClient = true;
 
@@ -126,7 +126,7 @@ msjs.isClient = true;
 var bindings = { global : this, msjs : msjs};
 
 /**
-    This is just syntatic sugar for {@link graph#make}
+    This is just syntatic sugar for {@link msjs.graph#make}
 */
 msjs.make = function(produceMsj){
     return this.require("msjs.graph").make(produceMsj);
