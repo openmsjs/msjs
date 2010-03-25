@@ -15,7 +15,8 @@
  */
 
 msjs.require("jquery");
-var el = $(<div>
+var dom = msjs.require("msjs.dom");
+var jEl = $(<div>
         <button style="margin-bottom:20px">clear</button><br/>
         <input/>
         <form style="margin-bottom:20px;margin-top:20px"><div>
@@ -27,16 +28,19 @@ var el = $(<div>
         </div></form>
 </div>).appendTo(document.body);
 
-var input = el.find("input").first();
-var form = el.find("form");
+var jInput = jEl.find("input").first();
+var jForm = jEl.find("form");
+var input = jInput[0];
+var form = jForm[0];
+var el = jEl[0];
 
 var clearButton = msjs.make();
 
-var x = el.find("button").click(function(){
-    input.val("");
-    form[0].reset();
+var x = jEl.find("button").click(function(){
+    jInput.val("");
+    jForm[0].reset();
+    clearButton.update(true);
 });
-/*
 
 var typing = msjs.make(function(){
     return input.value || "";
@@ -101,4 +105,3 @@ var view = msjs.make(function(msj){
 view.set("input", typing);
 view.set("clearButton", clearButton, true);
 view.set("form", submit);
-*/
