@@ -14,9 +14,8 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-document.body.appendChild(dom.make(<h1>Welcome, please log in</h1>));
-var form = document.body.appendChild(dom.make(<form>
+$(<h1>Welcome, please log in</h1>).appendTo("body");
+var form = $(<form>
     <label>Username:
         <input name="username"/>
     </label>
@@ -24,13 +23,14 @@ var form = document.body.appendChild(dom.make(<form>
         <input name="password" type="password"/>
     </label>
     <input type="submit" value="go"/>
-</form>));
+</form>).appendTo("body");
 
-var submit = dom.handle("onsubmit", form, function(){
-    return{
-        name : form.username.value,
-        pass : form.password.value
-    };
+var submit = msjs.make();
+form.submit(function(){
+    submit.update({
+        name : $("input[name='username']").val(),
+        pass : $("input[name='password']").val()
+    });
 });
 
 var authenticate = msjs.require("demo.authenticate");
@@ -47,6 +47,7 @@ var error = msjs.make(function(msj){
 });
 error.push(login, "login");
 
-dom.addCss(dom.getCssId(form) + ".error", "input[name=password]",{
+var dom = msjs.require("msjs.dom");
+dom.addCss(dom.getCssId(form[0]) + ".error", "input[name=password]",{
     backgroundColor : "red"
 });

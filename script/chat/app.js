@@ -14,34 +14,33 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-dom.make(<h1>Simple chat</h1>);
+$(<h1>Simple chat</h1>).appendTo("body");
 
-var form = document.body.appendChild(dom.make(<form>
+var form = $(<form>
     <label>Name:
         <input name="username"/>
     </label>
     <textarea name="message" style="display:block"/>
     <input type="submit" value="go"/>
-</form>));
+</form>).appendTo("body");
 
-var submit = dom.handle("onsubmit", form, function(){
-    return {
-        username : form.username.value,
-        message : form.message.value
-    };
+var submit = msjs.make();
+form.submit(function(){
+    submit.update({
+        username : $("input[name='username']").val(),
+        message : $("textarea").val()
+    });
 });
 
 
 var listener = msjs.require("chat.listener");
 listener.push(submit, "submit");
 
-var output = document.body.appendChild(dom.make(<div/>));
+var output = $(<div/>).appendTo("body");
 var renderer = msjs.make(function(msj){
-    dom.removeChildren(output);
+    output.empty();
     msjs.each(msj.list, function(item){
-        var line = output.appendChild(document.createElement("div"));
-        dom.setText(item.username + ": " + item.message, line);
+        $("<div/>").appendTo(output).text(item.username + ": " + item.message);
     });
 
 });
