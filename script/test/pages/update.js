@@ -14,7 +14,6 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
 var animator = msjs.require("msjs.animator");
 
 var jForm = $(
@@ -45,23 +44,24 @@ var controls = msjs.make( function(){
     return r;
 });
 
-dom.addListener("onsubmit", form, function(){
+jForm.submit(function() {
     controls.update();
 });
 
         
-var listEl = dom.add(<div style="position:relative"/>);
+var dom = msjs.require("msjs.dom");
+var listEl = $(<div style="position:relative"/>).appendTo("body");
 var elHeight = 30;
 var list = msjs.make( function(msj){
     var model = msj.model;
     var self = this;
     //hide them all to start
-    msjs.each(listEl.getElementsByTagName("div"), function(animal){
+    listEl.find("div").each(function(i, animal) {
         animal.style.display = "none";
     });
     msjs.each(model, function(animal,i){
         var name = animal.name;
-        var el = dom.findMsj(listEl, name);
+        var el = dom.findMsj(listEl[0], name);
         if (!el) {
             makeAnimal(name, i);
         } else {
@@ -77,15 +77,15 @@ var list = msjs.make( function(msj){
 });
 
 var makeAnimal = function(name, n){
-    var el = listEl.appendChild(document.createElement("div"));
-    dom.setText(name, el);
-    dom.setDomMsj(name, el);
-    el.style.width = "200px";
-    el.style.padding = "5px";
-    el.style.border = "solid 1px";
-    el.style.position =  "absolute";
-    el.style.height  =  "20px";
-    el.style.top    =  (n*elHeight)+"px";
+    var el = $("<div/>").appendTo(listEl)
+        .css({width : "200px", 
+              padding : "5px",
+              border : "solid 1px",
+              position :  "absolute",
+              height :  "20px",
+              top :  (n*elHeight)+"px"})
+        .text(name);
+    dom.setDomMsj(name, el[0]);
 }
 
 var animals = msjs.make(function(){

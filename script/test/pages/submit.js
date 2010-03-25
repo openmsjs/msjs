@@ -14,7 +14,6 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
 var listEl =  $(<div/>).appendTo(document.body);
 var list = msjs.make( function(msj){
     listEl.children().remove();

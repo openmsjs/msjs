@@ -14,8 +14,7 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var listEl = dom.add(<div/>);
+var listEl = $(<div/>).appendTo("body");
 var sortKey = "first";
 var list = msjs.make( function(msj){
     if (msj.toggle) sortKey = sortKey == "first" ? "last" : "first";
@@ -40,10 +39,10 @@ var list = msjs.make( function(msj){
 
     //this is append only
     for (var i=0; i < arr.length; i++){
-        if (!listEl.childNodes[i]){
-            listEl.appendChild(document.createElement("div"));
+        if (!$(listEl).children()[i]){
+            $("<div/>").appendTo(listEl);
         }
-        dom.setText(arr[i].first + " " + arr[i].last, listEl.childNodes[i]);
+        $(listEl.children()[i]).text(arr[i].first + " " + arr[i].last);
     }
 
     return arr;
@@ -52,11 +51,11 @@ list.dirty = true;
 
 
 
-var controls = dom.handle("onclick", dom.add(
-    <div>
-        <input type="button" value="toggle"/>
-    </div>
-),"input", function(event){
-    return true;
+var controls = msjs.make();
+$(<div><input type="button" value="toggle"/></div>)
+    .appendTo("body")
+    .find("input")
+    .click(function(event){
+    controls.update(true);
 });
 list.set("toggle", controls);

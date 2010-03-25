@@ -27,12 +27,11 @@ var a = msjs.make( function(){
 });
 
 //client
-var dom = msjs.require("msjs.dom");
-var display1 = dom.add(<div/>);
+var display1 = $(<div/>).appendTo("body");
 
 var b = msjs.make(function(msj){
     var r = msj.a +1;
-    dom.setText(r, display1);
+    $(display1).text(r);
     return r;
 });
 
@@ -53,11 +52,10 @@ c.push(num, "num");
 
 
 //client
-var display2 = dom.add("div");
+var display2 = $(<div/>).appendTo("body");
 var d = msjs.make(function(msj){
-    var line = document.createElement("div");
-    display2.appendChild(line);
-    dom.setText(msj.num + " is even", line);
+    var line = $("<div/>").text(msj.num + " is even");
+    display2.append(line);
     return true;
 });
 d.get(num, "num");
@@ -71,8 +69,8 @@ listener.get(b, "b");
 listener.push(d, "d");
 listener.packMe = false;
 
-var doneEl = dom.add("div");
+var doneEl = $(<div/>).appendTo("body");
 var display3 = msjs.make(function(msj){
-    dom.setText("Last even: " + msj.listener, doneEl);
+    doneEl.text("Last even: " + msj.listener);
 });
 display3.push(listener, "listener");

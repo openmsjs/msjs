@@ -17,10 +17,9 @@
 var x = 1;
 var y = {z:2};
 
-var dom = msjs.require("msjs.dom");
-var button = dom.add(<button>click me</button>); 
-var b = dom.handle("onclick", button, function(event){
-    return true;
+var b = msjs.make();
+$(<button>click me</button>).appendTo("body").click(function(event){
+    b.update(true);
 });
 
 var m = msjs.make(function(msj){
@@ -30,9 +29,9 @@ var m = msjs.make(function(msj){
 
 m.depends(b);
 
-var output = dom.add(<div>go ahead</div>);
-var d = msjs.make( function(msj){
-    dom.setText(msj.m + y.z, output);
+var output = $(<div>go ahead</div>).appendTo("body");
+var d = msjs.make(function(msj){
+    output.text(msj.m + y.z);
 });
 d.set("m", m);
 

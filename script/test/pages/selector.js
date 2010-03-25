@@ -14,48 +14,49 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var list = dom.add(<div>
+var list = $(<div>
     <div>Adam</div>
     <div class="item">Bet<span>boooo</span>ty</div>
     <div class="item last">Charles</div>
     <button>go</button>
-</div>);
+</div>).appendTo("body");
 
-dom.handle("onclick", list, "button", function(){
+list.find("button").click(function() {
     msjs.log('button hit');
 });
 
-dom.handle("onclick", list, "div span", function(event, selected){
-    event.cancel();
-    msjs.log('span hit', selected);
+list.find("div span").click(function(event, selected) {
+    msjs.log('span hit', event, selected);
+    return false;
 });
 
-dom.handle("onclick", list, "div.item", function(event, selected){
+list.find("div item").click(function(event, selected) {
     msjs.log('item hit', selected);
 });
 
-dom.handle("onclick", list, "div.item.last", function(event, selected){
+list.find("div.item.last").click(function(event, selected) {
     msjs.log('last hit', selected);
 });
 
-dom.handle("onclick", document.body, function(event){
+$(document.body).click(function(event){
     msjs.log('body hit', event.target);
 });
 
-dom.handle("onmouseover", list, ".item", function(event, selected){
+list.find(".item").mouseover(function(event, selected){
     msjs.log('over item', selected);
 });
 
-dom.addCss(list, {
+var dom = msjs.require("msjs.dom");
+var el = list[0];
+dom.addCss(el, {
     width : "200px",
     backgroundColor: "silver"
 });
 
-dom.addCss(list, " .item", {
+dom.addCss(el, " .item", {
     color : "red"
 });
 
-dom.addCss(list, " .item", "span", {
+dom.addCss(el, " .item", "span", {
     color : "green"
 });
