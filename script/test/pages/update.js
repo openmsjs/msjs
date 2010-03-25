@@ -17,7 +17,7 @@
 var dom = msjs.require("msjs.dom");
 var animator = msjs.require("msjs.animator");
 
-var form = dom.add(
+var jForm = $(
     <form><div>
         <input type="radio" name="size" value="longer" checked="checked"/> longer
         <input type="radio" name="size" value="shorter"/> shorter <br/>
@@ -25,7 +25,9 @@ var form = dom.add(
         <input type="radio" name="sort" value="friendliness"/> friendliness <br/>
         <input type="submit" value="go"/>
     </div></form>
-);
+).appendTo(document.body);
+
+var form = jForm.get(0);
 
 var controls = msjs.make( function(){
     var inputs = form.getElementsByTagName("input");
