@@ -34,7 +34,6 @@ node._lastMsjRefresh = -1;
     dependencies on other nodes, and each have a reference to 
     the graph object that contains them.
     @example var myNode = node.make(function(){return myMsj})
-    @param {Function} msjF The function which renders the msj for this node.
 */
 node.rawMake = function(){
     var newNode = new nodeConstructor();
@@ -50,6 +49,8 @@ node.getId = function(){
     Adds an edge in the graph from the given node to this one. Also marks
     this node as dirty.
     @param {node} otherNode The node that this node depends on.
+    @name depends
+    @methodOf msjs.node#
 */
 node.depends = function(otherNodeRef){
     var otherNode = this.resolveReference(otherNodeRef);
@@ -68,6 +69,8 @@ node.resolveReference = function(nodeOrPackage){
 
 /**
     Mark node as dirty and refresh msj.
+    @name update
+    @methodOf msjs.node#
 */
 node.update = function(msj){
     if (msj === void 0) msj = this._composeMsj(); 
@@ -76,6 +79,8 @@ node.update = function(msj){
 
 /**
     Get the msj produced by this node.
+    @name getMsj
+    @methodOf msjs.node#
 */
 node.getMsj = function(){
     return this._msj;
@@ -98,6 +103,8 @@ node.updateMsj = function(msj, clock){
    by this method, it indicates that the node's msj has not changed. This
    permits optimizations in the update process -- if none of a node's dependencies have
    updated, the node is, by-definition, clean. 
+    @name _composeMsj
+    @methodOf msjs.node#
 */
 node._composeMsj = function(){
     return this.produceMsj(this._collectInputs());
@@ -127,6 +134,8 @@ node.unpack = function(packed){
     to the client. If true, the node must be packed and transported to the
     client. If false, the node can't be packed. If null, then msjs should decide
     whether or not to pack the node.
+    @name packMe
+    @fieldOf msjs.node#
 */
 node.packMe = null;
 
@@ -135,6 +144,8 @@ node.packMe = null;
     clock.
     @param {Number} nodeId The ID of the node to clean.
     @return {Number} If time at which this node was last updated
+    @name refreshMsj
+    @methodOf msjs.node#
 */
 node.refreshMsj = function(){
     var tick = this._graph.clock;
@@ -202,20 +213,35 @@ node.set = function(property, nodeOrPackage, isTransient){ //careful; "transient
     return node;
 }
 
-//this is used to signal that the model has a dependency which is not explicitly set when the
-//model is created. models check their expectations when they run produce
+/**
+    Used to signal that the model has a dependency which is not explicitly set when the
+    model is created. models check their expectations when they run produce
+    @name expects
+    @methodOf msjs.node#
+*/
 node.expects = function(property){
     this._ensureHasOwn("_expectations");
+    de.getGraphsIdsForUpdate = null;
     this._expectations.push(property);
 }
 
 node._expectations = [];
 
+/**
+    Pushes
+    @name push
+    @methodOf msjs.node#
+*/
 node.push = function(nodeOrPackage, property){
     this.set(property, nodeOrPackage, true);
     return this;
 }
 
+/**
+    FIXME: Should be pull
+    @name pull
+    @methodOf msjs.node#
+*/
 node.get = function(nodeOrPackage, property){
     var node = this.resolveReference(nodeOrPackage);
     this._ensureHasOwn( "_inputs" );
@@ -229,6 +255,8 @@ node.get = function(nodeOrPackage, property){
     this hash if they have updated since the last time this node's _composeMsj function has
     run. See {@link msjs.node#set} for more on this.
     @return {Object} Hash of the msj's of upstream nodes, by property name.
+    @name _collectInputs
+    @methodOf msjs.node#
 */
 node._collectInputs = function(){
     var msj = {};
@@ -270,6 +298,8 @@ node.copyInputs = true;
     copies an shared class arrays or hashes into the instance.
 
     @param {String} prop The name of the property to be copied into the instance.
+    @name _ensureHasOwn
+    @methodOf msjs.node#
 */
 node._ensureHasOwn = function(prop){
     if (!this.hasOwnProperty(prop)){
@@ -290,6 +320,8 @@ node._ensureHasOwn = function(prop){
     "arguments.callee" in the context of the currently executing method.
     @param {Array} The list of arguments with which to call the call
     the superclass method.
+    @name callInherited
+    @methodOf msjs.node#
 */
 node.callInherited = function ( fName, currF, args ){
     var p = this;
@@ -320,6 +352,12 @@ node.shutdown = function(){ }
 
 node._future = null;
 node._asyncLock = null;
+/**
+    Pack this node for transport to the client.
+    @return {Future} A Java future representing the function run
+    @name async
+    @methodOf msjs.node#
+*/
 node.async = function(f){
     //since this function is entered synchronously, it's ok to make this lazily right here
     //use a fair lock, to order updates
@@ -339,6 +377,8 @@ node.async = function(f){
 /**
     Pack this node for transport to the client.
     @return {Object} Hash of this node's packed fields.
+    @name pack
+    @methodOf msjs.node#
 */
 node.pack = function(packType){
     var isPacked = packType == "packed";

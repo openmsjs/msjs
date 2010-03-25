@@ -256,7 +256,7 @@ dom.seek = function(f, el){
     parameter is expected to view-style dom node, with a msj
     attribute. On the client, the parameter is expected to be a DOM element.
     @name getDomMsj
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
     @param el The object for which to obtain the msj data.
     @return The msj data for the given element.
 */
@@ -392,7 +392,7 @@ dom.removeChild = function(el){
     and returns it in an object with the keys 'x', and 'y'
     @return Object Object in the form of {x : <n> : y <m>}
     @name getElementPosition
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
  */
 dom.getElementPosition = function(e) {
     if (e == null) {
@@ -613,7 +613,7 @@ dom._select = function(selector, target, listenerEl){
     Unpacks the the information gathered in @link{msjs.dom#pack} on the
     client.
     @name unpack
-    @memberOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.unpack = function(packInfo, packedClientPackages){
     msjs.setPackInfo(packInfo);
@@ -675,7 +675,7 @@ dom.setPackInfo = function(packInfo){
 /**
     Perpares info for transport to the client. Called by the Java Page
     @name pack
-    @memberOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.pack = function(){
 
@@ -783,7 +783,7 @@ dom._cssRules = [];
     Adds a css rule to the document
     var args
     @name addCss
-    @memberOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.addCss = function(){
     var selector = "";
