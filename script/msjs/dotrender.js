@@ -27,7 +27,7 @@ msjs.publish({dotRender: function(){
     }
 
     function getDomElementName(domel){
-        if (domel == document) return "document";
+        if (domel == document.documentElement) return "document";
         var s = '"'  + dom.getCssId(domel);
         if (domel._debugRef) s += " " + domel._debugRef;
         return s + '"';
@@ -45,7 +45,7 @@ msjs.publish({dotRender: function(){
         return s + ";";
     }
 
-    var domelements = [document];
+    var domelements = [document.documentElement];
     var clusters = {};
 
     msjs.each(graph._nodes, function(node){
@@ -56,6 +56,8 @@ msjs.publish({dotRender: function(){
             var scope = msjs.context.getScope(f);
             for (var k in freeVars){
                 var val =scope[k];
+                if (val == jQuery) continue;
+
                 //FIXME -- use instanceof here
                 if (val && val.nodeName){
                     domelements.push(val);
