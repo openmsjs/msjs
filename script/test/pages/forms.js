@@ -16,7 +16,7 @@
 
 msjs.require("jquery");
 var dom = msjs.require("msjs.dom");
-var jEl = $(<div>
+var el = $(<div>
         <button style="margin-bottom:20px">clear</button><br/>
         <input/>
         <form style="margin-bottom:20px;margin-top:20px"><div>
@@ -28,26 +28,23 @@ var jEl = $(<div>
         </div></form>
 </div>).appendTo(document.body);
 
-var jInput = jEl.find("input").first();
-var jForm = jEl.find("form");
-var input = jInput.get(0);
-var form = jForm.get(0);
-var el = jEl[0];
+var input = el.find("input").first();
+var form = el.find("form");
 
 var clearButton = msjs.make();
 
-var x = jEl.find("button").click(function(){
-    jInput.val("");
-    jForm[0].reset();
+el.find("button").click(function(){
+    input.val("");
+    form[0].reset();
     clearButton.update(true);
 });
 
 var typing = msjs.make(function(){
-    return input.value || "";
+    return input.val() || "";
 });
 typing.depends(clearButton);
 
-jInput.keyup( function(){
+input.keyup( function(){
     typing.update();
 });
 
@@ -55,7 +52,7 @@ var submit = msjs.make(function(){
     //TODO: Can't use normal form[named input] here, since that's not
     //implemented on the server in msjs (yet!)
     var values = {};
-    jForm.find("input").each(function(n, el){
+    form.find("input").each(function(n, el){
         var name = el["name"];
         if (!name) return;
         switch (el["type"]){
@@ -79,7 +76,7 @@ var submit = msjs.make(function(){
 });
 submit.depends(clearButton);
 
-jForm.submit(function(){
+form.submit(function(){
     submit.update();
 });
 
