@@ -6307,6 +6307,9 @@ jQuery.fn._msjs_getUnpacker = function(){
     return [fnUnpackF, [members]];
 }
 
+jQuery.packMe = true;
+jQuery.fn.packMe = true;
+
 jQuery._packObj = function(val){
     if(val && typeof val == "object" && !val._msjs_getUnpacker){
         var r = msjs.isArray(val) ? [] : {};
