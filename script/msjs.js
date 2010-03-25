@@ -28,6 +28,7 @@ var msjs = {};
     object. On the server, it's the instance of MsjsScriptContext that
     contains the running environment.
 */
+/**#nocode+*/
 msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
@@ -113,6 +114,7 @@ msjs.context = {
     isIE : typeof(navigator) != "undefined" &&
            /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)
 };
+/**#nocode-*/
 
 /**
     Can be checked to determine if msjs is running in the browser or on the server.
@@ -492,55 +494,6 @@ msjs.bindContext = function(context, global){
 
 msjs.clientPackages = ["msjs"];
 msjs._clientPublished = new java.util.HashMap();
-msjs.require = function(packageName){
-    var isJava = packageName.indexOf("java.") == 0;
-
-    if (!isJava && packageName.toLowerCase() != packageName){
-        throw "msjs package names should be lower case: " + packageName;
-    }
-
-    if (bindings[packageName] == this._packageIsLoading) {
-        throw "Publish/requires cycle on " + packageName;
-    }
-
-    try{
-        if (bindings[packageName] === void 0){
-            //This allows the user to mock a java object
-            if (isJava){
-                return this.context.inject(packageName.substring(5));
-            }
-
-            var value = this.context.getFromSingletonScope(packageName);
-            if (value !== void 0){
-                bindings[packageName] = value;
-            } else {
-                bindings[packageName] = this._packageIsLoading;
-
-                try{
-                    this.context.loadPackage( packageName );
-                } catch ( e ){
-                    var cause = e.javaException && e.javaException.getCause();
-                    if ( cause instanceof java.io.FileNotFoundException) {
-                        e = "Unable to find " + packageName;
-                    } 
-                    throw e.javaException || e;
-                } finally {
-                    if (bindings[packageName] == this._packageIsLoading){
-                        //nothing was published
-                        bindings[packageName] = null;
-                    }
-                }
-            }
-        }
-    }finally{
-        if (this._clientPublished.containsValue(packageName) &&
-            this.clientPackages.indexOf(packageName) == -1 ){
-            this.clientPackages.push(packageName);
-        }
-    }
-
-    return bindings[packageName];
-}
 
 msjs.assignDebugNames = function(packageName, scope){
     for (var k in scope){
@@ -549,35 +502,6 @@ msjs.assignDebugNames = function(packageName, scope){
     }
 }
 
-msjs.publish = function(value, scope){
-    var packageName = String(this.context.loadingPackage);
-
-    var currentValue = bindings[packageName];
-    if (currentValue != this._packageIsLoading && 
-        currentValue !== void 0){
-        throw "Value already published for " + packageName;
-    }
-
-    if (scope == null) scope = "Context";
-    switch (scope){
-        case "Client":
-            this._clientPublished.put(value, packageName);
-            break;
-        case "Singleton":
-            value = this.context.assignToSingletonScope(packageName, value);
-            break;
-        case "Context":
-            break;
-        default:
-            throw "Unrecognized scope " + scope;
-    }
-
-    bindings[packageName] = value;
-
-    return value;
-}
-
-msjs._packList = [];
 msjs.pack = function(value){
     var putInPackList = value && (
             typeof value == "function" ||
@@ -599,15 +523,7 @@ msjs.getPackInfo = function(){
     return pl;
 }
 
-//Only call inject if needed; otherwise you always need to invoke Guice
-//in order to run msjs
-msjs.getExecutor = function(){
-    if (!this._executor){
-        this._executor = this.require("java.java.util.concurrent.ExecutorService");
-    }
-    return this._executor;
-}
-
+msjs._packList = [];
 msjs._dontPackNames = {
     "document" : true, 
     "msjs" : true, 
@@ -677,6 +593,95 @@ msjs._getPackList=  function(){
     };
 
     return "[" + unpackPairs.join() + "]";
+}
+
+//Only call inject if needed; otherwise you always need to invoke Guice
+//in order to run msjs
+msjs.getExecutor = function(){
+    if (!this._executor){
+        this._executor = this.require("java.java.util.concurrent.ExecutorService");
+    }
+    return this._executor;
+}
+
+//The rest of this stuff is overrides of client APIs
+/**#nocode+*/
+msjs.require = function(packageName){
+    var isJava = packageName.indexOf("java.") == 0;
+
+    if (!isJava && packageName.toLowerCase() != packageName){
+        throw "msjs package names should be lower case: " + packageName;
+    }
+
+    if (bindings[packageName] == this._packageIsLoading) {
+        throw "Publish/requires cycle on " + packageName;
+    }
+
+    try{
+        if (bindings[packageName] === void 0){
+            //This allows the user to mock a java object
+            if (isJava){
+                return this.context.inject(packageName.substring(5));
+            }
+
+            var value = this.context.getFromSingletonScope(packageName);
+            if (value !== void 0){
+                bindings[packageName] = value;
+            } else {
+                bindings[packageName] = this._packageIsLoading;
+
+                try{
+                    this.context.loadPackage( packageName );
+                } catch ( e ){
+                    var cause = e.javaException && e.javaException.getCause();
+                    if ( cause instanceof java.io.FileNotFoundException) {
+                        e = "Unable to find " + packageName;
+                    } 
+                    throw e.javaException || e;
+                } finally {
+                    if (bindings[packageName] == this._packageIsLoading){
+                        //nothing was published
+                        bindings[packageName] = null;
+                    }
+                }
+            }
+        }
+    }finally{
+        if (this._clientPublished.containsValue(packageName) &&
+            this.clientPackages.indexOf(packageName) == -1 ){
+            this.clientPackages.push(packageName);
+        }
+    }
+
+    return bindings[packageName];
+}
+
+msjs.publish = function(value, scope){
+    var packageName = String(this.context.loadingPackage);
+
+    var currentValue = bindings[packageName];
+    if (currentValue != this._packageIsLoading && 
+        currentValue !== void 0){
+        throw "Value already published for " + packageName;
+    }
+
+    if (scope == null) scope = "Context";
+    switch (scope){
+        case "Client":
+            this._clientPublished.put(value, packageName);
+            break;
+        case "Singleton":
+            value = this.context.assignToSingletonScope(packageName, value);
+            break;
+        case "Context":
+            break;
+        default:
+            throw "Unrecognized scope " + scope;
+    }
+
+    bindings[packageName] = value;
+
+    return value;
 }
 
 //This is the template for unpacking closures

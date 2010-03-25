@@ -14,6 +14,20 @@
  * the License.
  */
 
+/**
+    @namespace Publishes the assert function
+    @name msjs.assert
+*/
+
+/**
+    @name assert
+    @memberOf msjs.assert
+    @function
+    @description Tests the last argument for truthiness, throwing an exception
+    if it's not.  The exception is the first argument or the string "Failed
+    assertion"
+
+*/
 msjs.publish(function(){
     var val = arguments[arguments.length-1];
     var f = null;

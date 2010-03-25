@@ -14,6 +14,8 @@
  * the License.
  */
 
+//FIXME: Remove this file
+/**#nocode+*/
 /**
     Animator is simple msjs.base instance that produces values ranging from 
     0 to 100 over a given duration. The animator will call its list of callback
