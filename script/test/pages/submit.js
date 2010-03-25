@@ -15,20 +15,17 @@
  */
 
 var dom = msjs.require("msjs.dom");
-var listEl =  dom.add(<div/>);
+var listEl =  $(<div/>).appendTo(document.body);
 var list = msjs.make( function(msj){
-    var model = msj.model;
-    //append only
-    for (var i=0; i < model.length; i++){
-        if (!listEl.childNodes[i]){
-            var name = model[i].first + " " + model[i].last;
-            var el = listEl.appendChild(document.createElement("div"));
-            dom.setText(name, el);
-            el.style.border = "solid 1px black";
-            el.style.padding = "5px";
-            el.style.width = "125px";
-        }
-    }
+    listEl.children().remove();
+    $.each(msj.model, function(n, model){
+        $("<div/>").text(model.first + " " + model.last).appendTo(listEl)
+        .css({
+            border : "solid 1px black",
+            padding : "5px",
+            width : "125px"
+        });
+    });
 });
 
 var model = msjs.make(function(msj){
