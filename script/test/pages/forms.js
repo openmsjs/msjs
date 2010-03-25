@@ -30,8 +30,8 @@ var jEl = $(<div>
 
 var jInput = jEl.find("input").first();
 var jForm = jEl.find("form");
-var input = jInput[0];
-var form = jForm[0];
+var input = jInput.get(0);
+var form = jForm.get(0);
 var el = jEl[0];
 
 var clearButton = msjs.make();
@@ -47,17 +47,15 @@ var typing = msjs.make(function(){
 });
 typing.depends(clearButton);
 
-dom.addListener("onkeyup", input, function(){
+jInput.keyup( function(){
     typing.update();
 });
 
-//var submit = dom.handle("onsubmit", form, function(){
 var submit = msjs.make(function(){
-    //Can't use normal form[named input] here, since that's not
-    //implemented on the server in msjs
+    //TODO: Can't use normal form[named input] here, since that's not
+    //implemented on the server in msjs (yet!)
     var values = {};
-
-    msjs.each(form.getElementsByTagName("input"), function(el){
+    jForm.find("input").each(function(n, el){
         var name = el["name"];
         if (!name) return;
         switch (el["type"]){
@@ -81,26 +79,20 @@ var submit = msjs.make(function(){
 });
 submit.depends(clearButton);
 
-dom.addListener("onsubmit", form, function(){
+jForm.submit(function(){
     submit.update();
 });
 
 
-var out = el.appendChild(dom.make(<div/>));
+var out = $(<div/>).appendTo(document.body);
 var view = msjs.make(function(msj){
-    var i=0;
+    out.children().remove();
+
     for (var k in msj){
         if (msj[k] === void 0) continue;
-        if (!out.childNodes[i]) {
-            out.appendChild(dom.make("pre"));
-        }
-
-        dom.setText(k.toUpperCase() +": " + msjs.toJSON(msj[k]), out.childNodes[i++]);
+        out.append($("<pre>"+k+"<>").text( k.toUpperCase() + ": " + msjs.toJSON(msj[k]) ));
     }
 
-    for (; i<out.childNodes.length; i++){
-        out.removeChild(out.childNodes[i]);
-    }
 });
 view.set("input", typing);
 view.set("clearButton", clearButton, true);
