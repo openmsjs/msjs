@@ -290,7 +290,9 @@ for (var k in styleConversion){
     reverseStyleConversion[styleConversion[k]] = k;
 }
 
+domelement._isPacked = false;
 domelement._msjs_getUnpacker = function() {
+    this._isPacked = true;
     return [this._unpackF, [this.generateId()]];
 };
 
@@ -324,6 +326,7 @@ domelement._isAttribute = function(attr) {
     if (!this.hasOwnProperty(attr)) return false;
     if (this[attr] instanceof Function) return false;
 
+    //TODO: This should be whitelist
     switch (attr){
         //not attributes
         case "parentNode":
@@ -343,6 +346,7 @@ domelement._isAttribute = function(attr) {
         case "packMe":
         case "_debugRef":
         case "_listeners":
+        case "_isPacked":
             return false;
     }
 
@@ -450,7 +454,7 @@ document.renderAsXHTML = function(script){
     var all = domelement._all;
     for (var i=0; i < all.length; i++){
         var el = all[i];
-        if (el.parentNode == null && el != this.documentElement && !el._removed){
+        if (el.parentNode == null && el._isPacked && el != this.documentElement && !el._removed){
             if (!unattachedEl) {
                 unattachedEl = this.body.appendChild(<div id="_msjs_unattached" style="display: none"/>);
             }
