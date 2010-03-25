@@ -41,8 +41,8 @@ public class TestSubmit extends BaseIntegrationTest{
         assertPeople(people);
 
         List<HtmlInput> inputs = (List<HtmlInput>) page.getByXPath("//form/div/input");
-        inputs.get(0).type("peter");
-        inputs.get(1).type("andrea");
+        inputs.get(0).type("debbie");
+        inputs.get(1).type("douglas");
         //HtmlUnit doesn't properly recognize our attempt to cancel the event in the browser if
         //we click the submit button, so this does it instead
         HtmlForm form = (HtmlForm) page.getByXPath("//form").get(0);
@@ -59,7 +59,7 @@ public class TestSubmit extends BaseIntegrationTest{
 
         assertEquals(4, people.size());
         assertPeople(people);
-        assertEquals("peter andrea", people.get(3).getTextContent());
+        assertEquals("debbie douglas", people.get(3).getTextContent());
 
     }
 
