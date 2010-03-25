@@ -28,7 +28,7 @@ node._lastChecked = -1;
 node._lastMsjRefresh = -1;
 
 /**
-    @name node
+    @name msjs.node
     @constructor 
     @class A participant in the msjs graph. Nodes have formal
     dependencies on other nodes, and each have a reference to 

@@ -15,8 +15,8 @@
  */
 
 /**
-    The graph instance that connects the {@link node}s
-    @name graph
+    The graph instance that connects the {@link msjs.node}s
+    @name msjs.graph
     @class The object responsible for coordinating the relationships
     among the {@link node}s in the program.
 */
