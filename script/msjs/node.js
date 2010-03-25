@@ -123,6 +123,11 @@ node.isLocal = true;
 
 node.onLoad = null;
 node.onConnectionError = null;
+/**
+    Unpack this node on the client
+    @name unpack
+    @methodOf msjs.node#
+*/
 node.unpack = function(packed){
     for (var k in packed){
         this[k] = msjs.unpack(packed[k]);

@@ -15,10 +15,10 @@
  */
 
 /**
-    The graph instance that connects the {@link msjs.node}s
+    @namespace The graph instance that connects the {@link msjs.node}s
+    The object responsible for coordinating the relationships
+    among the {@link msjs.node}s in the program.
     @name msjs.graph
-    @class The object responsible for coordinating the relationships
-    among the {@link node}s in the program.
 */
 var graph = {};
 graph._nodes = [];
@@ -30,6 +30,12 @@ graph._cache = {};
 graph.NOT_UPDATED = void 0;
 graph.id = msjs.context.id;
 
+/**
+    Make a {@link msjs.node}
+    @return {msjs.node}
+    @name make
+    @methodOf msjs.graph#
+*/
 graph.make = function(produceFunction){
     var node = msjs.require("msjs.node").rawMake();
     if (produceFunction) node.produceMsj = produceFunction;
@@ -50,6 +56,8 @@ graph.make = function(produceFunction){
     The graph tracks state changes with a clock. Whenever a node is marked
     dirty, the "time" on the clock is recorded, and the clock is advanced. The
     clock may be read freely, even during an update, but never written to.
+    @name clock
+    @fieldOf msjs.graph#
 */
 graph.clock = 0;
 
@@ -74,6 +82,9 @@ graph._remoteUpdateQueue = [];
     Retrieve the list of messages in the queue for the graph's counterpart
     running elsewhere. This also empties this graph's queue.
     @return {String} A JSON version of the message queue.
+    @private
+    @name _setRemoteUpdateQueueOffset
+    @methodOf msjs.graph#
 */
 graph._setRemoteUpdateQueueOffset = function(pos){
     while(this._remoteUpdateQueueOffset < pos){
@@ -480,9 +491,12 @@ graph._abortConnections = function() {
 }
 
 /**
-    Given an object returned by {@link graph.pack}, create the node instances
+    Given an object returned by {@link msjs.graph}, create the node instances
     specified by the given data, and insert into this graph. Client-only
-    @param {Object} contents An object returned by {@link graph.pack}
+    @param {Object} contents An object returned by {@link msjs.graph}
+    @private
+    @name setPackInfo
+    @methodOf msjs.graph#
 */
 graph.setPackInfo = function(packed){
     this.id = packed.id;
@@ -573,6 +587,11 @@ graph.setTimeout = function(f, dur){
     setTimeout(f, dur);
 }
 
+/**
+    Start an update with new values for the given nodes
+    @name putUpdate
+    @methodOf msjs.graph#
+*/
 graph.putUpdate = function(node, msj){
     var update = {};
     update[node.getId()] = msj;
@@ -750,6 +769,9 @@ graph._valve = msjs.require("java.org.msjs.script.Valve");
     @return {Hash of lists} For any node in the graph which participates in a strong
     component with another node, this Hash has an entry which is a list of the other 
     nodes in the component, in distance order.
+    @private
+    @name _getStrongComponents
+    @methodOf msjs.graph#
 */
 graph._getStrongComponents = function() {
     var index = 0;
@@ -858,11 +880,13 @@ graph.refreshAll = function(){
 
 graph.profile = {};
 
-/**
+/*
     Return this list of packed objects for this graph. This method has side-effects; 
     any node that is packed during this operation is marked as such and will not
     be packed again.
     @return {Object} A hash containing data to unpack this graph.
+    name pack
+    memberOf msjs.graph#
 */
 graph.pack = function() {
     this._updateLock.lock();
@@ -874,6 +898,7 @@ graph.pack = function() {
     }
     return r;
 }
+
 // This is unsynchronized. It shouldn't be run w/o protection from _pack.
 graph._pack = function(){
     if (this.hasRemote){
