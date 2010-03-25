@@ -1011,7 +1011,7 @@ graph._determinePack = function(node){
         }
     }
 
-    return null;
+    return true;
 }
 
 graph._wantToPack = function(node, packMap){

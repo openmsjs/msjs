@@ -56,8 +56,7 @@ var form = $(
 ).appendTo(document.body);
 
 var submit = msjs.make();
-//FIXME: Get rid of this
-submit.packMe = true;
+
 form.submit( function(event){
     var r = {
         first : form.get(0).first.value,
