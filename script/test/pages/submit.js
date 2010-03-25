@@ -29,7 +29,6 @@ var list = msjs.make( function(msj){
 });
 
 var model = msjs.make(function(msj){
-    msjs.log(msj);
     if (msj.form && msj.form.first){
         this._msj.push(msj.form);
     }
