@@ -14,24 +14,24 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var header = document.body.appendChild(dom.make(<h1/>));
-var form = document.body.appendChild(dom.make(<form>
+var header = $(<h1/>).appendTo("body");
+var form = $(<form>
     <img alt="" class="who"/>
     <textarea name="update"/>
     <input type="submit" value="go"/>
-</form>));
+</form>).appendTo("body");
 
-var whoImg = dom.find(form, "img.who"); 
+var whoImg = form.find("img.who")[0]; 
 var username = msjs.make(function(msj){
     var request = msjs.require("java.javax.servlet.ServletRequest");
     var name = request.getParameter("name");
     if (!name) msjs.context.redirect("/msjs/demo/login.msjs");
-    dom.setText("Welcome, "+ name, header);
+    header.text("Welcome, "+ name);
     whoImg.alt = name;
     return name;
 });
 
+var dom = msjs.require("msjs.dom");
 dom.addCss("img.who", {
     border : "solid 1px black",
     cssFloat  : "left",
@@ -39,14 +39,14 @@ dom.addCss("img.who", {
     minHeight : "50px"
 });
 
-var submit = dom.handle ("onsubmit", form, function(){
+var submit = msjs.make();
+form.submit(function(){
     var r =  {
         name : whoImg.alt,
-        update : form.update.value
-    }
-    form.reset();
-
-    return r;
+        update : this.update.value
+    };
+    this.reset();
+    submit.update(r);
 });
 var statusArray = msjs.require("demo.statuslist");
 var statusList = msjs.make(function(msj){
@@ -58,17 +58,17 @@ statusList.dirty = true;
 
 statusList.push(submit, "submit");
 
-var updates = document.body.appendChild(dom.make(<div class="updates"/>));
+var updates = $(<div class="updates"/>).appendTo("body");
+var template = $(<div>
+    <img class="who"/>
+    <div/>
+</div>.toXMLString()).css("clear", "both");
 var renderer = msjs.make(function(msj){
-    dom.removeChildren(updates);
+    updates.empty();
     msjs.each(msj.statusList.reverse(), function(status){
-        var entry = updates.appendChild(document.createElement("div"));
-        entry.style.clear = "both";
-        var img = entry.appendChild(document.createElement("img"));
-        img.className = "who";
-        img.alt = status.name;
-        var text = entry.appendChild(document.createElement("div"));
-        dom.setText(status.update, text);
+        var entry = template.clone().appendTo(updates);
+        entry.find("img").attr("alt", status.name);
+        entry.find("div").text(status.update);;
     });
 });
 renderer.push(statusList, "statusList");

@@ -14,14 +14,13 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var el = dom.add(<div/>);
+var el = $(<div/>).appendTo("body");
 var makesome = msjs.make(function(){
-    el.innerHTML = "foo foo foo";
+    el[0].innerHTML = "foo foo foo";
 });
 
 
-var moreEl = dom.add(<a href="http://google.com">this is the original</a>);
+var moreEl = $(<a href="http://google.com">this is the original</a>).appendTo("body");
 var makemore = msjs.make( function(){
-    moreEl.innerHTML = "link to google";
+    moreEl[0].innerHTML = "link to google";
 });

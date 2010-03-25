@@ -14,12 +14,10 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var buttonEl = dom.add( <div><button>Click me</button></div>);
 var count = 0;
-
-var button = dom.handle("onclick", buttonEl,function(){
-    return count++;
+var button = msjs.make();
+$("<div><button>Click me</button></div>").appendTo("body").click(function() {
+    button.update(count++);
 });
 
 var clientProducer = msjs.make( function(msj){
@@ -60,9 +58,7 @@ var view = msjs.make(function(msj){
 view.set("clientModel", clientProducer, true);
 view.set("serverModel", serverProducer2, true);
 
-var result = dom.add(<div/>);
+var result = $("<div/>").appendTo("body");
 view._addEl = function(text){
-    var el = document.createElement("div");
-    dom.setText(text, el);
-    result.appendChild(el);
+    $("<div/>").text(text).appendTo(result);
 }
