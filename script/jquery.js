@@ -4428,6 +4428,10 @@ jQuery.extend({
 		var ret = [];
 
 		for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
+            //FIXME: msjs modifications
+			if ( typeof elem == "xml" ) {
+				elem = elem.toXMLString();
+			}
 			if ( typeof elem === "number" ) {
 				elem += "";
 			}
