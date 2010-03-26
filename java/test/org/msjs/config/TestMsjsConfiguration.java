@@ -27,7 +27,7 @@ public class TestMsjsConfiguration {
     
     @Before
     public void setupConfig() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
     }
 
     @Test

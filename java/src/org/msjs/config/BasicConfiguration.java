@@ -16,15 +16,15 @@
 
 package org.msjs.config;
 
-public class MsjsTestConfigurationFactory extends MsjsConfiguration {
+public class BasicConfiguration extends MsjsConfiguration {
     private static String defaultMsjsRoot = System.getProperty("user.dir");
     private static String configDir = defaultMsjsRoot + "/WEB-INF";
 
-    private MsjsTestConfigurationFactory() {
+    private BasicConfiguration() {
         super(configDir, defaultMsjsRoot);
     }
 
     public static MsjsConfiguration getConfiguration() {
-        return new MsjsTestConfigurationFactory();
+        return new BasicConfiguration();
     }
 }

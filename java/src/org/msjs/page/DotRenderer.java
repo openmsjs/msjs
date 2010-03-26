@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.msjs.integration;
+package org.msjs.page;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -29,7 +29,7 @@ import static org.easymock.EasyMock.replay;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.config.MsjsModule;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 import org.msjs.page.Page;
 import org.msjs.page.PageContextProvider;
 import org.msjs.script.FunctionParser;
@@ -65,7 +65,7 @@ public class DotRenderer {
         //Later, we could use a different config for this
         //and even allow config to specify a different Guice
         //mockModule here
-        final MsjsModule msjsModule = new MsjsModule(MsjsTestConfigurationFactory.getConfiguration());
+        final MsjsModule msjsModule = new MsjsModule(BasicConfiguration.getConfiguration());
         final Module mockModule = Modules.override(msjsModule).with(new MockModule());
         Injector injector = Guice.createInjector(mockModule);
         MsjsConfiguration config = injector.getInstance(MsjsConfiguration.class);

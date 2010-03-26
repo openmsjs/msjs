@@ -22,7 +22,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 import org.msjs.script.ScriptContextTestProvider;
 
 import java.io.FileNotFoundException;
@@ -38,7 +38,7 @@ public class TestPage {
         testRoot = "test";
         provider = new PageContextProvider(new ScriptContextTestProvider(),
                 Executors.newSingleThreadExecutor(),
-                MsjsTestConfigurationFactory.getConfiguration());
+                BasicConfiguration.getConfiguration());
     }
 
 
