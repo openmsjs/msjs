@@ -18,7 +18,6 @@ package org.msjs.integration;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -73,24 +72,30 @@ public abstract class BaseIntegrationTest extends BaseTest {
     }
 
     /**
-     * Waits for getTextContext() of the given node to return a string that equals
-     * and expected string. This method is helpful for expressing expectations resulting
+     * Waits for a given test assertion to return true, for up to the configured wait time
+     * for integration tests. This method is helpful for expressing expectations resulting
      * calls to and from the server
-     * @param el The dom node whose text content to test
-     * @param expected The expected text content of the node
+     * @param testAssertion The dom node whose text content to test
      * @throws InterruptedException
      */
-    protected void awaitText(DomNode el, final String expected){
+    protected void await(TestAssertion testAssertion){
         long startTime = System.currentTimeMillis();
-        while (!el.getTextContent().equals(expected)){
+        while (!testAssertion.makeAssertion()){
             try{
                 Thread.sleep(20);
             } catch (InterruptedException e){
                 fail ("Testus interruptus");
             }
             if (System.currentTimeMillis() - startTime > waitTime){
-                fail("Didn't find text: " + expected + " one " + el);
+                fail(testAssertion.getFailureMessage());
             }
+        }
+    }
+
+    protected static abstract class TestAssertion{
+        abstract boolean makeAssertion();
+        protected String getFailureMessage(){
+            return "Assertion failed";
         }
     }
 

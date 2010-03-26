@@ -37,6 +37,12 @@ public class TestTutorial extends BaseIntegrationTest{
         List<HtmlInput> inputs = (List<HtmlInput>) page.getByXPath("//input");
         inputs.get(0).type("msjs");
         inputs.get(1).click();
-        awaitText((DomNode) page.getByXPath("//span").get(1), "509e464947b9834e3d6acd1a49754504");
+        final DomNode span = (DomNode) page.getByXPath("//span").get(1);
+        await(new TestAssertion(){
+            @Override
+            boolean makeAssertion() {
+                return span.getTextContent().equals("509e464947b9834e3d6acd1a49754504");
+            }
+        });
     }
 }
