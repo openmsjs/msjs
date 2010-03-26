@@ -332,8 +332,12 @@ dom.cancelEvent = function(event){
     if (msjs.context.isIE) event.returnValue = false;
 }
 
+/**
+    @name getMousePositionFromEvent
+    @methodOf msjs.dom
+*/
 dom.getMousePositionFromEvent = function(e) {
-    var event = e.domEvent;
+    var event = e.domEvent || e;
     // http://www.quirksmode.org/dom/w3c_cssom.html#mousepos
     var pos = {
         clientX: event.clientX,
@@ -362,6 +366,10 @@ dom.getMousePositionFromEvent = function(e) {
     return pos;
 }
 
+/**
+    @name getTargetFromEvent
+    @methodOf msjs.dom
+*/
 dom.getTargetFromEvent = function(event){
     var target = event.target;
     if (!target) target = event["srcElement"]; // don't obfuscate srcElement
