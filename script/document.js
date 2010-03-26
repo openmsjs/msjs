@@ -1,7 +1,7 @@
 /**
     msjs provides a somewhat-faithful DOM representation on the server that
     can be mainpulated before the page loads, accessed through the global variable 
-    "document. It supports most of the regular DOM APIs, enough, at least to
+    "document." It supports most of the regular DOM APIs, enough, at least to
     convince jQuery that it's working with a proper DOM. Beware, though, that once the 
     page is initially rendered, subsequent DOM updates all happen in the browser.
 
