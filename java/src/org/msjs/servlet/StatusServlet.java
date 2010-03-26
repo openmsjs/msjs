@@ -19,8 +19,8 @@ package org.msjs.servlet;
 import com.google.inject.Injector;
 import org.apache.log4j.Logger;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.pages.Page;
-import org.msjs.pages.Pages;
+import org.msjs.page.Page;
+import org.msjs.page.Pages;
 import org.msjs.service.JSONService;
 
 import javax.servlet.ServletConfig;

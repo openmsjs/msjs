@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.msjs.pages;
+package org.msjs.page;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

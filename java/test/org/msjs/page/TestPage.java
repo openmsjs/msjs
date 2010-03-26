@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.msjs.pages;
+package org.msjs.page;
 
 import static junit.framework.Assert.assertEquals;
 import org.jdom.Document;
