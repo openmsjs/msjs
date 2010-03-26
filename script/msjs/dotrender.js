@@ -50,6 +50,12 @@ msjs.publish({dotRender: function(){
 
     msjs.each(graph._nodes, function(node){
         var nodeName = getNodeName(node);
+        function addDomElement(el, invert){
+            if (domelements.indexOf(el) == -1) domelements.push(el);
+            var head = invert ? "inv" : "normal";
+            lines.push(nodeName + " -> " + getDomElementName(el) + 
+                        "[arrowhead="+head+", color=gray50];");
+        }
         function processFreeVars(f, invert){
             if (!f) return;
             var freeVars = msjs.context.getFreeVariables(f);
@@ -58,12 +64,17 @@ msjs.publish({dotRender: function(){
                 var val =scope[k];
                 if (val == jQuery) continue;
 
+                if (val && val instanceof jQuery.fn){
+                    val.each(function(n, el){
+                        addDomElement(el);
+                    });
+
+
+                }
+
                 //FIXME -- use instanceof here
                 if (val && val.nodeName){
-                    domelements.push(val);
-                    var head = invert ? "inv" : "normal";
-                    lines.push(nodeName + " -> " + getDomElementName(val) + 
-                               "[arrowhead="+head+", color=gray50];");
+                    addDomElement(val);
                 }
             }
         }
@@ -109,7 +120,7 @@ msjs.publish({dotRender: function(){
         }
     }
 
-    var clusterLines = ["digraph G {"];
+    var clusterLines = [];
     var clusterCount = 0;
     for (var k in clusters){
         clusterLines.push("subgraph cluster" + clusterCount++ +" {");
@@ -167,5 +178,5 @@ msjs.publish({dotRender: function(){
     lines.push("}");
 
 
-    return clusterLines.join("\n") + lines.join("\n");
+    return "digraph G {\n" + clusterLines.join("\n") + lines.join("\n");
 }});
