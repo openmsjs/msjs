@@ -27,6 +27,9 @@
     <property name="test.reports.dir" value="${out.dir}/reports"/>
     <property name="war.file" value="${out.dir}/msjs.war" />
 
+    <property name="release" value="0.7" />
+    <property name="jar.file" value="msjs-${release}.jar" />
+
     <path id="build.classpath">
         <pathelement location="${classes}"/>
         <fileset dir="WEB-INF/lib" includes="**/*.jar"/>
@@ -64,12 +67,19 @@
     </target>
 
     <target name="jar" depends="init,compile">
+        <exec executable="git" outputproperty="last.sha">
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--pretty=format:%H"/>
+        </exec>
+
         <property environment="env" />
 
         <propertyfile file="${out.dir}/classes/build.properties">
             <entry key="build.tag" value="${env.BUILD_NUMBER}" /> <!-- set by hudson -->
             <entry key="sha" value="${last.sha}" />
             <entry key="build.date" type="date" value="now" pattern="dd MMM yyyy HH:mm"/>
+            <entry key="release" value="${release}" />
             <entry key="java.version" value="${ant.java.version}" />
         </propertyfile>
 
@@ -80,7 +90,8 @@
                 <include name="msjs/**"/>
             </fileset>
         </copy>
-        <jar destfile="${out.dir}/msjs.jar" basedir="${out.dir}/classes"/>
+
+        <jar destfile="${out.dir}/${jar.file}" basedir="${out.dir}/classes"/>
     </target>
             
     <target name="war" depends="init,clean,jar" description="Build the war">
@@ -95,7 +106,7 @@
 
         <copy toDir="${staging.dir}/WEB-INF/lib">
             <fileset dir="${out.dir}">
-                <include name="msjs.jar"/>
+                <include name="${jar.file}"/>
             </fileset>
         </copy>
 
@@ -113,12 +124,6 @@
         </copy>
 
         <copy toDir="${staging.dir}" file="COPYING"/>
-
-        <exec executable="git" outputproperty="last.sha">
-            <arg value="log"/>
-            <arg value="-1"/>
-            <arg value="--pretty=format:%H"/>
-        </exec>
 
         <war destfile="${war.file}"
              basedir="${staging.dir}"
