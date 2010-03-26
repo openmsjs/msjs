@@ -6341,7 +6341,11 @@ jQuery.fn._msjs_getUnpacker = function(){
 
 jQuery.fn._getDebugName = function(){
     //FIXME
-    return "jQuery object";
+    var els =[]; 
+    this.each(function(n, domEl){
+        els.push( domEl._getDebugName() );
+    });
+    return "jQuery[" + els.join() + "]";
 }
 
 jQuery.packMe = true;

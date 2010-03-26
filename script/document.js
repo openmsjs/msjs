@@ -194,7 +194,7 @@ domelement.generateId = function(){
 }
 
 domelement._getDebugName = function(){
-    var name = "domelement:"+this.nodeName;
+    var name = "dom:"+this.nodeName;
     if (this.id) name += "#" + this.id;
     return name;
 }
