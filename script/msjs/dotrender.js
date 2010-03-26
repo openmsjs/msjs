@@ -48,14 +48,17 @@ msjs.publish({dotRender: function(){
     var domelements = [document.documentElement];
     var clusters = {};
 
+    function addDomElement(nodeName, el, invert){
+        if (domelements.indexOf(el) == -1) domelements.push(el);
+        var head = invert ? "inv" : "normal";
+        lines.push(nodeName + " -> " + getDomElementName(el) + 
+                    "[arrowhead="+head+", color=gray50];");
+    }
+
+
     msjs.each(graph._nodes, function(node){
         var nodeName = getNodeName(node);
-        function addDomElement(el, invert){
-            if (domelements.indexOf(el) == -1) domelements.push(el);
-            var head = invert ? "inv" : "normal";
-            lines.push(nodeName + " -> " + getDomElementName(el) + 
-                        "[arrowhead="+head+", color=gray50];");
-        }
+
         function processFreeVars(f, invert){
             if (!f) return;
             var freeVars = msjs.context.getFreeVariables(f);
@@ -66,7 +69,7 @@ msjs.publish({dotRender: function(){
 
                 if (val && val instanceof jQuery.fn){
                     val.each(function(n, el){
-                        addDomElement(el);
+                        addDomElement(nodeName, el, false);
                     });
 
 
@@ -74,12 +77,55 @@ msjs.publish({dotRender: function(){
 
                 //FIXME -- use instanceof here
                 if (val && val.nodeName){
-                    addDomElement(val);
+                    addDomElement(nodeName, val, false);
                 }
             }
         }
         processFreeVars(node.produceMsj, false);
         processFreeVars(node._updateF, true);
+    });
+
+
+    //inspect the jQuery cache for to see if any handlers refer
+    //to msjs nodes
+    var jQHandlers = [];
+    function seekHandlers(obj){
+        if (!obj) return;
+        if (typeof obj != "object") return;
+
+        if (obj.guid!= null && obj.handler){
+            jQHandlers.push(obj);
+        } else {
+            for (var k in obj){
+                if (obj.hasOwnProperty(k)){
+                    seekHandlers(obj[k]);
+                }
+            }
+        }
+    }
+
+
+    seekHandlers(jQuery.cache);
+    jQueryDomMap = {};
+    var expando = jQuery.expando;
+    msjs.each(document.getElementsByTagName("*"), function(el){
+        var id = el[expando];
+        if (id != null) {
+            jQueryDomMap[id] = el;
+        }
+    });
+
+    msjs.each(jQHandlers, function(handlerObj){
+        var el = jQueryDomMap[handlerObj.guid];
+        var freeVars = msjs.context.getFreeVariables(handlerObj.handler);
+        var scope = msjs.context.getScope(handlerObj.handler);
+        for (var k in freeVars){
+            var val =scope[k];
+            if (val && val._debugRef && val.getId ){
+                //it's a node (more or less);
+                    addDomElement(getNodeName(val), el, true);
+                }
+            }
     });
 
     graph.pack();
