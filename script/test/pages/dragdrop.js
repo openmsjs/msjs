@@ -14,20 +14,8 @@
  * the License.
  */
 
-var dom = msjs.require("msjs.dom");
-var jTable = $(<table><tbody><tr/></tbody></table>).appendTo(document.body);
-var table = jTable[0];
-
-function addCol(el){
-    return el.appendTo($(<td/>).appendTo(jTable.find("tr")).css({
-        verticalAlign : "top",
-        paddingRight : "100px"
-    }));
-    
-}
-
-var jSourcesEl = addCol($(
-    <div>
+var table = $(<table><tbody><tr>
+    <td><div>
         Drag stuff from here :<br/>
         <div class="drag-me" style="width:50px;height:50px;background-color:yellow; margin-bottom:100px; border:solid black 1px">
             foo
@@ -38,12 +26,18 @@ var jSourcesEl = addCol($(
             77.7
             </div>
         </div>
-    </div>
-));
-var sourcesEl = jSourcesEl[0];
+    </div></td>
+    <td><div>
+        Drop stuff here <br/>
+        <div class="box" style="width:150px; height:300px; border: solid 1px; padding:10px">
+        </div>
+    </div></td>
+</tr></tbody></table>).appendTo(document.body);
+table.find("td").css({ verticalAlign : "top", paddingRight : "100px"});
 
+var dom = msjs.require("msjs.dom");
 var sources = msjs.make();
-jSourcesEl.find(".drag-me").mousedown( function (event){
+table.find(".drag-me").mousedown(function(event){
     var pos = dom.getElementPosition(event.target);
     var mouse = dom.getMousePositionFromEvent(event);
     var dx = mouse.pageX - pos.x;
@@ -60,12 +54,12 @@ jSourcesEl.find(".drag-me").mousedown( function (event){
         style.top =  (mouse.pageY - dy) + "px";
         dragee.css(style);
         target.handleDragEvent("move", event, dragee[0]);
-    }
+    };
 
     var upHandler = function(event){
         $("body").unbind("mousemove").unbind("mouseup");
         target.handleDragEvent("up", event, dragee[0]);
-    }
+    };
 
     moveHandler(event);
 
@@ -75,33 +69,23 @@ jSourcesEl.find(".drag-me").mousedown( function (event){
 });
 
 
-var jTargetEl = addCol($(
-    <div>
-        Drop stuff here <br/>
-        <div class="box" style="width:150px; height:300px; border: solid 1px; padding:10px">
-        </div>
-    </div>
-));
-var targetEl = jTargetEl[0];
-
-
+var box = table.find(".box");
 var target = msjs.make();
-var box = dom.find(targetEl, ".box");
-
 target.droppedElement = null;
 target.handleDragEvent = function(type, event, el){
     var mouse = dom.getMousePositionFromEvent(event);
     var x = mouse.pageX;
     var y = mouse.pageY;
     var isIn = this._isPointInside(x, y);
-    box.style.borderColor = (isIn && type == "move")? "red" : "black";
+    box.css("borderColor", (isIn && type == "move")? "red" : "black");
     if (type == "up"){
         if (isIn){
             if (this.droppedElement){
                 this.droppedElement.parentNode.removeChild(this.droppedElement);
             }
             el.style.position = "static";
-            this.droppedElement = box.appendChild(el);
+            this.droppedElement = el;
+            box.append(el);
         } else {
             el.parentNode.removeChild(el);
         }
@@ -109,7 +93,7 @@ target.handleDragEvent = function(type, event, el){
 }
 
 target._isPointInside = function(x,y){
-    var pos = dom.getElementPosition(box);
+    var pos = dom.getElementPosition(box[0]);
     var width  = 150+20, //don't forget about padding
         height = 300+20;
 
