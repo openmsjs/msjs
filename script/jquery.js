@@ -6310,6 +6310,11 @@ jQuery.fn._msjs_getUnpacker = function(){
     return [fnUnpackF, [members]];
 }
 
+jQuery.fn._getDebugName = function(){
+    //FIXME
+    return "jQuery object";
+}
+
 jQuery.packMe = true;
 jQuery.fn.packMe = true;
 
