@@ -15,19 +15,18 @@
  */
 
 var dom = msjs.require("msjs.dom");
-var table = dom.add(<table><tbody><tr/></tbody></table>);
+var jTable = $(<table><tbody><tr/></tbody></table>).appendTo(document.body);
+var table = jTable[0];
 
 function addCol(el){
-    var tr = table.getElementsByTagName("tr")[0];
-    var td = document.createElement("td");
-    td.style.verticalAlign = "top";
-    td.style.paddingRight = "100px";
-    td.appendChild(el);
-    tr.appendChild(td);
-    return el;
+    return el.appendTo($(<td/>).appendTo(jTable.find("tr")).css({
+        verticalAlign : "top",
+        paddingRight : "100px"
+    }));
+    
 }
 
-var sourcesEl = addCol(document.createElement(
+var jSourcesEl = addCol($(
     <div>
         Drag stuff from here :<br/>
         <div class="drag-me" style="width:50px;height:50px;background-color:yellow; margin-bottom:100px; border:solid black 1px">
@@ -41,52 +40,49 @@ var sourcesEl = addCol(document.createElement(
         </div>
     </div>
 ));
+var sourcesEl = jSourcesEl[0];
 
-/*
-dom.addListener("onclick", sourcesEl, function(event){
-    event.cancelEvent();
-});
-*/
-
-var sources = dom.handle("onmousedown", sourcesEl, ".drag-me", function(event, el){
-    event.cancel();
-    var pos = dom.getElementPosition(el);
+var sources = msjs.make();
+jSourcesEl.find(".drag-me").mousedown( function (event){
+    var pos = dom.getElementPosition(event.target);
     var mouse = dom.getMousePositionFromEvent(event);
     var dx = mouse.pageX - pos.x;
     var dy = mouse.pageY - pos.y;
 
-    var dragee = el.cloneNode(true);
-    dragee.id = "";
-    dragee.style.position = "absolute";
+    var dragee = $(this).clone(false);
+    dragee.css({position : "absolute"});
 
     //put it in the right place
+    var style = {};
     var moveHandler = function(event){
         var mouse = dom.getMousePositionFromEvent(event);
-        dragee.style.left = (mouse.pageX - dx) + "px";
-        dragee.style.top =  (mouse.pageY - dy) + "px";
-        target.handleDragEvent("move", event, dragee);
+        style.left = (mouse.pageX - dx) + "px";
+        style.top =  (mouse.pageY - dy) + "px";
+        dragee.css(style);
+        target.handleDragEvent("move", event, dragee[0]);
     }
 
     var upHandler = function(event){
-        dom.removeListener("onmousemove",document.body, moveHandler);
-        dom.removeListener("onmouseup", document.body, upHandler);
-        target.handleDragEvent("up", event, dragee);
+        $("body").unbind("mousemove").unbind("mouseup");
+        target.handleDragEvent("up", event, dragee[0]);
     }
 
-    document.body.appendChild(dragee);
     moveHandler(event);
-    dom.addListener("onmousemove", document.body, moveHandler);
-    dom.addListener("onmouseup", document.body, upHandler);
+
+    $("body").append(dragee).mousemove(moveHandler).mouseup(upHandler);
+
+    return false;
 });
 
 
-var targetEl = addCol(document.createElement(
+var jTargetEl = addCol($(
     <div>
         Drop stuff here <br/>
         <div class="box" style="width:150px; height:300px; border: solid 1px; padding:10px">
         </div>
     </div>
 ));
+var targetEl = jTargetEl[0];
 
 
 var target = msjs.make();
