@@ -118,7 +118,7 @@ msjs.context = {
 /**
     Can be checked to determine if msjs is running in the browser or on the server.
     If true, msjs is running in the browser.
-    @field
+    @fieldOf msjs#
 */
 msjs.isClient = true;
 
@@ -134,10 +134,19 @@ msjs.make = function(produceMsj){
 
 msjs._packageIsLoading = {};
 
+/**
+    Bring an object that was published into scope
+    @memberOf msjs#
+*/
 msjs.require = function(packageName){
     return bindings[packageName];
 }
 
+/**
+    Bind an object to a name so it can be retrieved using
+    {@link msjs#publish}
+    @memberOf msjs#
+*/
 msjs.publish = function(value, scope){
     bindings[this.context.loadingPackage] = value;
     return value;
@@ -150,6 +159,7 @@ msjs.publish = function(value, scope){
     retrieved
     @param {String} packageName The name of the supplied binding
     @param binding The new binding for the given package name
+    @memberOf msjs#
 */
 msjs.mock = function(packageName, binding){
     bindings[packageName] = binding;
@@ -492,6 +502,10 @@ msjs.unpack = function(value){
 
 /*! msjs.server-only **/
 msjs.isClient = false;
+/**
+    Initializes msjs with the given context and global scope
+    @name bindContext
+*/
 msjs.bindContext = function(context, global){
     // Server overrides context value
     this.context = context;
@@ -500,6 +514,12 @@ msjs.bindContext = function(context, global){
     return bindings;
 }
 
+/**
+    The list of packages that were published to the client
+    @name clientPackages
+    @fieldOf msjs#
+    @type {Array[String]} 
+*/
 msjs.clientPackages = ["msjs"];
 msjs._clientPublished = new java.util.HashMap();
 
@@ -513,7 +533,7 @@ msjs.assignDebugNames = function(packageName, scope){
 /**
     Prepares a value for transport to the client
     @return a packing refernce, or the original value
-    @memberOf msjs
+    @memberOf msjs#
 */
 msjs.pack = function(value){
     var putInPackList = value && (
