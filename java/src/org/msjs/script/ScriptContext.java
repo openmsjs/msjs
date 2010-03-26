@@ -46,10 +46,11 @@ public class ScriptContext {
      * scope with all other instances of this class, via a static member.
      * This is important, since Rhino implements "instanceof" by walking up
      * the prototype chain and comparing ancestor objects via ==.
+     *
      * @param cxFactory The factory for execution contexts.
      */
     @Inject
-    public ScriptContext(ContextFactory cxFactory){
+    public ScriptContext(ContextFactory cxFactory) {
         this.cxFactory = cxFactory;
         try{
             Context cx = cxFactory.enterContext();
@@ -57,28 +58,28 @@ public class ScriptContext {
             ScriptableObject topLevel = getTopLevel(cx);
 
             //now setup the scope
-            globalScope = (ScriptableObject) cx.newObject( topLevel );
-            globalScope.setPrototype( topLevel );
+            globalScope = (ScriptableObject) cx.newObject(topLevel);
+            globalScope.setPrototype(topLevel);
             globalScope.setParentScope(null);
-        } finally {
+        } finally{
             Context.exit();
         }
     }
 
-    public ScriptableObject makeObject(){
+    public ScriptableObject makeObject() {
         try{
             Context cx = cxFactory.enterContext();
             return (ScriptableObject) cx.newObject(globalScope);
-        } finally {
+        } finally{
             Context.exit();
         }
     }
 
-    public ScriptableObject makeArray(Object[] elements){
+    public ScriptableObject makeArray(Object[] elements) {
         try{
             Context cx = cxFactory.enterContext();
             return (ScriptableObject) cx.newArray(globalScope, elements);
-        } finally {
+        } finally{
             Context.exit();
         }
 
@@ -88,12 +89,13 @@ public class ScriptContext {
     //that all the scripts that we run share these objects, so that things like instanceof
     //work properly
     private static synchronized ScriptableObject getTopLevel(final Context cx) {
-        if (topLevel==null){
+        if (topLevel == null){
             topLevel = cx.initStandardObjects(null, false);
             //Force all the stuff we need to be loaded. These objects are meant to be lazy
             //loaded by Rhino but that doesn't work since the scope is sealed.
-            String loadMe = "RegExp; getClass; java; Packages; JavaAdapter; XML.ignoreWhitespace=false;"+
-                            "XML.prettyIndent=false;XML.prettyPrinting = false;";
+            String loadMe =
+                    "RegExp; getClass; java; Packages; JavaAdapter; XML.ignoreWhitespace=false;" +
+                    "XML.prettyIndent=false;XML.prettyPrinting = false;";
             cx.evaluateString(topLevel, loadMe, "lazyLoad", 0, null);
             topLevel.sealObject();
             //it would be nice to call topLevel.sealObject
@@ -104,7 +106,7 @@ public class ScriptContext {
     }
 
 
-    Scriptable runScript(Script script){
+    Scriptable runScript(Script script) {
         Context cx = cxFactory.enterContext();
         try{
             ScriptableObject runScope = makeObject();
@@ -112,6 +114,16 @@ public class ScriptContext {
             runScope.setParentScope(null);
             script.exec(cx, runScope);
             return runScope;
+        } finally{
+            Context.exit();
+        }
+    }
+
+    public Object callMethod(final Scriptable jsObject, final String methodName,
+                             final Object[] args) {
+        cxFactory.enterContext();
+        try{
+            return ScriptableObject.callMethod(jsObject, methodName, args);
         } finally{
             Context.exit();
         }
