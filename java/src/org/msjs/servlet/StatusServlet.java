@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.page.Page;
 import org.msjs.page.Pages;
-import org.msjs.service.JSONService;
+import org.msjs.service.HttpService;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -42,7 +42,7 @@ public class StatusServlet extends HttpServlet {
     private final Logger logger = Logger.getLogger(ResourceServlet.class);
     private MsjsConfiguration msjsConfig;
     private Pages pages;
-    private JSONService jsonService;
+    private HttpService httpService;
 
 
     @Override
@@ -52,7 +52,7 @@ public class StatusServlet extends HttpServlet {
         Injector injector = (Injector) servletContext.getAttribute(ServletListener.INJECTOR);
         msjsConfig = injector.getInstance(MsjsConfiguration.class);
         pages = injector.getInstance(Pages.class);
-        jsonService = injector.getInstance(JSONService.class);
+        httpService = injector.getInstance(HttpService.class);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class StatusServlet extends HttpServlet {
 
 
     private void printPerfomanceMonitor(final ServletOutputStream out) throws IOException {
-        out.print(jsonService.getProfileInfo());
+        out.print(httpService.getProfileInfo());
     }
 
     private Properties getBuildProperties() {

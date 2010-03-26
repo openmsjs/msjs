@@ -18,6 +18,9 @@ package org.msjs.service;
 
 import java.io.Reader;
 
+/**
+ * Convert data to JavaScript value.
+ */
 public interface Converter {
-    Object convert(Reader reader) throws Exception;
+    Object convertToJS(Reader reader);
 }

@@ -26,37 +26,38 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.ScriptableObject;
-import org.msjs.script.JSConverter;
+import org.msjs.script.MsjsScriptContext;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.IOException;
 
+/**
+ * Use to make HTTP request to web services and return response as a JavaScript object. The response object
+ * looks like:
+ *
+ * {status: <httpStatusCode>, result: <result>}
+ *
+ * The result
+ */
 @Singleton
-public class JSONService {
-    private static final Logger logger = Logger.getLogger(JSONService.class);
+public class HttpService {
 
-    private final JSConverter jsConverter;
-    final HttpClient httpClient;
+    private static final Logger logger = Logger.getLogger(HttpService.class);
+
+    private final MsjsScriptContext context;
+    private final HttpClient httpClient;
     private long calls = 0;
     private long avgResponseTime = 0;
 
-    public String getProfileInfo() {
-        return "JSONService calls:" + calls + " Avg:" + avgResponseTime + "ms";
+    @Inject
+    public HttpService(MsjsScriptContext context, final ClientConnectionManager manager) {
+        this.context = context;
+        httpClient = new DefaultHttpClient(manager);
     }
 
-    private final Converter DEFAULT_CONVERTER = new Converter() {
-        @Override
-        public Object convert(Reader reader) throws Exception {
-            return jsConverter.fromJSON(reader);
-        }
-    };
-
-    @Inject
-    public JSONService(final JSConverter jsConverter, final ClientConnectionManager manager) {
-        this.jsConverter = jsConverter;
-        httpClient = new DefaultHttpClient(manager);
+    public String getProfileInfo() {
+        return HttpService.class + " calls:" + calls + " Avg:" + avgResponseTime + "ms";
     }
 
     public ScriptableObject get(final HttpUriRequest method, final Converter converter) {
@@ -74,8 +75,8 @@ public class JSONService {
                 throw new RuntimeException("no entity: " + method.getURI().toString());
             }
             inputStream = entity.getContent();
-            Object result = converter.convert(new InputStreamReader(inputStream, "UTF8"));
-            ScriptableObject wrap = jsConverter.makeObject();
+            Object result = converter.convertToJS(new InputStreamReader(inputStream, "UTF8"));
+            ScriptableObject wrap = context.makeObject();
             wrap.put("status", wrap, response.getStatusLine().getStatusCode());
             wrap.put("result", wrap, result);
             return wrap;
@@ -93,9 +94,5 @@ public class JSONService {
         } catch (IOException e) {
             //ignore
         }
-    }
-
-    public ScriptableObject get(final HttpUriRequest method) {
-        return get(method, DEFAULT_CONVERTER);
     }
 }

@@ -16,22 +16,23 @@
 
 package org.msjs.script;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.mozilla.javascript.ScriptableObject;
-import org.msjs.script.JSConverter;
-import org.msjs.script.ScriptContextTestProvider;
+import org.msjs.service.JSONConverter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
-public class TestJSConverter {
-    private final JSConverter jsConverter;
+public class TestJSONConverter {
+    private final JSONConverter jsConverter;
 
-    public TestJSConverter(){
+    public TestJSONConverter(){
         final ScriptContextTestProvider provider = new ScriptContextTestProvider();
-        jsConverter = new JSConverter( provider.get());
+        jsConverter = new JSONConverter(provider.get());
     }
 
 
@@ -43,24 +44,24 @@ public class TestJSConverter {
     public void JSONTest() throws IOException {
         String json = "{\"name\" : \"foo\", x:77}";
 
-        ScriptableObject obj = (ScriptableObject) jsConverter.fromJSON(new StringReader(json));
+        ScriptableObject obj = (ScriptableObject) jsConverter.convertToJS(new StringReader(json));
         assertEquals(77d, obj.get("x", obj));
         assertEquals("foo", obj.get("name", obj));
     }
 
-    //TODO: Test edge cases in JSConverter.PrependAssignReader
+    //TODO: Test edge cases in JSONConverter.PrependAssignReader
 
     @Test
     public void testList() throws IOException {
         String json = "[\"foo\", 77, null]";
 
-        ScriptableObject arr = (ScriptableObject) jsConverter.fromJSON(new StringReader(json));
+        ScriptableObject arr = (ScriptableObject) jsConverter.convertToJS(new StringReader(json));
         //make sure it worked as expected -- not the point of this test, though
         assertEquals("foo", arr.get(0, arr));
         assertEquals(77d, arr.get(1, arr));
         assertEquals(null, arr.get(2, arr));
 
-        List list = jsConverter.toList(arr);
+        List list = toList(arr);
         assertEquals(3, list.size());
         assertEquals("foo", list.get(0));
         assertEquals(77d, list.get(1));
@@ -70,7 +71,7 @@ public class TestJSConverter {
     @Test
     public void testNumericStringKey() throws IOException {
         String json = "{\"updatesFromRemote\":{\"2\":{\"first\":\"aaa\",\"last\":\"bbb\"}},\"clock\":1}";
-        ScriptableObject result = (ScriptableObject) jsConverter.fromJSON(new StringReader(json));
+        ScriptableObject result = (ScriptableObject) jsConverter.convertToJS(new StringReader(json));
         assertNotNull(result);
         ScriptableObject updates = (ScriptableObject) result.get("updatesFromRemote", result);
         assertNotNull(updates);
@@ -87,7 +88,19 @@ public class TestJSConverter {
         //get it from the Java side of ScriptableObject
         String first = (String) ((ScriptableObject) two).get("first", two);
         assertEquals("aaa", first);
-
     }
+
+    private List toList(final ScriptableObject o) {
+        final List<Object> list = new ArrayList<Object>();
+        Double length = (Double) ScriptableObject.getProperty(o, "length");
+        if (length != null){
+            for (int i = 0; i < length; i++){
+                final Object val = o.get(i, o);
+                list.add(i, val);
+            }
+        }
+        return list;
+    }
+
 
 }
