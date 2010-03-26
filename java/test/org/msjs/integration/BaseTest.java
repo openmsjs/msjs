@@ -30,7 +30,7 @@ import static junit.framework.Assert.assertEquals;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,7 +46,7 @@ public abstract class BaseTest {
 
     @BeforeClass
     public static void setup() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
         host = config.getString("msjs.testHost", "http://localhost:8080/msjs");
         waitTime = config.getLong("msjs.testWaitTime", 10000);
     }

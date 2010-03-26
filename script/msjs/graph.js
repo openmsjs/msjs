@@ -313,7 +313,7 @@ graph._sendQueuedMsjsFromIframe = function(failOk) {
                 var script;
                 if (method){
                     //make a closure so it can be obfuscated
-                    var getGraph = function(){return msjs.require("msjs.graph")};
+                    var getGraph = function(){return msjs.require("msjs.graph");};
                     script = "(" + getGraph.toString() + ")()." + method + 
                              "("+instruction.firstChild.nodeValue+")";
 
@@ -510,10 +510,7 @@ graph.setPackInfo = function(packed){
     this._adjacencyMatrix = packed._adjacencyMatrix;
     this._tc = packed._tc;
     this._isConnected = packed._isConnected;
-
-    //don't obfuscate
-    this["profile"] = packed.profile;
-    var self = this;
+    this.profile = packed.profile;
 
     var packedNodes = packed.nodes;
     var self = this;

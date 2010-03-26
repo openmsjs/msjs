@@ -29,7 +29,7 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.config.MsjsModule;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 import java.io.File;
 import java.io.FileReader;
@@ -46,7 +46,7 @@ public abstract class BaseScriptTest {
 
     @Before
     public void setupConfig() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
         injector = getInjector(config);
         cxFactory = injector.getInstance(ContextFactory.class);
     }

@@ -22,13 +22,13 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 public class ScriptContextTestProvider implements Provider<MsjsScriptContext> {
     Injector injector = Guice.createInjector(new Module() {
         @Override
         public void configure(final Binder binder) {
-            binder.bind(MsjsConfiguration.class).toInstance(MsjsTestConfigurationFactory.getConfiguration());
+            binder.bind(MsjsConfiguration.class).toInstance(BasicConfiguration.getConfiguration());
         }
     });
 

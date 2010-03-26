@@ -20,9 +20,9 @@ import com.google.inject.Injector;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.output.Format;
-import org.msjs.pages.Page;
-import org.msjs.pages.Pages;
-import org.msjs.pages.Result;
+import org.msjs.page.Page;
+import org.msjs.page.Pages;
+import org.msjs.page.Result;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -116,9 +116,9 @@ public class PageServlet extends HttpServlet {
 
     /**
      * AJAX requests from the client are made using POST. If the page request
-     * location does not match the in-session {@link org.msjs.pages.Page}, then this request
+     * location does not match the in-session {@link org.msjs.page.Page}, then this request
      * results in error. Otherwise, messages for the page are pulled from the
-     * POSTed 'q' parameter and passed to {@link org.msjs.pages.Page#acceptMsj}. Responses
+     * POSTed 'q' parameter and passed to {@link org.msjs.page.Page#acceptMsj}. Responses
      * for the client and then retrieved from the result of the method call and
      * passed as the body of the response.
      */

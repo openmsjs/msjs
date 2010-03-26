@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 import java.io.File;
 import java.io.FileReader;
@@ -37,7 +37,7 @@ public class TestScriptContext {
 
     @Before
     public void setupConfig() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
         testScriptPath = config.getScriptRoot() + "/test";
         final ContextFactory cxFactory = new ContextFactory();
         context = new ScriptContext(cxFactory);

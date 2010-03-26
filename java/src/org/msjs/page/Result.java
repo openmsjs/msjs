@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.msjs.pages;
+package org.msjs.page;
 
 import org.jdom.CDATA;
 import org.jdom.Document;

@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 import java.io.FileNotFoundException;
 
@@ -31,7 +31,7 @@ public class TestPackageLocator {
 
     @Before
     public void setupConfig() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
     }
     
     @Test

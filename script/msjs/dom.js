@@ -28,129 +28,15 @@ msjs.require("document");
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
-dom.find = function(refEl, selector){
-    var parsedSelector = this._parseSelector(selector);
-    //msjs.log(selector, parsedSelector);
-    var self = this;
-    return this.seek(function(el){
-        var rulePos = 0;
-
-        function tryMatch(matchEl){
-            if (self._selectorPartApplies(matchEl, parsedSelector[rulePos])){
-                rulePos++;
-                return true;
-            }
-
-            return false;
-        }
-
-        function found(){ return parsedSelector.length <= rulePos };
-
-        //end of selector must match this element, or bail
-        if (!tryMatch(el)) return false;
-
-        var p = el;
-        while(!found() && p != refEl){
-            p = p.parentNode;
-            tryMatch(p);
-        }
-        return found();
-    }, refEl);
-}
-
 dom.findMsj = function(refEl, msj){
     return this.seek(function(el){
         if (dom.getDomMsj(el) == msj) return true;
     }, refEl);
 }
 
-dom._selectorPartApplies = function(el, selectorPart){
-    if (selectorPart.id){
-        return el.id == selectorPart.id;
-    }
-
-    if (selectorPart.pseudo) return false;//no pseudo class support
-
-    if (selectorPart.nodeName){
-        if (el.nodeName != selectorPart.nodeName.toUpperCase()) return false;
-    }
-
-    if (selectorPart.attrs){
-        for (var k in selectorPart.attrs){
-            var attrVal = selectorPart.attrs[k];
-            //null means attribute must be present
-            if (attrVal == null && !el[k]) return false;
-            else if (attrVal != null && el[k] != attrVal) return false;
-        }
-    }
-
-    var splitClasses = el.className ? el.className.split(" ") : msjs.THE_EMPTY_LIST;
-    for (var i=0; i< selectorPart.classNames.length; i++){
-        var name = selectorPart.classNames[i];
-        var foundIt = false;
-        for (var j=0; !foundIt && j< splitClasses.length; j++){
-            //msjs.log(name, splitClasses[j], splitClasses[j] == name);
-            if (splitClasses[j] == name) foundIt = true;
-        }
-
-        if (!foundIt) return false;
-    }
-
-    return true;
-}
-
 dom.getCssId = function(el){
     this._ensureHasId(el);
     return "#" + el.id;
-}
-
-
-dom._attrMatcher = /\[.*?\]/g;
-dom._parseSelector = function (selector){
-    var parsedSelectors = [];
-
-    var selectors = selector ? selector.split(" ") : msjs.THE_EMPTY_LIST;
-    var self = this;
-    return msjs.map(selectors, function(s){
-        var selector = jQuery.trim(s);
-        var parsed = { };
-
-        var matchedAttrs = self._attrMatcher.exec(selector);
-        if (matchedAttrs){
-            parsed.attrs = {};
-            msjs.each(matchedAttrs, function(attr){
-                attr = jQuery.trim(attr);
-                var split = attr.substring(1, attr.length -1).split("=");
-                parsed.attrs[jQuery.trim(split[0])] = jQuery.trim(split[1]) || null;
-            });
-        }
-
-        selector = selector.replace(self._attrMatcher, "");
-
-        var pseudoSplit = selector.split(":");
-        if (pseudoSplit.length > 1){
-            parsed.pseudo = pseudoSplit.slice(1);
-        }
-
-        var classSplit = pseudoSplit[0].split(".");
-        if (classSplit[0]){
-            //this is a nodeName; came before the dot
-            if (classSplit[0].charAt(0) == "#"){
-                //this is an id
-                parsed.id = classSplit[0].substring(1);
-            } else {
-                parsed.nodeName = classSplit[0];
-            }
-        }
-
-        if (classSplit.length > 1){
-            parsed.classNames = classSplit.slice(1);
-        } else{
-            parsed.classNames = msjs.THE_EMPTY_LIST;
-        }
-
-        return parsed;
-    });
 }
 
 dom.seek = function(f, el){
@@ -263,6 +149,7 @@ dom.getMousePositionFromEvent = function(e) {
 }
 
 /**
+    Returns event.target || event.srcElement.
     @name getTargetFromEvent
     @methodOf msjs.dom#
 */
@@ -272,7 +159,7 @@ dom.getTargetFromEvent = function(event){
 
 /**
     Gets the pixel position of a DHTML element on the client
-    and returns it in an object with the keys 'x', and 'y'
+    and returns it in an object with the keys 'x', and 'y'.
     @return Object Object in the form of {x : <n> : y <m>}
     @name getElementPosition
     @methodOf msjs.dom#
@@ -307,117 +194,11 @@ dom.getElementPosition = function(e) {
     return r;
 }
 
-dom.listeners = {};
-
 dom._clientDomIds = 0;
 dom._ensureHasId = function(domElement){
     if (!domElement.id){
         domElement.id = "_msjs_cde-" + this._clientDomIds++;
     }
-}
-
-dom.parseListenerArguments = function(args){
-    var eventName = args[0];
-    var domElement = args[1];
-
-    this._ensureHasId(domElement);
-    return {
-        eventName : eventName,
-        domElement : domElement,
-        selector :  args.length > 3 ? args[2] : null,
-        callback : args[args.length-1],
-        eventId : domElement.id  + ":" + eventName
-    }
-}
-
-dom.addListener = function(){
-    var args = this.parseListenerArguments(arguments);
-
-    if (!this.listeners[args.eventId]){
-        var callbacks = [];
-
-        var self = this;
-        var handler = function(domEvent){
-            var event = getEvent(domEvent);
-
-            for (var i=0; i<callbacks.length; i++){
-                var selected = self._select(callbacks[i].s, event.target, args.domElement);
-                if (!selected) continue;
-
-                callbacks[i].f(event, selected);
-                if (event.isCancelled) return;
-            }
-        }
-
-        if (msjs.context.isIE){
-            args.domElement.attachEvent(args.eventName, handler);
-        } else {
-            args.domElement.addEventListener(args.eventName.substring(2), handler, false);
-        }
-
-        this.listeners[args.eventId] = callbacks
-    }
-
-    this.listeners[args.eventId].push({s: this._parseSelector(args.selector), f: args.callback});
-}
-
-dom.removeListener = function(){
-    var args = this.parseListenerArguments(arguments);
-
-    var callbacks = this.listeners[args.eventId];
-
-    for (var i=0; callbacks && i<callbacks.length; i++){
-        if (callbacks[i].f == args.callback){
-            callbacks.splice(i, 1);
-            //TODO
-            //if (!callbacks.length) unregister listener
-
-            return;
-        }
-    }
-
-    msjs.log("No listener found for", args);
-}
-
-var getEvent = function(domEvent){
-    return {
-        domEvent : domEvent,
-        target : domEvent.target || domEvent["srcElement"], // don't obfuscate srcElement
-        cancel : function(){
-            domEvent.cancelBubble = true;
-            if (domEvent.stopPropagation) domEvent.stopPropagation();
-            if (domEvent.preventDefault) domEvent.preventDefault();
-            if (msjs.context.isIE) domEvent.returnValue = false;
-
-            this.isCancelled = true;
-        },
-        isCancelled : false
-    }
-}
-
-dom._select = function(selector, target, listenerEl){
-    if (!selector.length) return target;
-
-    var pos =selector.length-1;
-    var selected = null;
-    var node = target;
-
-    //walk down the selector list and up the parent chain
-    //if the current selector part matches, advance the pointer
-    //if we reach the end before we hit the listenerEl, the selector applies
-    while(pos >= 0 && node){
-        if (this._selectorPartApplies(node, selector[pos])){
-            pos--;
-            if (!selected) selected = node;
-        }
-
-        if (node == listenerEl) break;
-        node = node.parentNode;
-    }
-
-
-
-    return pos < 0 ? selected : null;
 }
 
 /**
@@ -457,15 +238,6 @@ dom._unattachElements = function() {
 }
 
 dom.setPackInfo = function(packInfo){
-    msjs.each(packInfo.listeners, function(listener){
-        dom.addListener(
-            listener.eventName,
-            document.getElementById(listener.domId),
-            listener.selector,
-            msjs.unpack(listener.callback)
-        );
-    });
-
     msjs.each(packInfo.newListeners, function(listener){
         var el = msjs.unpack(listener.element);
         var callback = msjs.unpack(listener.callback);
@@ -493,7 +265,7 @@ dom.pack = function(){
     var unpackF = function(){
         var dom = msjs.require('msjs.dom');
         dom.unpack.apply(dom, arguments);
-    }
+    };
 
     var packedClientPackages = {};
 
@@ -521,19 +293,9 @@ dom.getDomMsj = function(el){
 }
 
 dom.getPackInfo = function(){
-    var listeners = msjs.map(this._listeners, function(args){
-        return {
-            domId: args.domElement.id,
-            eventName : args.eventName,
-            selector :  args.selector,
-            callback :  msjs.pack(args.callback)
-        }
-    });
-
     return {
-        listeners: listeners,
         newListeners: document.getEventHandlers()
-    }
+    };
 }
 
 dom.setDomMsj = function(msj, el){
@@ -545,48 +307,9 @@ dom._ensureHasId = function(domElement){
     domElement.generateId();
 }
 
-dom._listeners = [];
-dom.addListener = function(){
-    var args = this.parseListenerArguments(arguments);
-    this._listeners.push( args);
-}
-
-dom.removeListener = function(){
-    var args = this.parseListenerArguments(arguments);
-    for (var i=0; i<this._listeners.length; i++){
-        var l = this._listeners[i];
-        if (l.callback == args.callback && l.eventId == args.eventId){
-            this._listeners.splice(i, 1);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-dom.handle = function(){
-    var newHandler = msjs.make();
-    newHandler.packMe = true;
-
-    var args = this.parseListenerArguments(arguments)
-    newHandler._updateF = args.callback;
-
-    dom.addListener(args.eventName, args.domElement, args.selector, 
-        function(event, selected){
-            var r = newHandler._updateF(event, selected);
-            if (r !== void 0) newHandler.update(r);
-        }
-    );
-
-    args = null;
-
-    return newHandler;
-
-};
-
 dom._cssRules = [];
-/**
 
+/**
     Adds a css rule to the document
     var args
     @name addCss

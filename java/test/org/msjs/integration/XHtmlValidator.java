@@ -18,7 +18,7 @@ package org.msjs.integration;
 
 import org.apache.log4j.Logger;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -68,7 +68,7 @@ public class XHtmlValidator {
     }
 
     private static class LocalResolver implements EntityResolver {
-        private MsjsConfiguration config = MsjsTestConfigurationFactory.getConfiguration();
+        private MsjsConfiguration config = BasicConfiguration.getConfiguration();
 
         public InputSource resolveEntity(final String publicId, final String systemId)
                 throws SAXException, IOException {

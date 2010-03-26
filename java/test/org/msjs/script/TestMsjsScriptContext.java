@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.config.MsjsConfiguration;
-import org.msjs.config.MsjsTestConfigurationFactory;
+import org.msjs.config.BasicConfiguration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +39,7 @@ public class TestMsjsScriptContext {
 
     @Before
     public void setupConfig() {
-        config = MsjsTestConfigurationFactory.getConfiguration();
+        config = BasicConfiguration.getConfiguration();
         cxFactory = new ContextFactory();
         final ScriptLocator locator = new ScriptLocator(config, cxFactory);
         cx = new MsjsScriptContext(cxFactory, locator,

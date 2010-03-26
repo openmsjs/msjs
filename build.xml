@@ -214,7 +214,7 @@
             description="Render msjs dot file">
         <fail message="Please specify a script to run with a property named 'script'"
               unless="script"/>
-        <java classname="org.msjs.integration.DotRenderer" classpathref="build.classpath"
+        <java classname="org.msjs.page.DotRenderer" classpathref="build.classpath"
               failonerror="true">
             <arg value="${script}"/>
         </java>
