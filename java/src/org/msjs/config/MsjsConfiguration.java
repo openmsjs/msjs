@@ -103,8 +103,9 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         msjsConfig = new File(configDir + "/" + MSJS_CONFIG);
         localConfig = new File(configDir + "/" + LOCAL_CONFIG);
 
-        loadConfig(msjsConfig);
+        // Read local config first. New properties loaded are added to property key and not overwritten.
         if (localConfig.exists()) loadConfig(localConfig);
+        loadConfig(msjsConfig);
 
 
         String msjsRoot = getString(MSJS_ROOT);
@@ -141,7 +142,7 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         logger.info(MSJS_ROOT + ": " + getMsjsRoot());
         logger.info(SCRIPT_ROOT + ": " + getScriptRoot());
         logger.info(FILE_ROOT + ": " + getFileRoot());
-        logger.info(DO_CACHE + ": " + getString(DO_CACHE));
+        logger.info(DO_CACHE + ": " + getBoolean(DO_CACHE));
         logger.info(LOG4J_PROPERTY + ": " + getString(LOG4J_PROPERTY));
         if (logger.isDebugEnabled()) {
             Iterator<String> iter = getKeys();
