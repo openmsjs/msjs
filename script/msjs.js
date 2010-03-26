@@ -143,6 +143,14 @@ msjs.publish = function(value, scope){
     return value;
 };
 
+/**
+    Proactively insert a binding for a given package name, usually for
+    testing. This means that any call to {@link msjs#require} will retrieve
+    the supplied binding, rather than the value that would normally be
+    retrieved
+    @param {String} packageName The name of the supplied binding
+    @param binding The new binding for the given package name
+*/
 msjs.mock = function(packageName, binding){
     bindings[packageName] = binding;
     return binding;
