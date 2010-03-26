@@ -6244,6 +6244,15 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 	};
 
 });
+
+//FIXME: msjs modifications
+jQuery.extend({
+    setUuid : function(newUuid){
+        uuid = newUuid;
+    }
+});
+
+
 // Expose jQuery to the global object
 window.jQuery = window.$ = jQuery;
 
@@ -6267,9 +6276,13 @@ window.jQuery = window.$ = jQuery;
  */
 jQuery.setPackInfo = function(packInfo){
     this.cache = this._unpackObj(packInfo.cache);
+    var maxId = -1;
     for (var id in packInfo.ids){
         msjs.unpack(packInfo.ids[id])[this.expando] = id;
+        maxId = Math.max(id, maxId);
     }
+
+    this.setUuid(maxId +1);
 }
 
 jQuery._unpackObj = function(val){
