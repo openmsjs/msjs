@@ -116,7 +116,7 @@ dom._getMsjClass = msjs.require("msjs.getmsjclass");
 
 /**
     @name getMousePositionFromEvent
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.getMousePositionFromEvent = function(e) {
     var event = e.domEvent || e;
@@ -151,7 +151,7 @@ dom.getMousePositionFromEvent = function(e) {
 /**
     Returns event.target || event.srcElement.
     @name getTargetFromEvent
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.getTargetFromEvent = function(event){
     return event.target || event.srcElement;

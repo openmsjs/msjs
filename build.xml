@@ -240,8 +240,8 @@
                       outputdir="${out.doc.dir}/jsdoc">
             <!-- Same as toDir in jar task -->
             <fileset dir="script">
-                <include name="msjs.js"/>
-                <include name="msjs/**"/>
+                <include name="*.js"/>
+                <include name="msjs/**.js"/>
             </fileset>
         </jsdoctoolkit>
     </target>

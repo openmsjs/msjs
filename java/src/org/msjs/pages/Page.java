@@ -58,7 +58,7 @@ public class Page {
         //they're unpacked so that references to graph nodes are handled
         //properly
         NativeJavaObject rendering =
-                (NativeJavaObject) context.callMethod("msjs.dom", "pack", EMPTY_LIST);
+                (NativeJavaObject) context.callMethodOnBinding("msjs.dom", "pack", EMPTY_LIST);
         final DocType dt = new DocType("html",
                 "-//W3C//DTD XHTML 1.0 Transitional//EN",
                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
@@ -70,7 +70,7 @@ public class Page {
         final ScriptableObject msj = (ScriptableObject)
                 jsonReader.read(new StringReader(stringMsj));
         Object[] args = {msj};
-        context.callMethod("msjs.graph", "acceptMsjFromRemote", args);
+        context.callMethodOnBinding("msjs.graph", "acceptMsjFromRemote", args);
         updateActiveTime();
     }
 
@@ -83,7 +83,7 @@ public class Page {
     public Result getMsjForRemote() {
         pollCount.incrementAndGet();
         try {
-            String result = (String) context.callMethod("msjs.graph", "getMsjForRemoteAsJSON",
+            String result = (String) context.callMethodOnBinding("msjs.graph", "getMsjForRemoteAsJSON",
                     EMPTY_LIST);
             logger.trace("Outbound queue:" + result);
             return new Result("acceptmsj", result);
@@ -99,7 +99,7 @@ public class Page {
                 jsonReader.read(new StringReader(stringMsj));
 
         final ScriptableObject[] args = {msj};
-        String reconnectInfo = (String) context.callMethod(
+        String reconnectInfo = (String) context.callMethodOnBinding(
                 "msjs.graph", "prepareReconnect", args
         );
 
@@ -132,7 +132,7 @@ public class Page {
 
     public void shutdown() {
         try {
-            context.callMethod("msjs.graph", "shutdown", EMPTY_LIST);
+            context.callMethodOnBinding("msjs.graph", "shutdown", EMPTY_LIST);
         } catch (Exception e) {
             logger.error("Page did not shut down cleanly", e);
         }
@@ -159,7 +159,7 @@ public class Page {
         ScriptableObject obj = context.makeObject();
         obj.put("message", obj, e.getMessage());
         Object[] args = {obj};
-        String errorInfo = (String) context.callMethod("msjs", "toJSON", args);
+        String errorInfo = (String) context.callMethodOnBinding("msjs", "toJSON", args);
         return new Result("error", errorInfo);
     }
 
@@ -168,7 +168,7 @@ public class Page {
     }
 
     public void handleWriteFailure() {
-        context.callMethod("msjs.graph", "handleWriteFailure", EMPTY_LIST);
+        context.callMethodOnBinding("msjs.graph", "handleWriteFailure", EMPTY_LIST);
 
 
     }

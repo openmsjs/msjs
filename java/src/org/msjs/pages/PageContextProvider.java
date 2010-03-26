@@ -108,7 +108,7 @@ public class PageContextProvider {
             public MsjsScriptContext call() throws Exception {
                 MsjsScriptContext context = scriptContextProvider.get();
                 //load essential packages
-                context.callMethod("msjs","require", domArg);
+                context.callMethodOnBinding("msjs","require", domArg);
                 context.loadPackage(scriptPath);
                 //logger.info("LOAD " +scriptPath +":"+(System.currentTimeMillis() - t));
 

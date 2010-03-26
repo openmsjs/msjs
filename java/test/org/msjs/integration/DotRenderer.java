@@ -82,7 +82,7 @@ public class DotRenderer {
 
         Object[] empty = {};
 
-        String rendering = (String) context.callMethod("msjs.dotrender", "dotRender", empty);
+        String rendering = (String) context.callMethodOnBinding("msjs.dotrender", "dotRender", empty);
 
         FileWriter writer = new FileWriter(new File(outLocation));
         writer.write(rendering);

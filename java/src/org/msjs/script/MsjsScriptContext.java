@@ -102,7 +102,7 @@ public class MsjsScriptContext extends ScriptContext {
             Scriptable scope = runScript(script);
 
             Object[] args ={ name, scope };
-            callMethod("msjs", "assignDebugNames", args);
+            callMethodOnBinding("msjs", "assignDebugNames", args);
             loadingPackage = outerPackage;
             return bindings.get(name, bindings);
         } catch (Exception e){
@@ -137,11 +137,10 @@ public class MsjsScriptContext extends ScriptContext {
         }
     }
 
-    public Object callMethod(final String callee, final String method, final Object[] args) {
+    public Object callMethodOnBinding(final String binding, final String method,
+                                      final Object[] args) {
         try{
-
-            Scriptable binding = (Scriptable) bindings.get(callee, bindings);
-            return ScriptableObject.callMethod(binding, method, args);
+            return callMethod((Scriptable) bindings.get(binding, bindings), method, args);
         }catch (Exception e){
             throw launderException(e);
         }

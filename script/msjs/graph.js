@@ -1026,6 +1026,7 @@ graph._determinePack = function(node){
     for (var k in node){
         if (!node.hasOwnProperty(k)) continue;
         var val = node[k];
+        if (val instanceof java.lang.Object) return false;
         if (val && val.packMe != null) return val.packMe;
         if (typeof val != "function") continue;
         var freeVars = msjs.context.getFreeVariables(val);
@@ -1034,6 +1035,7 @@ graph._determinePack = function(node){
             var freeValue = scope[freeVar];
             //e.g ... foo = new java.lang.Object();
             if (freeValue == java) return false;
+            if (freeValue instanceof java.lang.Object) return false;
             if (freeValue && freeValue.packMe != null) return freeValue.packMe;
         }
     }

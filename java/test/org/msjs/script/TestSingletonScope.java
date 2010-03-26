@@ -38,7 +38,7 @@ public class TestSingletonScope {
         Object [] arg = { testScript };
         Future<Object> future1 = service.submit( getCallable(getMsjsScriptContext(), arg));
         Future<Object> future2 = service.submit( getCallable(getMsjsScriptContext(), arg));
-        Object published = getMsjsScriptContext().callMethod("msjs", "require", arg);
+        Object published = getMsjsScriptContext().callMethodOnBinding("msjs", "require", arg);
 
         assertEquals(published, future1.get());
         assertEquals(published, future2.get());
@@ -49,7 +49,7 @@ public class TestSingletonScope {
             @Override
             public Object call() throws Exception {
                 //Thread.sleep(1000);
-                return context.callMethod("msjs", "require", arg);
+                return context.callMethodOnBinding("msjs", "require", arg);
             }
         };
     }
