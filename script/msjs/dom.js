@@ -334,7 +334,7 @@ dom.cancelEvent = function(event){
 
 /**
     @name getMousePositionFromEvent
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.getMousePositionFromEvent = function(e) {
     var event = e.domEvent || e;
@@ -368,7 +368,7 @@ dom.getMousePositionFromEvent = function(e) {
 
 /**
     @name getTargetFromEvent
-    @methodOf msjs.dom
+    @methodOf msjs.dom#
 */
 dom.getTargetFromEvent = function(event){
     var target = event.target;

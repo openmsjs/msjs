@@ -1,3 +1,19 @@
+/**
+    msjs relies on jQuery, with a few extensions, to provide its DOM
+    scripting interface. One major difference between msjs jQuery and stock jQuery
+    is that in msjs, everywhere stringified html is accepted, E4X XML is also
+    accepted. E4X can be reliably used on the server, and it's neater and less
+    error prone than xml strings.
+
+    See jQuery documentation for API reference.
+    Current version of jQuery is v1.4.2
+    @namespace standard jQuery core APIs
+    @name jquery
+*/
+
+/**#nocode+*/
+
+
 /*!
  * jQuery JavaScript Library v1.4.2
  * http://jquery.com/
