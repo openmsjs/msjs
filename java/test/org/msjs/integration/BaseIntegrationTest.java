@@ -18,8 +18,10 @@ package org.msjs.integration;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -68,6 +70,28 @@ public abstract class BaseIntegrationTest extends BaseTest {
      */
     protected HtmlPage getPage(BrowserVersion version) throws IOException {
         return getPage(version, getPageLocation());
+    }
+
+    /**
+     * Waits for getTextContext() of the given node to return a string that equals
+     * and expected string. This method is helpful for expressing expectations resulting
+     * calls to and from the server
+     * @param el The dom node whose text content to test
+     * @param expected The expected text content of the node
+     * @throws InterruptedException
+     */
+    protected void awaitText(DomNode el, final String expected){
+        long startTime = System.currentTimeMillis();
+        while (!el.getTextContent().equals(expected)){
+            try{
+                Thread.sleep(20);
+            } catch (InterruptedException e){
+                fail ("Testus interruptus");
+            }
+            if (System.currentTimeMillis() - startTime > waitTime){
+                fail("Didn't find text: " + expected + " one " + el);
+            }
+        }
     }
 
 }
