@@ -20,20 +20,13 @@
     @name msjs.dom
 */
 var dom = msjs.publish({}, "Client");
+dom.packMe = true;
 
 //dom is the interface to java-land, so these require statements
 //are necessary to load the modules that Page uses
 msjs.require("document");
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
-
-dom.make = function(xmlOrName){
-    return document.createElement(xmlOrName);
-};
-dom.add = function(xmlOrName){
-    return document.body.appendChild(dom.make(xmlOrName));
-};
-dom.packMe = true;
 
 dom.find = function(refEl, selector){
     var parsedSelector = this._parseSelector(selector);
@@ -119,16 +112,16 @@ dom._parseSelector = function (selector){
     var selectors = selector ? selector.split(" ") : msjs.THE_EMPTY_LIST;
     var self = this;
     return msjs.map(selectors, function(s){
-        var selector = self.trim(s);
+        var selector = jQuery.trim(s);
         var parsed = { };
 
         var matchedAttrs = self._attrMatcher.exec(selector);
         if (matchedAttrs){
             parsed.attrs = {};
             msjs.each(matchedAttrs, function(attr){
-                var attr = self.trim(attr);
+                attr = jQuery.trim(attr);
                 var split = attr.substring(1, attr.length -1).split("=");
-                parsed.attrs[self.trim(split[0])] = self.trim(split[1]) || null;
+                parsed.attrs[jQuery.trim(split[0])] = jQuery.trim(split[1]) || null;
             });
         }
 
@@ -158,74 +151,6 @@ dom._parseSelector = function (selector){
 
         return parsed;
     });
-}
-
-dom._lTrim = new RegExp("^[\\s]+", "g");
-dom._rTrim = new RegExp("[\\s]+$");
-dom.trim = function(str){
-    str =  str.replace(this._lTrim, "");
-    return str.replace(this._rTrim, "");
-}
-
-dom.getText = function(el, dontAppendSpace){
-    var text = "";
-    var space = dontAppendSpace ? "" : " ";
-    this.seek(function(el) {
-        if (el.nodeName == "#text") text += el.nodeValue + space;
-    }, el);
-    
-    return text && text.substring(0, text.length-1);
-}
-
-dom.setText = function(text, el){
-    if (text == null) return;
-    //special case
-    if (el.childNodes.length){
-        var child = el.childNodes[0];
-        if (el.childNodes.length == 1 && child.nodeValue != null){
-            child.nodeValue = text;
-        } else {
-            throw("Can't set text on complex element " + el);
-        }
-    } else {
-        el.appendChild(document.createTextNode(text));
-    }
-}
-
-
-dom.addClass = function(className, el){
-    if (this.hasClass(className, el)) return false;
-    if (el.className && el.className.length) {
-        className = el.className + " " + className;
-    }
-    el.className = className;
-
-    return true;
-}
-
-dom.getElementWithClass = function(className, el){
-    var self = this;
-    return this.seek(function(el){
-        return self.hasClass(className, el);
-    }, el);
-}
-
-dom.getAncestorWithClass = function(className, el) {
-    while (el && !this.hasClass(className, el)) {
-        el = el.parentNode;
-    }
-    return el;
-};
-
-dom.getInputByName = function(inputName, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("getInputByName");
-        el = this.domElement;
-    }
-    var self = this;
-    return this.seek(function(el){
-        return el.nodeName == "INPUT" && el.name == inputName;
-    }, el);
 }
 
 dom.seek = function(f, el){
@@ -303,35 +228,6 @@ dom.setDomMsj = function(msj, el){
 
 dom._getMsjClass = msjs.require("msjs.getmsjclass");
 
-//TODO: Remove this
-dom.createElement = function(name, attrs, text){
-    var el = document.createElement(name);
-    if (attrs){
-        for (var k in attrs){
-            if (k == "style") throw ("Can't set style in dom.createElement");
-            el[k] = attrs[k];
-        }
-    }
-    if (text != null) this.setText(text, el);
-    return el;
-}
-
-dom.stopAction = function() {
-    if (msjs.context.isIE) {
-        window.document.execCommand('Stop');
-    } else {
-        window.stop();
-    }
-}
-
-dom.cancelEvent = function(event){
-    if (!event) return;
-    event.cancelBubble = true;
-    if (event.stopPropagation) event.stopPropagation();
-    if (event.preventDefault) event.preventDefault();
-    if (msjs.context.isIE) event.returnValue = false;
-}
-
 /**
     @name getMousePositionFromEvent
     @methodOf msjs.dom
@@ -371,28 +267,7 @@ dom.getMousePositionFromEvent = function(e) {
     @methodOf msjs.dom
 */
 dom.getTargetFromEvent = function(event){
-    var target = event.target;
-    if (!target) target = event["srcElement"]; // don't obfuscate srcElement
-    return target;
-}
-
-dom.insertBefore = function(newEl, existing) {
-    existing.parentNode.insertBefore(newEl, existing);
-}
-
-dom.insertAfter = function(newEl, existing) {
-    existing.parentNode.insertBefore(newEl, existing.nextSibling);
-}
-
-dom.removeChildren = function(el) {
-    while(el.childNodes.length){
-        el.removeChild(el.childNodes[ el.childNodes.length - 1]);
-    }
-}
-
-dom.removeChild = function(el){
-    if (!el.parentNode) return null;
-    return el.parentNode.removeChild(el);
+    return event.target || event.srcElement;
 }
 
 /**
@@ -430,78 +305,6 @@ dom.getElementPosition = function(e) {
         e = e.parentNode;
     }while(e); //not document.body for iframe case
     return r;
-}
-
-dom.getComputedValue = function(prop, el) {
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("getComputedValue");
-        el = this.domElement;
-        if (el == null) this._throwUndefinedElement("getComputedValue");
-    }
-    if (window.getComputedStyle) { // Firefox, Safari
-        return window.getComputedStyle(el, null).getPropertyValue(prop);
-    } else if (el.currentStyle) { // IE
-        return el.currentStyle[prop];
-    } else {
-        throw "couldn't get computed value";
-    }
-}
-
-dom.removeClass = function(className, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("removeClass");
-        el = this.domElement;
-    }
-    var found = false;
-    if (el.className && el.className.indexOf(className) != -1) {
-        var classNames = el.className.split(" ");
-        for (var i=0; i < classNames.length; i++) {
-            if (classNames[i] == className) {
-                classNames.splice(i, 1);
-                found = true;
-                break;
-            }
-        }
-        el.className = classNames.join(" ");
-    }
-
-    return found;
-};
-
-dom.hasClass = function(className, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("hasClass");
-        el = this.domElement;
-    }
-    if (el.className && el.className.indexOf(className) != -1) {
-        var classNames = el.className.split(" ");
-        for (var i=0; i < classNames.length; i++) {
-            if (classNames[i] == className) return true;
-        }
-    }
-    return false;
-};
-
-dom.convertToElement = function(xhtml){
-    var container = document.createElement("div");
-    container.innerHTML = xhtml;
-    return container.childNodes[0];
-}
-
-// str is a string that contains character entities
-dom.htmlToText = function(str) {
-    var container = document.createElement("div");
-    container.innerHTML = str;
-    return container.innerText || container.textContent;
-}
-
-dom.isChild = function(testEl, el){
-    var p = testEl;
-    while(p){
-        if (p == el) return true;
-        p = p.parentNode;
-    }
-    return false;
 }
 
 dom.listeners = {};
@@ -740,10 +543,6 @@ dom.setDomMsj = function(msj, el){
 dom._ensureHasId = function(domElement){
     //This is safe to call even if the domElement already has an id
     domElement.generateId();
-}
-
-dom.convertToElement = function(xhtml){
-    return document.createElement(new XML(xhtml) );
 }
 
 dom._listeners = [];
