@@ -15,5 +15,5 @@
  */
 
 var jsonConverter = msjs.require("java.org.msjs.service.JSONConverter");
-var jsonRequest = new (msjs.require("msjs.httprequest"))(jsonConverter);
-msjs.publish(jsonRequest, "Singleton");
+var httpRequest = msjs.require("msjs.httprequest");
+msjs.publish(new httpRequest(jsonConverter, "application/json"), "Singleton");

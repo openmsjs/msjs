@@ -18,46 +18,45 @@ var toJSONQuoteFunctions = function(obj){
     return msjs.toJSON(obj, null, true);
 };
 
-var httpService = msjs.require("java.org.msjs.service.HttpService");
-var httpRequest = msjs.publish(function(converter) {
-
+var utf8 = "UTF-8";
+var httpClient = msjs.require("org.apache.http.client.HttpClient");
+var httpRequest = msjs.publish(function(converter, mimeType) {
     this.get = function(url) {
-        return submitRequest(
-            new org.apache.http.client.methods.HttpGet(url)
-        );
+        return submit(new org.apache.http.client.methods.HttpGet(url));
     };
 
     // Add rev=<rev> to delete a specific revision
     this.del = function(url) {
-        return submitRequest(
-            new org.apache.http.client.methods.HttpDelete(url)
-        );
+        return submit(new org.apache.http.client.methods.HttpDelete(url));
     };
 
-    this.post = function(url, resource) {
-        return submitResource(
-            new org.apache.http.client.methods.HttpPost(url),
-            resource
-        );
+    this.post = function(url, content, mimeType) {
+        return submit(new org.apache.http.client.methods.HttpPost(url), content);
     };
 
-    this.put = function(url, resource) {
-        return submitResource(
-            new org.apache.http.client.methods.HttpPut(url), 
-            resource
-        );
+    this.put = function(url, content) {
+        return submit(new org.apache.http.client.methods.HttpPut(url), content);
     };
 
-    var submitRequest = function(method) {
-        return httpService.get(method, converter);
-    };
-
-    var submitResource = function(request, resource) {
-        if (resource) {
-            var doc = this._toJSONQuoteFunctions(resource);
-            var entity = new org.apache.http.client.methods.StringRequestEntity(doc, "application/json", "UTF-8");
-            request.setRequestEntity(entity);
+    var submit = function(method, content) {
+        if (content) {
+            method.setEntity(new org.apache.http.entity.StringEntity(content, mimeType, utf8));
         }
-        return this._submitRequest(request);
+
+        var response = httpClient.execute(method).getResponse();
+        var entity = response.getEntity();
+        if (entity == null) {
+            throw "no entity: " + method.getURI().toString();
+        }
+
+        var inputStream = entity.getContent();
+        try {
+            return {
+                status: response.getStatusLine().getStatusCode(),
+                result: converter.convertToJS(new java.io.InputStreamReader(inputStream, utf8))
+            };
+        } finally {
+            inputStream.close();
+        }
     };
 });

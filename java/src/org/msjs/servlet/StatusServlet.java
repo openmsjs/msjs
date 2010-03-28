@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.page.Page;
 import org.msjs.page.Pages;
-import org.msjs.service.HttpService;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -34,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
+
 /**
  * Gives status and configuration information about the running msjs
  * instance, within the servlet container.
@@ -42,7 +42,6 @@ public class StatusServlet extends HttpServlet {
     private final Logger logger = Logger.getLogger(ResourceServlet.class);
     private MsjsConfiguration msjsConfig;
     private Pages pages;
-    private HttpService httpService;
 
 
     @Override
@@ -52,7 +51,6 @@ public class StatusServlet extends HttpServlet {
         Injector injector = (Injector) servletContext.getAttribute(ServletListener.INJECTOR);
         msjsConfig = injector.getInstance(MsjsConfiguration.class);
         pages = injector.getInstance(Pages.class);
-        httpService = injector.getInstance(HttpService.class);
     }
 
     @Override
@@ -67,8 +65,6 @@ public class StatusServlet extends HttpServlet {
             printProperties(out, getBuildProperties());
 
             printPageCache(out);
-
-            printPerfomanceMonitor(out);
 
             out.print(formatProperty("open connections", Integer.toString(Page.getPollCount())));
 
@@ -96,10 +92,6 @@ public class StatusServlet extends HttpServlet {
                 propName, propValue);
     }
 
-
-    private void printPerfomanceMonitor(final ServletOutputStream out) throws IOException {
-        out.print(httpService.getProfileInfo());
-    }
 
     private Properties getBuildProperties() {
         Properties properties = new Properties();
