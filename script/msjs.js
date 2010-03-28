@@ -263,7 +263,7 @@ msjs.each = function(obj, f){
 /**
     Returns the length of an array, or the 1+the highest numeric key in an Object that 
     may be masquerading as an array.
-    @param {Object} The object for which to get the highest numeric key.
+    @param obj The object for which to get the highest numeric key.
     @return {Number} The highest numeric key for the given parameter, or 0 if the parameter is not
     an object or has no numeric keys.
     @methodOf msjs#
