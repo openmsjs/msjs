@@ -31,7 +31,6 @@ var msjs = function(produceFunction){
     it's running. In the web browser, the context is a simple javascript
     object. On the server, it's the instance of MsjsScriptContext that
     contains the running environment.
-    @name context
     @fieldOf msjs#
 */
 /**#nocode+*/ //jsdoc can't handle this:
@@ -126,7 +125,6 @@ msjs.context = {
     Can be checked to determine if msjs is running in the browser or on the server.
     If true, msjs is running in the browser.
     @fieldOf msjs#
-    @name isClient
     @type boolean
 */
 msjs.isClient = true;
@@ -141,11 +139,10 @@ msjs._packageIsLoading = {};
     Bring an object that was published under a given package name into scope.
     If a binding for this package has already been stored, it is simply
     returned, otherwise the corresponding file is loaded, and the value passed
-    to {@link msjs#publish} within that script is stored under that package
+    to {@link msjs#msjs.publish} within that script is stored under that package
     name.  In general, cyclic package dependencies can be broken by moving the
-    {@link msjs#publish} call to the top of the file.
+    {@link msjs#msjs.publish} call to the top of the file.
 
-    @name require
     @methodOf msjs#
     @param {String} packageName The name of the package to retrieve.
     @return The published binding for that package name.
@@ -162,9 +159,8 @@ msjs.require = function(packageName){
     "Global" scope, one instance is shared among every scope. The "Client"
     scope is like the "Context" scope, although it means that contents of the
     package are run in the client scope.
-    {@link msjs#publish}
+    {@link msjs#msjs.publish}
     @methodOf msjs#
-    @name publish
     @param {String} value T
     @param {String "Context"|"Singleton"|"Client"} scope Optional; defaults to "Context". 
 */
@@ -175,10 +171,9 @@ msjs.publish = function(value, scope){
 
 /**
     Proactively insert a binding for a given package name, usually for
-    testing. This means that any call to {@link msjs#require} will retrieve
+    testing. This means that any call to {@link msjs#msjs.require} will retrieve
     the supplied binding, rather than the value that would normally be
     retrieved
-    @name mock
     @param {String} packageName The name of the supplied binding
     @param binding The new binding for the given package name
     @methodOf msjs#
@@ -193,7 +188,6 @@ msjs.mock = function(packageName, binding){
     Doesn't handle objects with prototypes
     @param base The value to be copied
     @return The copy of the object.
-    @name copy
     @methodOf msjs#
 */
 msjs.copy = function( base ){
@@ -227,7 +221,6 @@ msjs.copy = function( base ){
     @return {Array} A new array of return values from the parameter function, with
     nulls removed.
     @methodOf msjs#
-    @name map
 */
 msjs.map = function(arr, f){
     if (!arr) return [];
@@ -254,7 +247,6 @@ msjs.map = function(arr, f){
     nth element of the array. The second is "n"; the offset in the original
     array.
     @methodOf msjs#
-    @name each
 */
 msjs.each = function(obj, f){
     if (!isNaN(obj.length) && (typeof obj != "string")){
@@ -274,7 +266,6 @@ msjs.each = function(obj, f){
     @param {Object} The object for which to get the highest numeric key.
     @return {Number} The highest numeric key for the given parameter, or 0 if the parameter is not
     an object or has no numeric keys.
-    @name getLength
     @methodOf msjs#
 */
 msjs.getLength = function( obj ){
@@ -292,6 +283,7 @@ msjs.getLength = function( obj ){
     Determines whether the given parameter is an array.
     @param value The value to be tested for array-ness
     @return {boolean} True if the parameter is an array, otherwise false.
+    @methodOf msjs#
 */
 msjs.isArray = function( value ){
     //first test is needed since typeof null is "object"
@@ -301,7 +293,10 @@ msjs.isArray = function( value ){
 
 /**
     Write the given parameters to the local log, as the defined by the msjs
-    context. This method is variadic.
+    context. For objects unknown to msjs that can't be serialized as JSON, this
+    method can result in a stack trace. This method is variadic.
+    @param Arguments to write to the log. Each will be printed separated by commas.
+    @methodOf msjs#
 */
 msjs.log = function(){
     if (this.isClient){
@@ -382,6 +377,7 @@ msjs._jsonEscape= function (string) {
     
     @param value The literal or object to convert to JSON
     @return {String} JSON for the given parameter.
+    @methodOf msjs#
 */
 msjs.toJSON = function(value, depth, quoteFunctions) { 
     //depth param is undocumented; used internally
@@ -538,8 +534,10 @@ msjs.unpack = function(value){
 /*! msjs.server-only **/
 msjs.isClient = false;
 /**
-    Initializes msjs with the given context and global scope
-    @name bindContext
+    Initializes msjs with the given context and global scope. This method is
+    only run on the server. On the client, these values are statically bound.
+    This method is called from Java.
+    @methodOf msjs#
 */
 msjs.bindContext = function(context, global){
     // Server overrides context value
@@ -550,7 +548,8 @@ msjs.bindContext = function(context, global){
 }
 
 /**
-    The list of packages that were published to the client
+    The list of packages that were published to the client. This must be
+    read only.
     @fieldOf msjs#
     @type {Array[String]} 
 */
@@ -565,7 +564,7 @@ msjs.assignDebugNames = function(packageName, scope){
 }
 
 /**
-    Prepares a value for transport to the client
+    Internal API. Prepares a value for transport to the client.
     @return a packing refernce, or the original value
     @memberOf msjs#
 */
