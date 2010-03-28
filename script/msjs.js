@@ -16,7 +16,7 @@
 
 /**
     An function that forms the root of the msjs API, and also makes
-    new graph nodes. When called as a function, it is just syntactic
+    new graph nodes. When called as a function, it is syntactic
     sugar for {@link msjs.graph#make}.
     @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
@@ -31,8 +31,10 @@ var msjs = function(produceFunction){
     it's running. In the web browser, the context is a simple javascript
     object. On the server, it's the instance of MsjsScriptContext that
     contains the running environment.
+    @name context
+    @fieldOf msjs#
 */
-/**#nocode+*/
+/**#nocode+*/ //jsdoc can't handle this:
 msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
@@ -124,6 +126,8 @@ msjs.context = {
     Can be checked to determine if msjs is running in the browser or on the server.
     If true, msjs is running in the browser.
     @fieldOf msjs#
+    @name isClient
+    @type boolean
 */
 msjs.isClient = true;
 
@@ -134,17 +138,35 @@ var bindings = { global : this, msjs : msjs};
 msjs._packageIsLoading = {};
 
 /**
-    Bring an object that was published into scope
-    @memberOf msjs#
+    Bring an object that was published under a given package name into scope.
+    If a binding for this package has already been stored, it is simply
+    returned, otherwise the corresponding file is loaded, and the value passed
+    to {@link msjs#publish} within that script is stored under that package
+    name.  In general, cyclic package dependencies can be broken by moving the
+    {@link msjs#publish} call to the top of the file.
+
+    @name require
+    @methodOf msjs#
+    @param {String} packageName The name of the package to retrieve.
+    @return The published binding for that package name.
 */
 msjs.require = function(packageName){
     return bindings[packageName];
 }
 
 /**
-    Bind an object to a name so it can be retrieved using
+    Publish a value as the binding for that scope. It is an error to call the
+    publish method twice in the same package. The scope parameter determines
+    the scope for the published binding. In the default scope, the "Context"
+    scope, this means that each server context has its own instance. In the
+    "Global" scope, one instance is shared among every scope. The "Client"
+    scope is like the "Context" scope, although it means that contents of the
+    package are run in the client scope.
     {@link msjs#publish}
-    @memberOf msjs#
+    @methodOf msjs#
+    @name publish
+    @param {String} value T
+    @param {String "Context"|"Singleton"|"Client"} scope Optional; defaults to "Context". 
 */
 msjs.publish = function(value, scope){
     bindings[this.context.loadingPackage] = value;
@@ -156,9 +178,10 @@ msjs.publish = function(value, scope){
     testing. This means that any call to {@link msjs#require} will retrieve
     the supplied binding, rather than the value that would normally be
     retrieved
+    @name mock
     @param {String} packageName The name of the supplied binding
     @param binding The new binding for the given package name
-    @memberOf msjs#
+    @methodOf msjs#
 */
 msjs.mock = function(packageName, binding){
     bindings[packageName] = binding;
@@ -169,6 +192,9 @@ msjs.mock = function(packageName, binding){
     Recursively copies an object or array, or returns a primitive value.
     Doesn't handle objects with prototypes
     @param base The value to be copied
+    @return The copy of the object.
+    @name copy
+    @methodOf msjs#
 */
 msjs.copy = function( base ){
     if ( typeof base != "object" ) return base;
@@ -194,11 +220,14 @@ msjs.copy = function( base ){
     consiting of the return values. The array is folded, so that nulls returned from
     the parameter function aren't included in the result array.
     @param {Array} arr The input array.
-    @param {Function} f The function to call with each element of the array. This function is
-    called with two parameters: the first is the nth element of the array. The second is "n"; 
-    the offset in the original array.
-    @return {Array} The resulting array of return values from the parameter function, with
+    @param {Function(elemnt, n)} f The function to call with each element of
+    the array. This function is called with two parameters: the first is the
+    nth element of the array. The second is "n"; the offset in the original
+    array. The value returned by this function is used in the new array.
+    @return {Array} A new array of return values from the parameter function, with
     nulls removed.
+    @methodOf msjs#
+    @name map
 */
 msjs.map = function(arr, f){
     if (!arr) return [];
@@ -215,6 +244,18 @@ msjs.map = function(arr, f){
     return r;
 }
 
+/**
+    Apply a function to each element in the given array, or to a non-object value.
+    Does not error if passed null, but does on undefined.
+
+    @param obj The input value
+    @param {Function(elemnt n)} f The function to call with each element of
+    the array. This function is called with two parameters: the first is the
+    nth element of the array. The second is "n"; the offset in the original
+    array.
+    @methodOf msjs#
+    @name each
+*/
 msjs.each = function(obj, f){
     if (!isNaN(obj.length) && (typeof obj != "string")){
         for (var i=0; i<obj.length; i++){
@@ -222,6 +263,8 @@ msjs.each = function(obj, f){
         }
     } else if (obj){
         f(obj, 0);
+    } else if (obj === void 0){
+        throw "Undefined value for each";
     }
 }
 

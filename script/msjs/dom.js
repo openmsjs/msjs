@@ -25,6 +25,22 @@ dom.packMe = true;
 //dom is the interface to java-land, so these require statements
 //are necessary to load the modules that Page uses
 msjs.require("document");
+
+/**
+    msjs relies on jQuery, with a few extensions, to provide its DOM scripting
+    interface. One major difference between msjs jQuery and stock jQuery is
+    that in msjs, everywhere stringified html is accepted, E4X XML is also
+    accepted. E4X can be reliably used on the server, and it's neater and less
+    error prone than xml strings.
+
+    See jQuery documentation for API reference.
+    Current version of jQuery is v1.4.2
+    @namespace standard jQuery core APIs
+    @name jquery
+*/
+
+//This is documented here because the current version of jsdoc takes an
+//absurdly long time on the jquery.js file.
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
