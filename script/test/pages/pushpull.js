@@ -58,14 +58,14 @@ var d = msjs(function(msj){
     display2.append(line);
     return true;
 });
-d.get(num, "num");
+d.pull(num, "num");
 d.push(c, "c");
 
 //server
 var listener = msjs(function(msj){
     return msj.b;
 });
-listener.get(b, "b");
+listener.pull(b, "b");
 listener.push(d, "d");
 listener.packMe = false;
 

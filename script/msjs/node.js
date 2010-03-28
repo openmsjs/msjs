@@ -194,15 +194,8 @@ node.invalidate = function(){
 node._inputs = {};
 node._transient = {};
 
-/**
-    Provide the msj of the given node as a property of the input of this node' msj function. 
-    @param {String} property The name to use for the input property.
-    @param {msjs.node} node The node whose msj should be delivered under the given property
-    name.
-    @param {Boolean} isTransient If true, the value for this slot will be null unless node
-    has updated since the last time this node's msj was retrieved. This is useful for 
-    modeling transient updates in the system, such as form submission
-*/
+
+//This method is deprecated. Use node.push instead
 node.set = function(property, nodeOrPackage, isTransient){ //careful; "transient" is keyword
     var node = this.depends(nodeOrPackage);
     if (!node || !node.getId) throw "Can't set " + property + " in " + this._getDebugName();
@@ -243,11 +236,21 @@ node.push = function(nodeOrPackage, property){
 }
 
 /**
-    FIXME: Should be pull
+    Adds the msj for the provided node to argument provided to this node's produce
+    function, without expressing a dependency on that node. This method should be
+    used with care; it's intended for retrieving information that is guaranteed to
+    change before the other dependencies for this node force recalculation. Examples
+    of this type of data include user information that doesn't change after it's set,
+    or cache information that's used for rendering.
+
+    This method is also handy for breaking circular dependencies.
     @name pull
     @methodOf msjs.node#
+    @param nodeOrPackage A string name of a package or a reference to another node
+    @param {String} property The name of the channel on which to receive the other
+    node's message.
 */
-node.get = function(nodeOrPackage, property){
+node.pull = function(nodeOrPackage, property){
     var node = this.resolveReference(nodeOrPackage);
     this._ensureHasOwn( "_inputs" );
     this._inputs[property] = node.getId();
