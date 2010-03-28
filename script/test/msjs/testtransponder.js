@@ -15,8 +15,8 @@
  */
 
 var assert = msjs.require("msjs.assert");
-var input = msjs.make();
-var receiver = msjs.make();
+var input = msjs();
+var receiver = msjs();
 receiver.set("input", input);
 
 var output = [];

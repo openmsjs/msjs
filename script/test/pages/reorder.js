@@ -16,7 +16,7 @@
 
 var listEl = $(<div/>).appendTo("body");
 var sortKey = "first";
-var list = msjs.make( function(msj){
+var list = msjs( function(msj){
     if (msj.toggle) sortKey = sortKey == "first" ? "last" : "first";
 
     var arr = [
@@ -51,7 +51,7 @@ list.dirty = true;
 
 
 
-var controls = msjs.make();
+var controls = msjs();
 $(<div><input type="button" value="toggle"/></div>)
     .appendTo("body")
     .find("input")

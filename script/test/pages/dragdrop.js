@@ -36,7 +36,7 @@ var table = $(<table><tbody><tr>
 table.find("td").css({ verticalAlign : "top", paddingRight : "100px"});
 
 var dom = msjs.require("msjs.dom");
-var sources = msjs.make();
+var sources = msjs();
 table.find(".drag-me").mousedown(function(event){
     var pos = dom.getElementPosition(event.target);
     var mouse = dom.getMousePositionFromEvent(event);
@@ -70,7 +70,7 @@ table.find(".drag-me").mousedown(function(event){
 
 
 var box = table.find(".box");
-var target = msjs.make();
+var target = msjs();
 target.droppedElement = null;
 target.handleDragEvent = function(type, event, el){
     var mouse = dom.getMousePositionFromEvent(event);

@@ -16,8 +16,8 @@
 
 var assert = msjs.require("msjs.assert");
 
-var a = msjs.make();
-var b = msjs.make();
+var a = msjs();
+var b = msjs();
 a.set("model", b);
 b.set("model", a);
 

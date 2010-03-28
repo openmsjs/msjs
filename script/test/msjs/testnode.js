@@ -16,14 +16,14 @@
 
 var assert = msjs.require("msjs.assert");
 
-var aNode = msjs.make(function(){return null;});
+var aNode = msjs(function(){return null;});
 assert(aNode.getId() != null);
 
 var bCount =0;
-var bNode = msjs.make(function(){return bCount++;});
+var bNode = msjs(function(){return bCount++;});
 
 var cCount =0;
-var cNode = msjs.make(function(){return cCount++;});
+var cNode = msjs(function(){return cCount++;});
 
 bNode.depends(aNode);
 cNode.depends(bNode);

@@ -15,12 +15,12 @@
  */
 
 var el = $(<div/>).appendTo("body");
-var makesome = msjs.make(function(){
+var makesome = msjs(function(){
     el[0].innerHTML = "foo foo foo";
 });
 
 
 var moreEl = $(<a href="http://google.com">this is the original</a>).appendTo("body");
-var makemore = msjs.make( function(){
+var makemore = msjs( function(){
     moreEl[0].innerHTML = "link to google";
 });

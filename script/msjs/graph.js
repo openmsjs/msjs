@@ -15,9 +15,9 @@
  */
 
 /**
-    @namespace The graph instance that connects the {@link msjs.node}s
     The object responsible for coordinating the relationships
     among the {@link msjs.node}s in the program.
+    @namespace The graph instance that connects the {@link msjs.node}s
     @name msjs.graph
 */
 var graph = {};

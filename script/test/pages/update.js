@@ -28,7 +28,7 @@ var jForm = $(
 
 var form = jForm.get(0);
 
-var controls = msjs.make( function(){
+var controls = msjs( function(){
     var inputs = form.getElementsByTagName("input");
     var r = {
         size : "shorter",
@@ -52,7 +52,7 @@ jForm.submit(function() {
 var dom = msjs.require("msjs.dom");
 var listEl = $(<div style="position:relative"/>).appendTo("body");
 var elHeight = 30;
-var list = msjs.make( function(msj){
+var list = msjs( function(msj){
     var model = msj.model;
     var self = this;
     //hide them all to start
@@ -88,7 +88,7 @@ var makeAnimal = function(name, n){
     dom.setDomMsj(name, el[0]);
 }
 
-var animals = msjs.make(function(){
+var animals = msjs(function(){
     return [{
         name :"tiger",
         friendliness : 1
@@ -107,7 +107,7 @@ var animals = msjs.make(function(){
     }];
 });
 
-var model = msjs.make(function(msj){
+var model = msjs(function(msj){
     var control = msj.control;
     var r = [];
     var l = control.size == "longer" ? 5 : 3;

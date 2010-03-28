@@ -16,11 +16,11 @@
 
 var node = msjs.require("msjs.node");
 //construct out of order
-var c = msjs.make();
-var b = msjs.make();
-var e = msjs.make();
-var a = msjs.make();
-var d = msjs.make();
+var c = msjs();
+var b = msjs();
+var e = msjs();
+var a = msjs();
+var d = msjs();
 
 b.depends(a);
 c.depends(a);

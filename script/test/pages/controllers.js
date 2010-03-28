@@ -27,19 +27,19 @@ var buttons = $(
 </div>
 ).appendTo("body");
 
-var twoButtons = msjs.make();
+var twoButtons = msjs();
 $('button').click(function(event) {
     twoButtons.update(event.target.value);
 });
 
 var outputEl = $(<p>[no message]</p>).appendTo("body");
-var output = msjs.make(function(msj){
+var output = msjs(function(msj){
     outputEl.text(msj.model);
 });
 output.set("model", twoButtons);
 
 /** Test checkboxes **/
-var updateChecks = msjs.make();
+var updateChecks = msjs();
 $(
     <form style="margin-top:50px"><div>
         <input type="checkbox" value="C"/>C
@@ -50,7 +50,7 @@ $(
     updateChecks.update(true);
 });
 
-var checks = msjs.make(function(){
+var checks = msjs(function(){
     var s = "";
     var inputs = $("input").each(function(i, input){
         if (input.checked) s += input.value;
@@ -61,7 +61,7 @@ checks.depends(updateChecks);
 checks.dirty = true;
 
 var output2El = $(<p/>).appendTo("body");
-var out = msjs.make(function(msj){
+var out = msjs(function(msj){
     output2El.text(msj.model);
 });
 out.set("model", checks);

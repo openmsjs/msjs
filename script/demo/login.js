@@ -25,7 +25,7 @@ var form = $(<form>
     <input type="submit" value="go"/>
 </form>).appendTo("body");
 
-var submit = msjs.make();
+var submit = msjs();
 form.submit(function(){
     submit.update({
         name : $("input[name='username']").val(),
@@ -34,7 +34,7 @@ form.submit(function(){
 });
 
 var authenticate = msjs.require("demo.authenticate");
-var login = msjs.make(function(msj){
+var login = msjs(function(msj){
     if (authenticate(msj.input.name, msj.input.pass)){
         msjs.log("good login", msj.input.name);
         msjs.context.redirect("/msjs/demo/app.msjs?name=" + msj.input.name);
@@ -42,7 +42,7 @@ var login = msjs.make(function(msj){
 });
 login.push(submit, "input");
 
-var error = msjs.make(function(msj){
+var error = msjs(function(msj){
     if (!msj.login) form.className = "error";
 });
 error.push(login, "login");

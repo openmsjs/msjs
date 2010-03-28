@@ -15,17 +15,17 @@
  */
 
 var count = 0;
-var button = msjs.make();
+var button = msjs();
 $("<div><button>Click me</button></div>").appendTo("body").click(function() {
     button.update(count++);
 });
 
-var clientProducer = msjs.make( function(msj){
+var clientProducer = msjs( function(msj){
     return "Client update " + msj.button;
 });
 clientProducer.set("button", button);
 
-var serverProducer1 = msjs.make( function(msj){
+var serverProducer1 = msjs( function(msj){
     var self = this;
     this.async(function(){
         java.lang.Thread.sleep(200);
@@ -37,7 +37,7 @@ var serverProducer1 = msjs.make( function(msj){
 serverProducer1.packMe = false;
 serverProducer1.set("button", button);
 
-var serverProducer2 = msjs.make( function(msj){
+var serverProducer2 = msjs( function(msj){
     if (this._future) this._future.cancel(true);
     var self = this;
     this._future = this.async(function(){
@@ -50,7 +50,7 @@ serverProducer2.packMe = false;
 serverProducer2.set("model", serverProducer1);
 serverProducer2._future = null;
 
-var view = msjs.make(function(msj){
+var view = msjs(function(msj){
     if (msj.clientModel) this._addEl(msj.clientModel);
     if (msj.serverModel) this._addEl(msj.serverModel);
 });

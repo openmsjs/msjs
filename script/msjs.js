@@ -15,12 +15,17 @@
  */
 
 /**
-    An object that forms the root of the msjs API.
+    An function that forms the root of the msjs API, and also makes
+    new graph nodes. When called as a function, it is just syntactic
+    sugar for {@link msjs.graph#make}.
     @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
     @name msjs
 */
-var msjs = {};
+var msjs = function(produceFunction){
+    return msjs.require("msjs.graph").make(produceFunction);
+}
+
 /**
     The context is the link between msjs and the environment in which
     it's running. In the web browser, the context is a simple javascript
@@ -125,12 +130,6 @@ msjs.isClient = true;
 //global scope on the client is simple
 var bindings = { global : this, msjs : msjs};
 
-/**
-    This is just syntatic sugar for {@link msjs.graph#make}
-*/
-msjs.make = function(produceMsj){
-    return this.require("msjs.graph").make(produceMsj);
-}
 
 msjs._packageIsLoading = {};
 
@@ -516,7 +515,6 @@ msjs.bindContext = function(context, global){
 
 /**
     The list of packages that were published to the client
-    @name clientPackages
     @fieldOf msjs#
     @type {Array[String]} 
 */

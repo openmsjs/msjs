@@ -24,7 +24,7 @@ var form = $(<form>
     <input type="submit" value="go"/>
 </form>).appendTo("body");
 
-var submit = msjs.make();
+var submit = msjs();
 form.submit(function(){
     submit.update({
         username : $("input[name='username']").val(),
@@ -37,7 +37,7 @@ var listener = msjs.require("chat.listener");
 listener.push(submit, "submit");
 
 var output = $(<div/>).appendTo("body");
-var renderer = msjs.make(function(msj){
+var renderer = msjs(function(msj){
     output.empty();
     msjs.each(msj.list, function(item){
         $("<div/>").appendTo(output).text(item.username + ": " + item.message);

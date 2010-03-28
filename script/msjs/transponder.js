@@ -18,7 +18,7 @@
     @namespace A special {@link msjs.node} instance which can connect graphs
     @name msjs.transponder
 */
-var transponder = msjs.publish(msjs.make());
+var transponder = msjs.publish(msjs());
 transponder.packMe = false;
 var transponders = msjs.require("msjs.transponders");
 transponder.set = function (channel, nodeOrPackage){

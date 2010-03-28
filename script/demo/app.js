@@ -22,7 +22,7 @@ var form = $(<form>
 </form>).appendTo("body");
 
 var whoImg = form.find("img.who")[0]; 
-var username = msjs.make(function(msj){
+var username = msjs(function(msj){
     var request = msjs.require("java.javax.servlet.ServletRequest");
     var name = request.getParameter("name");
     if (!name) msjs.context.redirect("/msjs/demo/login.msjs");
@@ -39,7 +39,7 @@ dom.addCss("img.who", {
     minHeight : "50px"
 });
 
-var submit = msjs.make();
+var submit = msjs();
 form.submit(function(){
     var r =  {
         name : whoImg.alt,
@@ -49,7 +49,7 @@ form.submit(function(){
     submit.update(r);
 });
 var statusArray = msjs.require("demo.statuslist");
-var statusList = msjs.make(function(msj){
+var statusList = msjs(function(msj){
     if (msj.submit) statusArray.push(msj.submit);
     msjs.log(statusArray);
     return statusArray;
@@ -63,7 +63,7 @@ var template = $(<div>
     <img class="who"/>
     <div/>
 </div>.toXMLString()).css("clear", "both");
-var renderer = msjs.make(function(msj){
+var renderer = msjs(function(msj){
     updates.empty();
     msjs.each(msj.statusList.reverse(), function(status){
         var entry = template.clone().appendTo(updates);
