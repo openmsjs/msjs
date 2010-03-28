@@ -268,21 +268,14 @@ msjs.each = function(obj, f){
     }
 }
 
-msjs.last = function(arr){
-    if (!arr) return null;
-    if (!isNaN(arr.length) && (typeof arr != "string")){
-        return arr[arr.length-1];
-    } else {
-        return arr;
-    }
-}
-
 /**
     Returns the length of an array, or the 1+the highest numeric key in an Object that 
     may be masquerading as an array.
     @param {Object} The object for which to get the highest numeric key.
     @return {Number} The highest numeric key for the given parameter, or 0 if the parameter is not
     an object or has no numeric keys.
+    @name getLength
+    @methodOf msjs#
 */
 msjs.getLength = function( obj ){
     if ( !(obj instanceof Object) ) return 0;
