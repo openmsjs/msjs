@@ -6360,9 +6360,6 @@ jQuery.getPackInfo = function(){
             delete el[expando];
         }
     });
-    for (var k in this.cache){
-        msjs.log(k);
-    }
     return {
         cache: this._packObj(this.cache),
         ids : ids
