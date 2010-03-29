@@ -57,29 +57,6 @@ dom.getCssId = function(el){
     return "#" + el.id;
 }
 
-dom.seek = function(f, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("seek");
-        el = this.domElement;
-    }
-
-    if (f(el)) return el;
-    var q = [el.childNodes];
-    var m=0;
-    var n=0;
-    while(q.length > m){
-        var curr = q[m++];
-        n = 0;
-        while(curr.length > n){
-            var e = curr[n++];
-            if (f(e)) return e;
-            
-            if (e.childNodes && e.childNodes.length) q.push(e.childNodes);
-        }
-    }
-    return null;
-}
-
 /**
     @name getMousePositionFromEvent
     @methodOf msjs.dom#
