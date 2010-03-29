@@ -14,12 +14,8 @@
  * the License.
  */
 
-var toJSONQuoteFunctions = function(obj){
-    return msjs.toJSON(obj, null, true);
-};
-
 var utf8 = "UTF-8";
-var httpClient = msjs.require("org.apache.http.client.HttpClient");
+var httpClient = msjs.require("java.org.apache.http.client.HttpClient");
 var httpRequest = msjs.publish(function(converter, mimeType) {
     this.get = function(url) {
         return submit(new org.apache.http.client.methods.HttpGet(url));
@@ -30,7 +26,7 @@ var httpRequest = msjs.publish(function(converter, mimeType) {
         return submit(new org.apache.http.client.methods.HttpDelete(url));
     };
 
-    this.post = function(url, content, mimeType) {
+    this.post = function(url, content) {
         return submit(new org.apache.http.client.methods.HttpPost(url), content);
     };
 
@@ -38,12 +34,16 @@ var httpRequest = msjs.publish(function(converter, mimeType) {
         return submit(new org.apache.http.client.methods.HttpPut(url), content);
     };
 
+    this.isSuccess = function(response) {
+        return 200 <= response.status && response.status < 300;
+    };
+
     var submit = function(method, content) {
         if (content) {
             method.setEntity(new org.apache.http.entity.StringEntity(content, mimeType, utf8));
         }
 
-        var response = httpClient.execute(method).getResponse();
+        var response = httpClient.execute(method);
         var entity = response.getEntity();
         if (entity == null) {
             throw "no entity: " + method.getURI().toString();
