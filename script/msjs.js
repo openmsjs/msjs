@@ -391,6 +391,7 @@ msjs.toJSON = function(value) {
     them into strings. Functions aren't supported in the JSON spec. See also
     msjs.toJSON. If quote is true, the function string is quoted.
     @param value The literal or object to convert to JSON
+    @param quote If true, surround the stringified function with quotes.
     @return {String} JSON for the given parameter.
     @methodOf msjs#
  */
