@@ -29,7 +29,7 @@ var msjF = function(x){return x};
 
 var packed;
 
-var packedNode = msjs.make(msjF);
+var packedNode = msjs(msjF);
 packed = packedNode.pack("packed");
 //three properties, id, unpacker, and msjF
 assert(countProperties(packed) == 2);
@@ -39,7 +39,7 @@ assert(packed != null);
 assert(typeof packed.produceMsj == 'object');
 assert(packed.produceMsj._msjs_packed != null);
 
-var notPackedNode = msjs.make(msjF);
+var notPackedNode = msjs(msjF);
 packed = notPackedNode.pack("notPacked");
 assert(packed != null);
 assert(packed._msjF == null);
@@ -47,7 +47,7 @@ assert(packed._msjF == null);
 assert(countProperties(packed) == 2);
 
 
-var packedModel = msjs.make(msjF);
+var packedModel = msjs(msjF);
 packedModel.set("channel", packedNode, true);
 packed = packedModel.pack("packed");
 //five properties: id,  packer, msjF, _inputs, _transient
@@ -55,7 +55,7 @@ assert(countProperties(packed) == 4);
 assert(packed._inputs.channel == packedNode.getId());
 assert(packed._transient.channel == true);
 
-var notPackedModel = msjs.make(msjF);
+var notPackedModel = msjs(msjF);
 packed = notPackedModel.pack("notPacked");
 assert(packed != null);
 assert(packed._msjF == null);

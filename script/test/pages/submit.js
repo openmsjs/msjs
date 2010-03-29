@@ -15,7 +15,7 @@
  */
 
 var listEl =  $(<div/>).appendTo(document.body);
-var list = msjs.make( function(msj){
+var list = msjs( function(msj){
     listEl.children().remove();
     $.each(msj.model, function(n, model){
         $("<div/>").text(model.first + " " + model.last).appendTo(listEl)
@@ -27,7 +27,7 @@ var list = msjs.make( function(msj){
     });
 });
 
-var model = msjs.make(function(msj){
+var model = msjs(function(msj){
     if (msj.form && msj.form.first){
         this._msj.push(msj.form);
     }
@@ -53,7 +53,7 @@ var form = $(
     </div></form>
 ).appendTo(document.body);
 
-var submit = msjs.make();
+var submit = msjs();
 
 form.submit( function(event){
     var r = {

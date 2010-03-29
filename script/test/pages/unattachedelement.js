@@ -16,8 +16,8 @@
 
 var el = document.createElement(<div>unattached element</div>);
 
-var a = msjs.make(function() {});
-var b = msjs.make(function() {});
+var a = msjs(function() {});
+var b = msjs(function() {});
 a.el = el;
 b.el = el;
 
@@ -34,7 +34,7 @@ b.onLoad = function() {
 
 el = document.body.appendChild(document.createElement(<div>was attached</div>));
 document.body.removeChild(el);
-var c = msjs.make(function() {});
+var c = msjs(function() {});
 c.el = el;
 c.onLoad = function() {
     assert("element not set", el != null);

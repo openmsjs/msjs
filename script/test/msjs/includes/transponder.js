@@ -14,7 +14,7 @@
  * the License.
  */
 
-var sender = msjs.publish(msjs.make());
+var sender = msjs.publish(msjs());
 
 var transponder = msjs.require("msjs.transponder");
 transponder.set("message", sender);

@@ -15,7 +15,7 @@
  */
 
 //server
-var a = msjs.make( function(){
+var a = msjs( function(){
     this.async(function(){
         var x = 1;
         while(x<5){
@@ -29,7 +29,7 @@ var a = msjs.make( function(){
 //client
 var display1 = $(<div/>).appendTo("body");
 
-var b = msjs.make(function(msj){
+var b = msjs(function(msj){
     var r = msj.a +1;
     $(display1).text(r);
     return r;
@@ -40,12 +40,12 @@ b.push(a, "a");
 //server
 //make sure the dependency for the get below is not shared with
 //somethink that pushes it
-var num= msjs.make(function(msj){
+var num= msjs(function(msj){
     return msj.a+1;
 });
 num.push(a, "a");
 
-var c= msjs.make(function(msj){
+var c= msjs(function(msj){
     if (msj.num %2 == 0) return true;
 });
 c.push(num, "num");
@@ -53,24 +53,24 @@ c.push(num, "num");
 
 //client
 var display2 = $(<div/>).appendTo("body");
-var d = msjs.make(function(msj){
+var d = msjs(function(msj){
     var line = $("<div/>").text(msj.num + " is even");
     display2.append(line);
     return true;
 });
-d.get(num, "num");
+d.pull(num, "num");
 d.push(c, "c");
 
 //server
-var listener = msjs.make(function(msj){
+var listener = msjs(function(msj){
     return msj.b;
 });
-listener.get(b, "b");
+listener.pull(b, "b");
 listener.push(d, "d");
 listener.packMe = false;
 
 var doneEl = $(<div/>).appendTo("body");
-var display3 = msjs.make(function(msj){
+var display3 = msjs(function(msj){
     doneEl.text("Last even: " + msj.listener);
 });
 display3.push(listener, "listener");

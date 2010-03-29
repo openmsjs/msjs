@@ -16,7 +16,7 @@
 
 var list = msjs.require("chat.list");
 
-msjs.publish(msjs.make(function(msj){
+msjs.publish(msjs(function(msj){
     if (msj.submit) list.push(msj.submit);
     return list;
 })).dirty = true;

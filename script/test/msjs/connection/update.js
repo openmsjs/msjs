@@ -15,26 +15,26 @@
  */
 
 //this is used by test.msjs.testupates
-var server = msjs.make();
+var server = msjs();
 server.packMe = false;
 var input = function(data){
     server.update(data);
 }
 msjs.mock("input", input);
 
-var client = msjs.make( function(msj){
+var client = msjs( function(msj){
     return msj.server;
 });
 client.set("server", server);
 client.packMe = true;
 
-var listener = msjs.make( function(msj){
+var listener = msjs( function(msj){
     return msj.client
 });
 listener.set("client", client);
 listener.packMe = false;
 
-var display = msjs.make( function(msj){
+var display = msjs( function(msj){
     output.push(msj.listener);
 });
 var output = [];

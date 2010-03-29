@@ -48,8 +48,17 @@ msjs.publish({dotRender: function(){
     var domelements = [document.documentElement];
     var clusters = {};
 
+    function addDomElement(nodeName, el, invert){
+        if (domelements.indexOf(el) == -1) domelements.push(el);
+        var head = invert ? "inv" : "normal";
+        lines.push(nodeName + " -> " + getDomElementName(el) + 
+                    "[arrowhead="+head+", color=gray50];");
+    }
+
+
     msjs.each(graph._nodes, function(node){
         var nodeName = getNodeName(node);
+
         function processFreeVars(f, invert){
             if (!f) return;
             var freeVars = msjs.context.getFreeVariables(f);
@@ -58,17 +67,65 @@ msjs.publish({dotRender: function(){
                 var val =scope[k];
                 if (val == jQuery) continue;
 
+                if (val && val instanceof jQuery.fn){
+                    val.each(function(n, el){
+                        addDomElement(nodeName, el, false);
+                    });
+
+
+                }
+
                 //FIXME -- use instanceof here
                 if (val && val.nodeName){
-                    domelements.push(val);
-                    var head = invert ? "inv" : "normal";
-                    lines.push(nodeName + " -> " + getDomElementName(val) + 
-                               "[arrowhead="+head+", color=gray50];");
+                    addDomElement(nodeName, val, false);
                 }
             }
         }
         processFreeVars(node.produceMsj, false);
         processFreeVars(node._updateF, true);
+    });
+
+
+    //inspect the jQuery cache for to see if any handlers refer
+    //to msjs nodes
+    var jQHandlers = [];
+    function seekHandlers(obj){
+        if (!obj) return;
+        if (typeof obj != "object") return;
+
+        if (obj.guid!= null && obj.handler){
+            jQHandlers.push(obj);
+        } else {
+            for (var k in obj){
+                if (obj.hasOwnProperty(k)){
+                    seekHandlers(obj[k]);
+                }
+            }
+        }
+    }
+
+
+    seekHandlers(jQuery.cache);
+    jQueryDomMap = {};
+    var expando = jQuery.expando;
+    msjs.each(document.getElementsByTagName("*"), function(el){
+        var id = el[expando];
+        if (id != null) {
+            jQueryDomMap[id] = el;
+        }
+    });
+
+    msjs.each(jQHandlers, function(handlerObj){
+        var el = jQueryDomMap[handlerObj.guid];
+        var freeVars = msjs.context.getFreeVariables(handlerObj.handler);
+        var scope = msjs.context.getScope(handlerObj.handler);
+        for (var k in freeVars){
+            var val =scope[k];
+            if (val && val._debugRef && val.getId ){
+                //it's a node (more or less);
+                    addDomElement(getNodeName(val), el, true);
+                }
+            }
     });
 
     graph.pack();
@@ -109,7 +166,7 @@ msjs.publish({dotRender: function(){
         }
     }
 
-    var clusterLines = ["digraph G {"];
+    var clusterLines = [];
     var clusterCount = 0;
     for (var k in clusters){
         clusterLines.push("subgraph cluster" + clusterCount++ +" {");
@@ -167,5 +224,5 @@ msjs.publish({dotRender: function(){
     lines.push("}");
 
 
-    return clusterLines.join("\n") + lines.join("\n");
+    return "digraph G {\n" + clusterLines.join("\n") + lines.join("\n");
 }});

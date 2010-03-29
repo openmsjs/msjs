@@ -16,7 +16,7 @@
 
 var assert = msjs.require("msjs.assert");
 var make = function(l){
-    return msjs.make(function(){return l;});
+    return msjs(function(){return l;});
 }
 
 var a = make("a");

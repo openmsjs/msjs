@@ -80,14 +80,12 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td class="attributes">{!
-							if (data.isPrivate) output += "&lt;private&gt; ";
-							if (data.isInner) output += "&lt;inner&gt; ";
-						!}&nbsp;</td>
-						<td class="nameDescription" {!if (data.comment.getTag("hilited").length){output += 'style="color: red"'}!}>
+						<td class="attributes">
 							<div class="fixedFont">
 								<b>{+ new Link().toSymbol(data.alias).inner('constructor')+}</b><if test="classType != 'Namespace '">{+ makeSignature(data.params) +}</if>
 							</div>
+						</td>
+						<td class="nameDescription" {!if (data.comment.getTag("hilited").length){output += 'style="color: red"'}!}>
 							<div class="description">{+resolveLinks(summarize(data.desc))+}</div>
 						</td>
 					</tr>
@@ -110,16 +108,12 @@
 					<tbody>
 					<for each="member" in="ownProperties">
 						<tr>
-							<td class="attributes">{!
-								if (member.isPrivate) output += "&lt;private&gt; ";
-								if (member.isInner) output += "&lt;inner&gt; ";
-								if (member.isStatic) output += "&lt;static&gt; ";
-								if (member.isConstant) output += "&lt;constant&gt; ";
-							!}&nbsp;</td>
-							<td class="nameDescription">
+							<td class="attributes">
 								<div class="fixedFont">
 								<if test="member.isStatic && member.memberOf != '_global_'">{+member.memberOf+}.</if><b>{+new Link().toSymbol(member.alias).withText(member.name)+}</b>
 								</div>
+							</td>
+							<td class="nameDescription">
 								<div class="description">{+resolveLinks(summarize(member.desc))+}</div>
 							</td>
 						</tr>
@@ -161,25 +155,22 @@
 			<if test="data.methods.length">
 				{! var ownMethods = data.methods.filter(function($){return $.memberOf == data.alias  && !$.isNamespace}).sort(makeSortby("name")); !}
 				<if test="ownMethods.length">
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class {+data.alias+}.">
+				<table class="summaryTable methods" cellspacing="0" summary="A summary of the methods documented in the class {+data.alias+}.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
-							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Signature</th>
 							<th scope="col">Method Name and Description</th>
 						</tr>
 					</thead>
 					<tbody>
 					<for each="member" in="ownMethods">
 						<tr>
-							<td class="attributes">{!
-								if (member.isPrivate) output += "&lt;private&gt; ";
-								if (member.isInner) output += "&lt;inner&gt; ";
-								if (member.isStatic) output += "&lt;static&gt; ";
-							!}&nbsp;</td>
-							<td class="nameDescription">
+                            <td class="attributes">
 								<div class="fixedFont"><if test="member.isStatic && member.memberOf != '_global_'">{+member.memberOf+}.</if><b>{+new Link().toSymbol(member.alias).withText(member.name)+}</b>{+makeSignature(member.params)+}
 								</div>
+                            </td>
+							<td class="nameDescription">
 								<div class="description">{+resolveLinks(summarize(member.desc))+}</div>
 							</td>
 						</tr>

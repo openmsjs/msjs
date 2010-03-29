@@ -15,7 +15,7 @@
  */
 
 var assert = msjs.require("msjs.assert");
-var a = msjs.make();
+var a = msjs();
 
 var returnValue;
 var starter;
@@ -51,7 +51,7 @@ assert(returnValue.length == 2);
 returnValue = [];
 starter = new java.util.concurrent.CountDownLatch(1);
 latch = new java.util.concurrent.CountDownLatch(1);
-var b = msjs.make();
+var b = msjs();
 var future = b.async(function(){
     //block this thread on the latch; this task should be cancelled
     //before the latch opens (below)

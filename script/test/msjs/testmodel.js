@@ -17,15 +17,15 @@
 var assert = msjs.require("msjs.assert");
 
 var aCount = 0;
-var aNode = msjs.make(function(){
+var aNode = msjs(function(){
     return aCount++;
 }); 
 
-var bNode = msjs.make(function(){
+var bNode = msjs(function(){
     return "b";
 }); 
 
-var aModel =msjs.make(function(msj){
+var aModel =msjs(function(msj){
     return msj;
 });
 

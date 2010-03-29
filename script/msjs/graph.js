@@ -15,9 +15,9 @@
  */
 
 /**
-    @namespace The graph instance that connects the {@link msjs.node}s
     The object responsible for coordinating the relationships
     among the {@link msjs.node}s in the program.
+    @namespace The graph instance that connects the {@link msjs.node}s
     @name msjs.graph
 */
 var graph = {};
@@ -857,6 +857,10 @@ graph._getStrongComponents = function() {
 }
 
 
+/**
+    Call refreshMsj on any graph nodes that are marked as dirty, or that have no
+    dependencies.
+*/
 graph.refreshAll = function(){
     var self = this;
     var bad = {};
@@ -909,9 +913,6 @@ graph._pack = function(){
     this._assertNoStrongComponents();
 
     var t = (new Date()).getTime();
-    this.refreshAll();
-    this.profile.refreshAll = (new Date()).getTime() - t;
-
 
     var packMap = {};
     var self = this;

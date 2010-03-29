@@ -14,7 +14,7 @@
  * the License.
  */
 
-var m = msjs.make();
+var m = msjs();
 m.packMe = true;
 
 var transponder  = msjs.require("msjs.transponder");

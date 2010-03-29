@@ -15,19 +15,25 @@
  */
 
 /**
-    An object that forms the root of the msjs API.
+    An function that forms the root of the msjs API, and also makes
+    new graph nodes. When called as a function, it is syntactic
+    sugar for {@link msjs.graph#make}.
     @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
     @name msjs
 */
-var msjs = {};
+var msjs = function(produceFunction){
+    return msjs.require("msjs.graph").make(produceFunction);
+}
+
 /**
     The context is the link between msjs and the environment in which
     it's running. In the web browser, the context is a simple javascript
     object. On the server, it's the instance of MsjsScriptContext that
     contains the running environment.
+    @fieldOf msjs#
 */
-/**#nocode+*/
+/**#nocode+*/ //jsdoc can't handle this:
 msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
@@ -119,33 +125,47 @@ msjs.context = {
     Can be checked to determine if msjs is running in the browser or on the server.
     If true, msjs is running in the browser.
     @fieldOf msjs#
+    @type boolean
 */
 msjs.isClient = true;
 
 //global scope on the client is simple
 var bindings = { global : this, msjs : msjs};
 
-/**
-    This is just syntatic sugar for {@link msjs.graph#make}
-*/
-msjs.make = function(produceMsj){
-    return this.require("msjs.graph").make(produceMsj);
-}
 
 msjs._packageIsLoading = {};
 
 /**
-    Bring an object that was published into scope
-    @memberOf msjs#
+    Bring an object that was published under a given package name into scope.
+    If a binding for this package has already been stored, it is simply
+    returned, otherwise the corresponding file is loaded, and the value passed
+    to {@link msjs#msjs.publish} within that script is stored under that package
+    name.  In general, cyclic package dependencies can be broken by moving the
+    {@link msjs#msjs.publish} call to the top of the file.
+
+    @methodOf msjs#
+    @param {String} packageName The name of the package to retrieve. If the package name
+    starts with "java.", then msjs calls on the context to inject the package whose name
+    appears after java. This allows msjs to get instances provided by the
+    dependency system used on the Java side.
+    @return The published binding for that package name.
 */
 msjs.require = function(packageName){
     return bindings[packageName];
 }
 
 /**
-    Bind an object to a name so it can be retrieved using
-    {@link msjs#publish}
-    @memberOf msjs#
+    Publish a value as the binding for that scope. It is an error to call the
+    publish method twice in the same package. The scope parameter determines
+    the scope for the published binding. In the default scope, the "Context"
+    scope, this means that each server context has its own instance. In the
+    "Global" scope, one instance is shared among every scope. The "Client"
+    scope is like the "Context" scope, although it means that contents of the
+    package are run in the client scope.
+    {@link msjs#msjs.publish}
+    @methodOf msjs#
+    @param {String} value T
+    @param {String "Context"|"Singleton"|"Client"} scope Optional; defaults to "Context". 
 */
 msjs.publish = function(value, scope){
     bindings[this.context.loadingPackage] = value;
@@ -154,12 +174,12 @@ msjs.publish = function(value, scope){
 
 /**
     Proactively insert a binding for a given package name, usually for
-    testing. This means that any call to {@link msjs#require} will retrieve
+    testing. This means that any call to {@link msjs#msjs.require} will retrieve
     the supplied binding, rather than the value that would normally be
     retrieved
     @param {String} packageName The name of the supplied binding
     @param binding The new binding for the given package name
-    @memberOf msjs#
+    @methodOf msjs#
 */
 msjs.mock = function(packageName, binding){
     bindings[packageName] = binding;
@@ -170,6 +190,8 @@ msjs.mock = function(packageName, binding){
     Recursively copies an object or array, or returns a primitive value.
     Doesn't handle objects with prototypes
     @param base The value to be copied
+    @return The copy of the object.
+    @methodOf msjs#
 */
 msjs.copy = function( base ){
     if ( typeof base != "object" ) return base;
@@ -195,11 +217,13 @@ msjs.copy = function( base ){
     consiting of the return values. The array is folded, so that nulls returned from
     the parameter function aren't included in the result array.
     @param {Array} arr The input array.
-    @param {Function} f The function to call with each element of the array. This function is
-    called with two parameters: the first is the nth element of the array. The second is "n"; 
-    the offset in the original array.
-    @return {Array} The resulting array of return values from the parameter function, with
+    @param {Function(elemnt, n)} f The function to call with each element of
+    the array. This function is called with two parameters: the first is the
+    nth element of the array. The second is "n"; the offset in the original
+    array. The value returned by this function is used in the new array.
+    @return {Array} A new array of return values from the parameter function, with
     nulls removed.
+    @methodOf msjs#
 */
 msjs.map = function(arr, f){
     if (!arr) return [];
@@ -216,6 +240,17 @@ msjs.map = function(arr, f){
     return r;
 }
 
+/**
+    Apply a function to each element in the given array, or to a non-object value.
+    Does not error if passed null, but does on undefined.
+
+    @param obj The input value
+    @param {Function(elemnt n)} f The function to call with each element of
+    the array. This function is called with two parameters: the first is the
+    nth element of the array. The second is "n"; the offset in the original
+    array.
+    @methodOf msjs#
+*/
 msjs.each = function(obj, f){
     if (!isNaN(obj.length) && (typeof obj != "string")){
         for (var i=0; i<obj.length; i++){
@@ -223,24 +258,18 @@ msjs.each = function(obj, f){
         }
     } else if (obj){
         f(obj, 0);
-    }
-}
-
-msjs.last = function(arr){
-    if (!arr) return null;
-    if (!isNaN(arr.length) && (typeof arr != "string")){
-        return arr[arr.length-1];
-    } else {
-        return arr;
+    } else if (obj === void 0){
+        throw "Undefined value for each";
     }
 }
 
 /**
     Returns the length of an array, or the 1+the highest numeric key in an Object that 
     may be masquerading as an array.
-    @param {Object} The object for which to get the highest numeric key.
+    @param obj The object for which to get the highest numeric key.
     @return {Number} The highest numeric key for the given parameter, or 0 if the parameter is not
     an object or has no numeric keys.
+    @methodOf msjs#
 */
 msjs.getLength = function( obj ){
     if ( !(obj instanceof Object) ) return 0;
@@ -257,6 +286,7 @@ msjs.getLength = function( obj ){
     Determines whether the given parameter is an array.
     @param value The value to be tested for array-ness
     @return {boolean} True if the parameter is an array, otherwise false.
+    @methodOf msjs#
 */
 msjs.isArray = function( value ){
     //first test is needed since typeof null is "object"
@@ -266,7 +296,10 @@ msjs.isArray = function( value ){
 
 /**
     Write the given parameters to the local log, as the defined by the msjs
-    context. This method is variadic.
+    context. For objects unknown to msjs that can't be serialized as JSON, this
+    method can result in a stack trace. This method is variadic.
+    @param Arguments to write to the log. Each will be printed separated by commas.
+    @methodOf msjs#
 */
 msjs.log = function(){
     if (this.isClient){
@@ -347,6 +380,7 @@ msjs._jsonEscape= function (string) {
     
     @param value The literal or object to convert to JSON
     @return {String} JSON for the given parameter.
+    @methodOf msjs#
 */
 msjs.toJSON = function(value, depth, quoteFunctions) { 
     //depth param is undocumented; used internally
@@ -503,8 +537,10 @@ msjs.unpack = function(value){
 /*! msjs.server-only **/
 msjs.isClient = false;
 /**
-    Initializes msjs with the given context and global scope
-    @name bindContext
+    Initializes msjs with the given context and global scope. This method is
+    only run on the server. On the client, these values are statically bound.
+    This method is called from Java.
+    @methodOf msjs#
 */
 msjs.bindContext = function(context, global){
     // Server overrides context value
@@ -515,8 +551,8 @@ msjs.bindContext = function(context, global){
 }
 
 /**
-    The list of packages that were published to the client
-    @name clientPackages
+    The list of packages that were published to the client. This must be
+    read only.
     @fieldOf msjs#
     @type {Array[String]} 
 */
@@ -531,7 +567,7 @@ msjs.assignDebugNames = function(packageName, scope){
 }
 
 /**
-    Prepares a value for transport to the client
+    Internal API. Prepares a value for transport to the client.
     @return a packing refernce, or the original value
     @memberOf msjs#
 */

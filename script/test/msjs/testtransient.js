@@ -14,15 +14,15 @@
  * the License.
  */
 
-var a = msjs.make(function(){
+var a = msjs(function(){
     return "a";
 });
 
-var b = msjs.make(function(){
+var b = msjs(function(){
     return "b";
 });
 
-var result = msjs.make(function(msj){
+var result = msjs(function(msj){
     if (msj.a) return msj.a;
     if (msj.b) return msj.b;
     return "none";
@@ -31,7 +31,7 @@ var result = msjs.make(function(msj){
 result.set("a", a, true);
 result.set("b", b, true);
 
-var c  = msjs.make(function(){return null;});
+var c  = msjs(function(){return null;});
 result.set("c", c);
 
 a.refreshMsj();

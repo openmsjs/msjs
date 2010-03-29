@@ -28,7 +28,7 @@ var jForm = $(
 
 var form = jForm.get(0);
 
-var controls = msjs.make( function(){
+var controls = msjs( function(){
     var inputs = form.getElementsByTagName("input");
     var r = {
         size : "shorter",
@@ -52,16 +52,24 @@ jForm.submit(function() {
 var dom = msjs.require("msjs.dom");
 var listEl = $(<div style="position:relative"/>).appendTo("body");
 var elHeight = 30;
-var list = msjs.make( function(msj){
+var list = msjs( function(msj){
     var model = msj.model;
     var self = this;
     //hide them all to start
     listEl.find("div").each(function(i, animal) {
         animal.style.display = "none";
     });
+
+    //map animals
+    var animalMap = {};
+    $.each(listEl.children(), function(n, el){
+        animalMap[$.data(el, "name")] = el;
+    });
+
+
     msjs.each(model, function(animal,i){
         var name = animal.name;
-        var el = dom.findMsj(listEl[0], name);
+        var el = animalMap[name];
         if (!el) {
             makeAnimal(name, i);
         } else {
@@ -85,10 +93,11 @@ var makeAnimal = function(name, n){
               height :  "20px",
               top :  (n*elHeight)+"px"})
         .text(name);
-    dom.setDomMsj(name, el[0]);
+
+    $.data(el[0], "name", name);
 }
 
-var animals = msjs.make(function(){
+var animals = msjs(function(){
     return [{
         name :"tiger",
         friendliness : 1
@@ -107,7 +116,7 @@ var animals = msjs.make(function(){
     }];
 });
 
-var model = msjs.make(function(msj){
+var model = msjs(function(msj){
     var control = msj.control;
     var r = [];
     var l = control.size == "longer" ? 5 : 3;

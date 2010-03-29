@@ -17,12 +17,12 @@
 var x = 1;
 var y = {z:2};
 
-var b = msjs.make();
+var b = msjs();
 $(<button>click me</button>).appendTo("body").click(function(event){
     b.update(true);
 });
 
-var m = msjs.make(function(msj){
+var m = msjs(function(msj){
     y.z++;
     return x++;
 });
@@ -30,7 +30,7 @@ var m = msjs.make(function(msj){
 m.depends(b);
 
 var output = $(<div>go ahead</div>).appendTo("body");
-var d = msjs.make(function(msj){
+var d = msjs(function(msj){
     output.text(msj.m + y.z);
 });
 d.set("m", m);

@@ -1,9 +1,10 @@
 /**
-    msjs provides a somewhat-faithful DOM representation on the server that
-    can be mainpulated before the page loads, accessed through the global variable 
-    "document." It supports most of the regular DOM APIs, enough, at least to
-    convince jQuery that it's working with a proper DOM. Beware, though, that once the 
-    page is initially rendered, subsequent DOM updates all happen in the browser.
+    msjs provides a somewhat faithful DOM representation on the server that
+    can be mainpulated before the page loads. This is  accessed through the
+    global variable "document." It supports most of the regular DOM APIs,
+    enough, at least to convince jQuery that it's working with a proper DOM.
+    Beware, though, that once the page is initially rendered, msjs currently
+    assumes that all subsequent DOM updates happen in the client.
 
     @namespace A DOM tree based on the standard browser document APIs
     @name document
@@ -194,7 +195,7 @@ domelement.generateId = function(){
 }
 
 domelement._getDebugName = function(){
-    var name = "domelement:"+this.nodeName;
+    var name = "dom:"+this.nodeName;
     if (this.id) name += "#" + this.id;
     return name;
 }
@@ -240,13 +241,6 @@ domelement.toJDOM = function(){
         }
     }
 
-    if (this.msj != null){
-        var s = this.className || "";
-        if (s) s += " ";
-        s += this._getMsjClass(this.msj);
-        el.setAttribute("class", s);
-    }
-
     //now handle children
     var doChildren = true;
     if (this.nodeName == "SCRIPT"){
@@ -279,8 +273,6 @@ domelement.toJDOM = function(){
 
     return el;
 }
-
-domelement._getMsjClass = msjs.require("msjs.getmsjclass");
 
 var styleConversion = msjs.require("msjs.styleconversion");
 domelement.assembleStyle = function(styleObj){

@@ -51,6 +51,24 @@ import java.io.IOException;
 public class DotRenderer {
 
     private static final Logger logger = Logger.getLogger(DotRenderer.class);
+    private static final Object[] empty = {};
+    private final PageContextProvider provider;
+
+    @Inject
+    DotRenderer(PageContextProvider provider) {
+        this.provider = provider;
+    }
+
+    public String render(String pageName) {
+        Page page = new Page(provider.get(pageName, false));
+
+        final MsjsScriptContext context = page.getMsjsScriptContext();
+
+        context.loadPackage("msjs.dotrender");
+
+
+        return (String) context.callMethodOnBinding("msjs.dotrender", "dotRender", empty);
+    }
 
     /**
      * Statically creates a "DOT" file for the given msjs page, and writes
@@ -71,21 +89,11 @@ public class DotRenderer {
         MsjsConfiguration config = injector.getInstance(MsjsConfiguration.class);
 
         String outLocation = config.getMsjsRoot() + "/out/dotfile.dot";
-        String pageName = args[0];
 
         PageContextProvider provider = injector.getInstance(PageContextProvider.class);
-        Page page = new Page(provider.get(pageName, false));
-
-        final MsjsScriptContext context = page.getMsjsScriptContext();
-
-        context.loadPackage("msjs.dotrender");
-
-        Object[] empty = {};
-
-        String rendering = (String) context.callMethodOnBinding("msjs.dotrender", "dotRender", empty);
-
+        DotRenderer renderer = new DotRenderer(provider);
         FileWriter writer = new FileWriter(new File(outLocation));
-        writer.write(rendering);
+        writer.write(renderer.render(args[0]));
         writer.flush();
     }
 

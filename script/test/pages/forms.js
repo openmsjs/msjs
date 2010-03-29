@@ -29,7 +29,7 @@ var el = $(<div>
 var input = el.find("input").first();
 var form = el.find("form");
 
-var clearButton = msjs.make();
+var clearButton = msjs();
 
 el.find("button").click(function(){
     input.val("");
@@ -37,7 +37,7 @@ el.find("button").click(function(){
     clearButton.update(true);
 });
 
-var typing = msjs.make(function(){
+var typing = msjs(function(){
     return input.val() || "";
 });
 typing.depends(clearButton);
@@ -46,7 +46,7 @@ input.keyup( function(){
     typing.update();
 });
 
-var submit = msjs.make(function(){
+var submit = msjs(function(){
     //TODO: Can't use normal form[named input] here, since that's not
     //implemented on the server in msjs (yet!)
     var values = {};
@@ -80,7 +80,7 @@ form.submit(function(){
 
 
 var out = $(<div/>).appendTo(document.body);
-var view = msjs.make(function(msj){
+var view = msjs(function(msj){
     out.children().remove();
 
     for (var k in msj){

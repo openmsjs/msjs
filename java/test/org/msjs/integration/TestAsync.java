@@ -22,7 +22,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 import org.apache.log4j.Logger;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,8 +35,7 @@ public class TestAsync extends BaseIntegrationTest {
         return "/test/pages/async";
     }
 
-    @Test @Ignore
-    //Stupid htmlunit 1.7 is borked -- it only makes one xmlhttprequest at a time
+    @Test
     public void testAsync() throws IOException, InterruptedException {
         HtmlPage page = getPage();
         HtmlButton button = (HtmlButton) page.getByXPath("//div/button").get(0);
@@ -52,10 +50,8 @@ public class TestAsync extends BaseIntegrationTest {
         String[] list3 = {"Client update 0", "Server update 0"};
         waitForList(list3, page);
 
-        logger.info("clickone");
         button.click();
         Thread.sleep(20);
-        logger.info("clicktw");
         button.click();
         String[] list4 = {"Client update 0", "Server update 0",
                           "Client update 1", "Client update 2"};
@@ -65,7 +61,9 @@ public class TestAsync extends BaseIntegrationTest {
         String[] list5 = {"Client update 0", "Server update 0",
                           "Client update 1", "Client update 2",
                           "Server update 2"};
-        waitForList(list5, page);
+        //Stupid htmlunit 1.7 is borked -- it only makes one xmlhttprequest at a time
+        //FIXME
+        //waitForList(list5, page);
 
     }
 
@@ -84,10 +82,8 @@ public class TestAsync extends BaseIntegrationTest {
 
     private void assertList(final String[] list, HtmlPage page) {
         List els = getOutput(page);
-        System.out.println(els);
         for (int i = 0; i < list.length; i++){
             HtmlDivision div = (HtmlDivision) els.get(i);
-            System.out.println(div.getTextContent().trim());
 
             assertEquals(list[i], div.getTextContent().trim());
 
