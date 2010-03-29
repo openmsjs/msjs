@@ -23,7 +23,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptableObject;
-import org.msjs.script.JSONReader;
+import org.msjs.service.JSONConverter;
 import org.msjs.script.MsjsScriptContext;
 
 import java.io.StringReader;
@@ -39,7 +39,7 @@ public class Page {
     private static final Logger logger = Logger.getLogger(Page.class);
 
     private static final Object[] EMPTY_LIST = new Object[]{};
-    private JSONReader jsonReader;
+    private JSONConverter jsonConverter;
     private long lastActiveTime;
 
     private static final AtomicInteger pollCount = new AtomicInteger(0);
@@ -47,7 +47,7 @@ public class Page {
     @Inject
     public Page(MsjsScriptContext context) {
         this.context = context;
-        jsonReader = new JSONReader(context);
+        jsonConverter = new JSONConverter(context);
         updateActiveTime();
     }
 
@@ -68,7 +68,7 @@ public class Page {
 
     public void acceptMsj(String stringMsj) {
         final ScriptableObject msj = (ScriptableObject)
-                jsonReader.read(new StringReader(stringMsj));
+                jsonConverter.convertToJS(new StringReader(stringMsj));
         Object[] args = {msj};
         context.callMethodOnBinding("msjs.graph", "acceptMsjFromRemote", args);
         updateActiveTime();
@@ -96,7 +96,7 @@ public class Page {
 
     public Result prepareReconnect(final String stringMsj) {
         final ScriptableObject msj = (ScriptableObject)
-                jsonReader.read(new StringReader(stringMsj));
+                jsonConverter.convertToJS(new StringReader(stringMsj));
 
         final ScriptableObject[] args = {msj};
         String reconnectInfo = (String) context.callMethodOnBinding(

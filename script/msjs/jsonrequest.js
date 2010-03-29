@@ -14,8 +14,6 @@
  * the License.
  */
 
-var service = msjs.require("java.org.msjs.service.JSONService");
-msjs.publish(function(url){
-    var method = new org.apache.http.client.methods.HttpGet(url);
-    return service.get(method);
-}, "Singleton").packMe = false;
+var jsonConverter = msjs.require("java.org.msjs.service.JSONConverter");
+var httpRequest = msjs.require("msjs.httprequest");
+msjs.publish(new httpRequest(jsonConverter, "application/json"), "Singleton");

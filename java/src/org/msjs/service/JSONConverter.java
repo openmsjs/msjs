@@ -14,9 +14,38 @@
  * the License.
  */
 
-package org.msjs.script;
+/**
+ * Repurposed from http://www.json.org/java/org/json/JSONTokener.java
+ *
+ * Copyright (c) 2002 JSON.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * The Software shall be used for Good, not Evil.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package org.msjs.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.mozilla.javascript.ScriptableObject;
+import org.msjs.script.MsjsScriptContext;
+import org.msjs.script.ScriptContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,28 +53,23 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A JSONTokener takes a source string and extracts characters and tokens from
- * it. It is used by the JSONObject and JSONArray constructors to parse
- * JSON source strings.
- * @author JSON.org
- * @version 2008-09-18
- */
-public class JSONReader {
+@Singleton
+public class JSONConverter implements Converter {
 
     private int index;
     private Reader reader;
     private char lastChar;
     private boolean useLastChar;
-    private final ScriptContext scriptContext;
+    private final ScriptContext context;
 
-    public JSONReader(ScriptContext scriptContext) {
-        this.scriptContext = scriptContext;
+    @Inject
+    public JSONConverter(MsjsScriptContext context) {
+        this.context = context;
     }
 
-    public synchronized Object read(Reader reader){
-        this.reader = reader.markSupported() ?
-        		reader : new BufferedReader(reader);
+    @Override
+    public synchronized Object convertToJS(Reader reader) {
+        this.reader = reader.markSupported() ? reader : new BufferedReader(reader);
         this.useLastChar = false;
         this.index = 0;
         return this.nextValue();
@@ -57,14 +81,13 @@ public class JSONReader {
      * so that you can test for a digit or letter before attempting to parse
      * the next number or identifier.
      */
-    private void back()  {
+    private void back() {
         if (useLastChar || index <= 0) {
             throw new RuntimeException("Stepping back two steps is not supported");
         }
         index -= 1;
         useLastChar = true;
     }
-
 
 
     /**
@@ -74,9 +97,9 @@ public class JSONReader {
      */
     private char next() {
         if (this.useLastChar) {
-        	this.useLastChar = false;
+            this.useLastChar = false;
             if (this.lastChar != 0) {
-            	this.index += 1;
+                this.index += 1;
             }
             return this.lastChar;
         }
@@ -88,11 +111,11 @@ public class JSONReader {
         }
 
         if (c <= 0) { // End of stream
-        	this.lastChar = 0;
+            this.lastChar = 0;
             return 0;
         }
-    	this.index += 1;
-    	this.lastChar = (char) c;
+        this.index += 1;
+        this.lastChar = (char) c;
         return this.lastChar;
     }
 
@@ -100,50 +123,51 @@ public class JSONReader {
     /**
      * Get the next n characters.
      *
-     * @param n     The number of characters to take.
-     * @return      A string of n characters.
-     *   Substring bounds error if there are not
-     *   n characters remaining in the source string.
+     * @param n The number of characters to take.
+     * @return A string of n characters.
+     *         Substring bounds error if there are not
+     *         n characters remaining in the source string.
      */
-     private String next(int n) {
-         if (n == 0) {
-             return "";
-         }
+    private String next(int n) {
+        if (n == 0) {
+            return "";
+        }
 
-         char[] buffer = new char[n];
-         int pos = 0;
+        char[] buffer = new char[n];
+        int pos = 0;
 
-         if (this.useLastChar) {
-        	 this.useLastChar = false;
-             buffer[0] = this.lastChar;
-             pos = 1;
-         }
+        if (this.useLastChar) {
+            this.useLastChar = false;
+            buffer[0] = this.lastChar;
+            pos = 1;
+        }
 
-         try {
-             int len;
-             while ((pos < n) && ((len = reader.read(buffer, pos, n - pos)) != -1)) {
-                 pos += len;
-             }
-         } catch (IOException exc) {
-             throw new RuntimeException(exc);
-         }
-         this.index += pos;
+        try {
+            int len;
+            while ((pos < n) && ((len = reader.read(buffer, pos, n - pos)) != -1)) {
+                pos += len;
+            }
+        } catch (IOException exc) {
+            throw new RuntimeException(exc);
+        }
+        this.index += pos;
 
-         if (pos < n) {
-             throw syntaxError("Substring bounds error");
-         }
+        if (pos < n) {
+            throw syntaxError("Substring bounds error");
+        }
 
-         this.lastChar = buffer[n - 1];
-         return new String(buffer);
-     }
+        this.lastChar = buffer[n - 1];
+        return new String(buffer);
+    }
 
 
     /**
      * Get the next char in the string, skipping whitespace.
-     * @return  A character, or 0 if there are no more characters.
+     *
+     * @return A character, or 0 if there are no more characters.
      */
     private char nextClean() {
-        for (;;) {
+        for (; ;) {
             char c = next();
             if (c == 0 || c > ' ') {
                 return c;
@@ -157,54 +181,55 @@ public class JSONReader {
      * Backslash processing is done. The formal JSON format does not
      * allow strings in single quotes, but an implementation is allowed to
      * accept them.
+     *
      * @param quote The quoting character, either
-     *      <code>"</code>&nbsp;<small>(double quote)</small> or
-     *      <code>'</code>&nbsp;<small>(single quote)</small>.
-     * @return      A String.
+     *              <code>"</code>&nbsp;<small>(double quote)</small> or
+     *              <code>'</code>&nbsp;<small>(single quote)</small>.
+     * @return A String.
      */
     private String nextString(char quote) {
         char c;
         StringBuffer sb = new StringBuffer();
-        for (;;) {
+        for (; ;) {
             c = next();
             switch (c) {
-            case 0:
-            case '\n':
-            case '\r':
-                throw syntaxError("Unterminated string");
-            case '\\':
-                c = next();
-                switch (c) {
-                case 'b':
-                    sb.append('\b');
-                    break;
-                case 't':
-                    sb.append('\t');
-                    break;
-                case 'n':
-                    sb.append('\n');
-                    break;
-                case 'f':
-                    sb.append('\f');
-                    break;
-                case 'r':
-                    sb.append('\r');
-                    break;
-                case 'u':
-                    sb.append((char)Integer.parseInt(next(4), 16));
-                    break;
-                case 'x' :
-                    sb.append((char) Integer.parseInt(next(2), 16));
+                case 0:
+                case '\n':
+                case '\r':
+                    throw syntaxError("Unterminated string");
+                case '\\':
+                    c = next();
+                    switch (c) {
+                        case 'b':
+                            sb.append('\b');
+                            break;
+                        case 't':
+                            sb.append('\t');
+                            break;
+                        case 'n':
+                            sb.append('\n');
+                            break;
+                        case 'f':
+                            sb.append('\f');
+                            break;
+                        case 'r':
+                            sb.append('\r');
+                            break;
+                        case 'u':
+                            sb.append((char) Integer.parseInt(next(4), 16));
+                            break;
+                        case 'x':
+                            sb.append((char) Integer.parseInt(next(2), 16));
+                            break;
+                        default:
+                            sb.append(c);
+                    }
                     break;
                 default:
+                    if (c == quote) {
+                        return sb.toString();
+                    }
                     sb.append(c);
-                }
-                break;
-            default:
-                if (c == quote) {
-                    return sb.toString();
-                }
-                sb.append(c);
             }
         }
     }
@@ -257,7 +282,7 @@ public class JSONReader {
     }
 
     private ScriptableObject makeArray() {
-        return scriptContext.makeArray(makeList().toArray());
+        return context.makeArray(makeList().toArray());
     }
 
     private List<Object> makeList() {
@@ -275,7 +300,7 @@ public class JSONReader {
             return list;
         }
         back();
-        for (;;) {
+        for (; ;) {
             if (nextClean() == ',') {
                 back();
                 list.add(null);
@@ -285,44 +310,44 @@ public class JSONReader {
             }
             c = nextClean();
             switch (c) {
-            case ';':
-            case ',':
-                if (nextClean() == ']') {
+                case ';':
+                case ',':
+                    if (nextClean() == ']') {
+                        return list;
+                    }
+                    back();
+                    break;
+                case ']':
+                case ')':
+                    if (q != c) {
+                        throw syntaxError("Expected a '" + q + "'");
+                    }
                     return list;
-                }
-                back();
-                break;
-            case ']':
-            case ')':
-                if (q != c) {
-                    throw syntaxError("Expected a '" + q + "'");
-                }
-                return list;
-            default:
-                throw syntaxError("Expected a ',' or ']'");
+                default:
+                    throw syntaxError("Expected a ',' or ']'");
             }
         }
 
     }
 
     private ScriptableObject makeObject() {
-        ScriptableObject obj = scriptContext.makeObject();
+        ScriptableObject obj = context.makeObject();
         char c;
         String key;
 
         if (nextClean() != '{') {
             throw syntaxError("A JSONObject text must begin with '{'");
         }
-        for (;;) {
+        for (; ;) {
             c = nextClean();
             switch (c) {
-            case 0:
-                throw syntaxError("A JSONObject text must end with '}'");
-            case '}':
-                return obj;
-            default:
-                back();
-                key = nextValue().toString();
+                case 0:
+                    throw syntaxError("A JSONObject text must end with '}'");
+                case '}':
+                    return obj;
+                default:
+                    back();
+                    key = nextValue().toString();
             }
 
             /*
@@ -338,10 +363,10 @@ public class JSONReader {
                 throw syntaxError("Expected a ':' after a key");
             }
 
-            try{
+            try {
                 Integer intKey = Integer.parseInt(key);
                 obj.put(intKey, obj, nextValue());
-            }catch(Exception e){
+            } catch (Exception e) {
                 obj.put(key, obj, nextValue());
 
             }
@@ -351,17 +376,17 @@ public class JSONReader {
              */
 
             switch (nextClean()) {
-            case ';':
-            case ',':
-                if (nextClean() == '}') {
+                case ';':
+                case ',':
+                    if (nextClean() == '}') {
+                        return obj;
+                    }
+                    back();
+                    break;
+                case '}':
                     return obj;
-                }
-                back();
-                break;
-            case '}':
-                return obj;
-            default:
-                throw syntaxError("Expected a ',' or '}'");
+                default:
+                    throw syntaxError("Expected a ',' or '}'");
             }
         }
     }
@@ -370,7 +395,7 @@ public class JSONReader {
      * Make a JSONException to signal a syntax error.
      *
      * @param message The error message.
-     * @return  A JSONException object, suitable for throwing
+     * @return A JSONException object, suitable for throwing
      */
     private RuntimeException syntaxError(String message) {
         return new RuntimeException(message + toString());
@@ -389,10 +414,11 @@ public class JSONReader {
     /**
      * Try to convert a string into a number, boolean, or null. If the string
      * can't be converted, return the string.
+     *
      * @param s A String.
      * @return A simple JSON value.
      */
-     private Object stringToValue(String s) {
+    private Object stringToValue(String s) {
         if (s.equals("")) {
             return s;
         }
@@ -421,7 +447,7 @@ public class JSONReader {
                         (s.charAt(1) == 'x' || s.charAt(1) == 'X')) {
                     try {
                         return Integer.parseInt(s.substring(2), 16);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         /* Ignore the error */
                     }
                 } else {
@@ -435,7 +461,7 @@ public class JSONReader {
 
             try {
                 return new Double(s);
-            }  catch (Exception g) {
+            } catch (Exception g) {
                 /* Ignore the error */
             }
         }

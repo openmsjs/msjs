@@ -18,11 +18,13 @@ package org.msjs.config;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.script.MsjsContextFactory;
@@ -67,7 +69,7 @@ public class MsjsModule implements Module {
         binder.bind(MsjsConfiguration.class).toInstance(config);
         binder.bind(ContextFactory.class).toInstance(new MsjsContextFactory());
         binder.bind(ExecutorService.class).toInstance(executorService);
-        binder.bind(ClientConnectionManager.class).toInstance(connectionManager);
+        binder.bind(HttpClient.class).toInstance(new DefaultHttpClient(connectionManager));
         binder.bind(Timer.class).toInstance(timer);
     }
 
