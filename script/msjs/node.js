@@ -92,9 +92,10 @@ node.update = function(msj){
 }
 
 /**
-    Get the msj produced by this node.
+    Get the last msj produced by this node.
     @name getMsj
     @methodOf msjs.node#
+    @return Last msj for this node, either returned from produceMsj or passed in by update.
 */
 node.getMsj = function(){
     return this._msj;
@@ -112,7 +113,7 @@ node.updateMsj = function(msj, clock){
 }
 
 /**
-   Internal API. Compose the msj produced by this node 
+   Protected. Compose the msj produced by this node 
    @return The msj for this node. If the undefined value is returned by this
    method, it indicates that the node's msj has not changed. This permits
    optimizations in the update process -- if none of a node's dependencies have
@@ -306,11 +307,10 @@ node.pull = function(nodeOrPackage, property){
 }
 
 /**
-    Internal API. Protected method that prepares the input to the normal msj
-    generation function. Nodes which are set with the isTransient flag turned
-    on will only have their msj included in this hash if they have updated
-    since the last time this node's _composeMsj function has run. See {@link
-    msjs.node#set} for more on this.
+    Protected. Prepares the input to the normal msj generation function. Nodes
+    which are set with the isTransient flag turned on will only have their msj
+    included in this hash if they have updated since the last time this node's
+    _composeMsj function has run. See {@link msjs.node#set} for more on this.
     @return {Object} Hash of the msj's of upstream nodes, by property name.
     @name _collectInputs
     @methodOf msjs.node#
@@ -360,7 +360,7 @@ node._ensureHasOwn = function(prop){
     }
 }
 /**
-    Internal API. The msjs "super" call. Calls the next version of the named
+    The msjs "super" call. Calls the next version of the named
     method in the prorotype inheritance chain. Note that currently, incorrect
     arguments to this function (such as the wrong fName) will yield a stack
     overflow.
@@ -402,8 +402,13 @@ node.shutdown = function(){ }
 node._future = null;
 node._asyncLock = null;
 /**
-    Run a function (usually one which calls update on the onde
+    Run a function (usually one which calls update on the node itself) asynchronously.
+    This is useful for allowing a graph update to complete while a node does an
+    expensive calculation or calls out to a web service. Nodes which use this method
+    must be set to packMe=false. A given node's update function is protected by its own
+    lock, so an individual node will only run one async function at a time.
     @return {Future} A Java future representing the function run
+    @param {Function} A function to run asynchronously.
     @name async
     @methodOf msjs.node#
 */
@@ -424,7 +429,7 @@ node.async = function(f){
 }
 
 /**
-    Pack this node for transport to the client.
+    Internal API. Pack this node for transport to the client.
     @return {Object} Hash of this node's packed fields.
     @name pack
     @methodOf msjs.node#
