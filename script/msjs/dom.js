@@ -250,18 +250,10 @@ dom.pack = function(){
 
 }
 
-dom.getDomMsj = function(el){
-    return el.msj;
-}
-
 dom.getPackInfo = function(){
     return {
         newListeners: document.getEventHandlers()
     };
-}
-
-dom.setDomMsj = function(msj, el){
-    el.msj = msj;
 }
 
 dom._ensureHasId = function(domElement){
