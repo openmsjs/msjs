@@ -36,7 +36,7 @@ graph.id = msjs.context.id;
     this node change, or, if this node has no dependencies, the function that will be called
     when the graph first starts. This argument is optional. A node with no produce function
     is still useful for sending updates triggered by external events with the 
-    {@link msjs.node#update} method.
+    {@link msjs.node#update} method. See also the documention for {@link msjs.node#produceMsj}.
     @return {msjs.node} A new {@link msjs.node}
     @name make
     @methodOf msjs.graph#
