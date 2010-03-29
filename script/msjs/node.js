@@ -147,8 +147,7 @@ node.packMe = null;
 /**
     Ensure that the cached version of the given node's msj is up-to-date with the
     clock.
-    @param {Number} nodeId The ID of the node to clean.
-    @return {Number} If time at which this node was last updated
+    @return {Number} {@link msjs.graph#clock} time at which this node was last updated
     @name refreshMsj
     @methodOf msjs.node#
 */

@@ -31,8 +31,13 @@ graph.NOT_UPDATED = void 0;
 graph.id = msjs.context.id;
 
 /**
-    Make a {@link msjs.node}
-    @return {msjs.node}
+    Make a new {@link msjs.node}
+    @param {Function} produceFunction The function that will be called when dependencies for
+    this node change, or, if this node has no dependencies, the function that will be called
+    when the graph first starts. This argument is optional. A node with no produce function
+    is still useful for sending updates triggered by external events with the 
+    {@link msjs.node#update} method.
+    @return {msjs.node} A new {@link msjs.node}
     @name make
     @methodOf msjs.graph#
 */
@@ -439,7 +444,7 @@ graph._addConnection = function(connection) {
 
 graph._isConnected = false;
 /**
-    Forces the connection to stay open between the client and the server
+    Forces the connection to stay open between the client and the server.
     @name setConnected
     @methodOf msjs.graph#
 */
@@ -590,7 +595,13 @@ graph.setTimeout = function(f, dur){
 }
 
 /**
-    Start an update with new values for the given nodes
+    Start an update with new values for the given nodes. This is the concurrency boundary
+    for graph updates; only one thread may enter this method at a time, and it's an error
+    to call this method from within a running update. This method is called by {@link
+    msjs.node#update}.
+
+    @param {msjs.node} node The node for which to send an updated msj.
+    @param msj The new msj for that node.
     @name putUpdate
     @methodOf msjs.graph#
 */
@@ -858,8 +869,9 @@ graph._getStrongComponents = function() {
 
 
 /**
-    Call refreshMsj on any graph nodes that are marked as dirty, or that have no
-    dependencies.
+    Call refreshMsj on all graph nodes.
+    @name refreshAll
+    @methodOf msjs.graph#
 */
 graph.refreshAll = function(){
     var self = this;

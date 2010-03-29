@@ -15,9 +15,15 @@
  */
 
 /**
-    An function that forms the root of the msjs API, and also makes
-    new graph nodes. When called as a function, it is syntactic
-    sugar for {@link msjs.graph#make}.
+    A function that forms the root of the msjs API, and also makes
+    new graph nodes. When called as a function, makes new 
+    {@link msjs.node}, just like {@link msjs.graph#make}.
+    @param {Function} produceFunction The function that will be called when dependencies for
+    this node change, or, if this node has no dependencies, the function that will be called
+    when the graph first starts. This argument is optional. A node with no produce function
+    is still useful for sending updates triggered by external events with the 
+    {@link msjs.node#update} method.
+    @return {msjs.node} A new {@link msjs.node}
     @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
     @name msjs
