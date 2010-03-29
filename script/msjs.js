@@ -300,7 +300,7 @@ msjs.isArray = function( value ){
     Write the given parameters to the local log, as the defined by the msjs
     context. For objects unknown to msjs that can't be serialized as JSON, this
     method can result in a stack trace. This method is variadic.
-    @param Arguments to write to the log. Each will be printed separated by commas.
+    @param Arguments Arguments to write to the log. Each will be printed separated by commas.
     @methodOf msjs#
 */
 msjs.log = function(){
