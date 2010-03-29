@@ -144,7 +144,10 @@ msjs._packageIsLoading = {};
     {@link msjs#msjs.publish} call to the top of the file.
 
     @methodOf msjs#
-    @param {String} packageName The name of the package to retrieve.
+    @param {String} packageName The name of the package to retrieve. If the package name
+    starts with "java.", then msjs calls on the context to inject the package whose name
+    appears after java. This allows msjs to get instances provided by the
+    dependency system used on the Java side.
     @return The published binding for that package name.
 */
 msjs.require = function(packageName){
