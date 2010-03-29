@@ -15,9 +15,9 @@
  */
 
 /**
-    The dom object and loads the document, and then jQuery. It also provides a
-    few convenience methods.
-    @namespace The object that corresponds to the Java Page.
+    The dom object and loads the document, and jQuery, and exposes a method which coordinates
+    the packing and unpacking of a Page. It also provides a few convenience methods.
+    @namespace The script object that corresponds to the Java Page.
     @name msjs.dom
 */
 var dom = msjs.publish({}, "Client");
@@ -45,6 +45,13 @@ msjs.require("document");
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
+/**
+    Get a string that uniquely identifies the given dom element on the page that
+    can be used directly in a CSS rule.
+    @param {DOM element} el The element to generate the id for.
+    @return {String} A string that can be used to locate the given DOM element in 
+    a CSS rule.
+*/
 dom.getCssId = function(el){
     this._ensureHasId(el);
     return "#" + el.id;

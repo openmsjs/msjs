@@ -164,8 +164,10 @@ msjs.require = function(packageName){
     package are run in the client scope.
     {@link msjs#msjs.publish}
     @methodOf msjs#
-    @param {String} value T
+    @param {String} value The value to be stored as the binding for the
+    currently running package name.
     @param {String "Context"|"Singleton"|"Client"} scope Optional; defaults to "Context". 
+    @return The value that was published.
 */
 msjs.publish = function(value, scope){
     bindings[this.context.loadingPackage] = value;
