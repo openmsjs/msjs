@@ -382,9 +382,23 @@ msjs._jsonEscape= function (string) {
     @return {String} JSON for the given parameter.
     @methodOf msjs#
 */
-msjs.toJSON = function(value, depth, quoteFunctions) { 
-    //depth param is undocumented; used internally
-    //use this to detect if we're stuck in cycle
+msjs.toJSON = function(value) { 
+    return this._toJSON(value, false);
+}
+
+/** 
+    A convenience method that converts function values to JSON by turning 
+    them into strings. Functions aren't supported in the JSON spec. See also
+    msjs.toJSON.
+    @param value The literal or object to convert to JSON
+    @return {String} JSON for the given parameter.
+    @methodOf msjs#
+ */
+msjs.toJSONQuoteFunctions = function(value) { 
+    return this._toJSON(value, true);
+}
+
+msjs._toJSON = function(value, quoteFunctions, depth) { 
     if (isNaN(depth)) depth =0;
 
     //We just don't serialize object trees deeper than 500 levels
@@ -408,19 +422,22 @@ msjs.toJSON = function(value, depth, quoteFunctions) {
             // JSON numbers must be finite. Encode non-finite numbers as null.
             return isFinite(value) ? String(value) : 'null';
 
+        case 'undefined':
+            throw "undefined has no JSON representation";
+
         case 'function':
-            var val = value.toString();
-            if (quoteFunctions) {
-                val = this._jsonQuote(val);
-            } else {
-                //compress
-                //FIXME: This should be controlled by config
-                if (false){
-                    val = val.replace(this._multipleSpaces, " ");
-                    val = val.replace(this._newlines, "");
-                }
+            if (!quoteFunctions) {
+                throw "functions have no JSON representation; try using msjs.toJSONQuoteFunctions";
             }
-            return val;
+
+            var val = this._jsonQuote(value.toString());
+            //compress
+            //FIXME: This should be controlled by config
+            if (false){
+                val = val.replace(this._multipleSpaces, " ");
+                val = val.replace(this._newlines, "");
+            }
+            return val;                
         
         case 'boolean':
         case 'null':
@@ -454,7 +471,7 @@ msjs.toJSON = function(value, depth, quoteFunctions) {
                 // for non-JSON values.
 
                 for (var i = 0; i < value.length; i++) {
-                    partial[i] = this.toJSON(value[i], depth+1, quoteFunctions) || 'null';
+                    partial[i] = this._toJSON(value[i], depth+1, quoteFunctions) || 'null';
                 }
 
                 // Join all of the elements together, separated with commas, and wrap them in
@@ -465,7 +482,7 @@ msjs.toJSON = function(value, depth, quoteFunctions) {
             // Otherwise, iterate through all of the keys in the object.
 
             for (var k in value) {
-                var v = this.toJSON(value[k], depth+1, quoteFunctions);
+                var v = this._toJSON(value[k], depth+1, quoteFunctions);
                 if (v) {
                     partial.push('"' + this._jsonEscape(k) + '"' + ':' + v);
                 }
