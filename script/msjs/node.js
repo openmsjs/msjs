@@ -288,9 +288,10 @@ node.push = function(nodeOrPackage, property){
     used with care; it's intended for retrieving information that is guaranteed to
     change before the other dependencies for this node force recalculation. Examples
     of this type of data include user information that doesn't change after it's set,
-    or cache information that's used for rendering.
+    or cache information that's used for rendering. This method is also handy
+    for breaking circular push dependencies, in cases where not all the relationships
+    need to be dependencies.
 
-    This method is also handy for breaking circular dependencies.
     @name pull
     @methodOf msjs.node#
     @param nodeOrPackage A string name of a package with a published binding for a node, 
