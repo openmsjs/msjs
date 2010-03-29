@@ -1,16 +1,3 @@
-/**
-    msjs provides a somewhat faithful DOM representation on the server that
-    can be mainpulated before the page loads. This is  accessed through the
-    global variable "document." It supports most of the regular DOM APIs,
-    enough, at least to convince jQuery that it's working with a proper DOM.
-    Beware, though, that once the page is initially rendered, msjs currently
-    assumes that all subsequent DOM updates happen in the client.
-
-    @namespace A DOM tree based on the standard browser document APIs
-    @name document
-*/
-/**#nocode+*/
-
 /*
  * Copyright (c) 2010 Sharegrove Inc.
  *
@@ -26,6 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
+/**
+    msjs provides a somewhat faithful DOM representation on the server that
+    can be mainpulated before the page loads. This is  accessed through the
+    global variable "document." It supports most of the regular DOM APIs,
+    enough, at least to convince jQuery that it's working with a proper DOM.
+    Beware, though, that once the page is initially rendered, msjs currently
+    assumes that all subsequent DOM updates happen in the client.
+
+    @namespace A DOM tree based on the standard browser document APIs
+    @name document
+*/
+/**#nocode+*/
 
 /*! msjs.server-only **/
 var domElementConstructor = function(){};

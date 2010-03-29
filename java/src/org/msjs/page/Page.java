@@ -159,7 +159,7 @@ public class Page {
         ScriptableObject obj = context.makeObject();
         obj.put("message", obj, e.getMessage());
         Object[] args = {obj};
-        String errorInfo = (String) context.callMethodOnBinding("msjs", "toJSON", args);
+        String errorInfo = (String) context.callMethodOnBinding("msjs", "toJSONWithFunctions", args);
         return new Result("error", errorInfo);
     }
 

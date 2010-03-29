@@ -59,7 +59,7 @@ var getTC = function(json, ajm){
 }
 
 msjs.publish(function(ajm){
-    var json = new java.lang.String(msjs.toJSON(ajm));
+    var json = new java.lang.String(msjs.toJSONWithFunctions(ajm));
 
     if (!map.containsKey(json)){
         getTC(json, ajm);

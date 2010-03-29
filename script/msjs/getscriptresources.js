@@ -59,7 +59,7 @@ var makeCachedScript = function(scripts){
         });
         var script = scriptBuffer.toString();
         var hash = new java.lang.String(md5er.encrypt(script));
-        keyMap.putIfAbsent(msjs.toJSON(scripts), hash);
+        keyMap.putIfAbsent(msjs.toJSONWithFunctions(scripts), hash);
         contentMap.putIfAbsent(hash, script);
     }finally{
         lock.unlock();
@@ -71,7 +71,7 @@ var webappPath = config.getWebappPath();
 msjs.publish(function(scripts){
     var scriptNodes = [];
     if (doCache){
-        var key = new java.lang.String(msjs.toJSON(scripts));
+        var key = new java.lang.String(msjs.toJSONWithFunctions(scripts));
 
         if (!keyMap.containsKey(key)){
             makeCachedScript(scripts);
