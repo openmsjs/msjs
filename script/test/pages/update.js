@@ -59,9 +59,17 @@ var list = msjs( function(msj){
     listEl.find("div").each(function(i, animal) {
         animal.style.display = "none";
     });
+
+    //map animals
+    var animalMap = {};
+    $.each(listEl.children(), function(n, el){
+        animalMap[$.data(el, "name")] = el;
+    });
+
+
     msjs.each(model, function(animal,i){
         var name = animal.name;
-        var el = dom.findMsj(listEl[0], name);
+        var el = animalMap[name];
         if (!el) {
             makeAnimal(name, i);
         } else {
@@ -85,7 +93,8 @@ var makeAnimal = function(name, n){
               height :  "20px",
               top :  (n*elHeight)+"px"})
         .text(name);
-    dom.setDomMsj(name, el[0]);
+
+    $.data(el[0], "name", name);
 }
 
 var animals = msjs(function(){

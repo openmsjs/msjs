@@ -15,8 +15,9 @@
  */
 
 /**
-    @namespace The interface between the Java Page and the msjs graph and associated
-    document.
+    The dom object and loads the document, and then jQuery. It also provides a
+    few convenience methods.
+    @namespace The object that corresponds to the Java Page.
     @name msjs.dom
 */
 var dom = msjs.publish({}, "Client");
@@ -43,12 +44,6 @@ msjs.require("document");
 //absurdly long time on the jquery.js file.
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
-
-dom.findMsj = function(refEl, msj){
-    return this.seek(function(el){
-        if (dom.getDomMsj(el) == msj) return true;
-    }, refEl);
-}
 
 dom.getCssId = function(el){
     this._ensureHasId(el);
@@ -77,58 +72,6 @@ dom.seek = function(f, el){
     }
     return null;
 }
-
-/**
-    Returns the "msj" data for a msjs XHTML element. On the server, the
-    parameter is expected to view-style dom node, with a msj
-    attribute. On the client, the parameter is expected to be a DOM element.
-    @name getDomMsj
-    @methodOf msjs.dom#
-    @param el The object for which to obtain the msj data.
-    @return The msj data for the given element.
-*/
-dom.getDomMsj = function(el){
-    if (el == null) {
-        if (arguments.length == 1) this._throwUndefinedElement("getDomMsj");
-        el = this.domElement;
-    }
-    if (el.className == null) return null;
-    if (el.className.indexOf("_msjs_") > -1) {
-        var msjMatch = el.className.match(this._msjMatcher);
-        var unescaped = msjMatch[1];
-        return decodeURIComponent(unescaped);
-    }else if (el.value != null){
-        return el.value;
-    }
-    return null;
-}
-dom._msjMatcher = /\b_msjs_(\S*)/;
-
-dom.setDomMsj = function(msj, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("setDomMsj");
-        el = this.domElement;
-    }
-
-    //remove old dom msj, if there is one
-    if (el.className && el.className.indexOf("_msjs_") != -1) {
-        var classNames = el.className.split(" ");
-        for (var i=0; i < classNames.length; i++) {
-            if (classNames[i].indexOf("_msjs_") == 0) {
-                classNames.splice(i, 1);
-                break;
-            }
-        }
-
-        el.className = classNames.join(" ");
-
-    }
-    var msjClassName = this._getMsjClass(msj);
-    if (!msjClassName) return;
-    this.addClass(msjClassName, el);
-}
-
-dom._getMsjClass = msjs.require("msjs.getmsjclass");
 
 /**
     @name getMousePositionFromEvent
@@ -284,6 +227,9 @@ dom.pack = function(){
     };
 
     var packedClientPackages = {};
+
+    //start the graph before packing
+    msjs.require("msjs.graph").refreshAll();
 
     msjs.each(msjs.clientPackages, function(packageName){
         //make sure it's packed

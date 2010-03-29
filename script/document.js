@@ -241,13 +241,6 @@ domelement.toJDOM = function(){
         }
     }
 
-    if (this.msj != null){
-        var s = this.className || "";
-        if (s) s += " ";
-        s += this._getMsjClass(this.msj);
-        el.setAttribute("class", s);
-    }
-
     //now handle children
     var doChildren = true;
     if (this.nodeName == "SCRIPT"){
@@ -280,8 +273,6 @@ domelement.toJDOM = function(){
 
     return el;
 }
-
-domelement._getMsjClass = msjs.require("msjs.getmsjclass");
 
 var styleConversion = msjs.require("msjs.styleconversion");
 domelement.assembleStyle = function(styleObj){
