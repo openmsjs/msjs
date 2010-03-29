@@ -137,9 +137,9 @@ graph.getMsjForRemoteAsJSON = function(){
     try{
         var msj = null;
         if (wasPressurized){
-            var msj = this.getMsjForRemote();
+            msj = this.getMsjForRemote();
         }
-        return msjs.toJSON(msj);
+        return msjs.toJSONWithFunctions(msj);
     }finally{
         this._valve.close();
     }
@@ -1090,9 +1090,9 @@ graph.prepareReconnect = function(remote){
         clock : packInfo.clock,
         resetNodes : resetNodes,
         resendUpdate : remote.updateQueueOffset
-    }
+    };
 
-    return msjs.toJSON(reconnectInfo);
+    return msjs.toJSONWithFunctions(reconnectInfo);
 
 }
 

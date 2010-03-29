@@ -238,7 +238,7 @@ dom.pack = function(){
 
     var script = "("+ unpackF.toString() +")("+ 
         msjs.getPackInfo() + "," +
-        msjs.toJSON(packedClientPackages) + 
+        msjs.toJSONWithFunctions(packedClientPackages) + 
     ")";
 
     this._renderCssRules();

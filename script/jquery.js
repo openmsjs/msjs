@@ -6363,5 +6363,5 @@ jQuery.getPackInfo = function(){
     return {
         cache: this._packObj(this.cache),
         ids : ids
-    }
+    };
 }

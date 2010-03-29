@@ -107,7 +107,7 @@ msjs.context = {
             if (o.nodeName && ignoreEl) {
                 return o;
             } else {
-                return msjs.toJSON(o);
+                return msjs.toJSONWithFunctions(o);
             }
         }else{
             return o;
@@ -327,7 +327,7 @@ msjs.log = function(){
             if (typeof o == "xml") {
                 v = o.toXMLString();
             } else {
-                v = self.toJSON(o);
+                v = self.toJSONWithFunctions(o);
             }
         }else{
             v = o;
@@ -391,22 +391,22 @@ msjs._jsonEscape= function (string) {
     @methodOf msjs#
 */
 msjs.toJSON = function(value) { 
-    return this._toJSON(value, false);
+    return this._toJSON(value);
 }
 
 /** 
     A convenience method that converts function values to JSON by turning 
     them into strings. Functions aren't supported in the JSON spec. See also
-    msjs.toJSON.
+    msjs.toJSON. If quote is true, the function string is quoted.
     @param value The literal or object to convert to JSON
     @return {String} JSON for the given parameter.
     @methodOf msjs#
  */
-msjs.toJSONQuoteFunctions = function(value) { 
-    return this._toJSON(value, true);
+msjs.toJSONWithFunctions = function(value, quote) { 
+    return this._toJSON(value, true, quote);
 }
 
-msjs._toJSON = function(value, quoteFunctions, depth) { 
+msjs._toJSON = function(value, includeFunctions, quoteFunctions, depth) { 
     if (isNaN(depth)) depth =0;
 
     //We just don't serialize object trees deeper than 500 levels
@@ -430,15 +430,17 @@ msjs._toJSON = function(value, quoteFunctions, depth) {
             // JSON numbers must be finite. Encode non-finite numbers as null.
             return isFinite(value) ? String(value) : 'null';
 
-        case 'undefined':
-            throw "undefined has no JSON representation";
+//         case 'undefined':
+//             throw "undefined has no JSON representation";
 
         case 'function':
-            if (!quoteFunctions) {
-                throw "functions have no JSON representation; try using msjs.toJSONQuoteFunctions";
+            if (!includeFunctions) {
+                throw "functions have no JSON representation; try using msjs.toJSONWithFunctions";
             }
 
-            var val = this._jsonQuote(value.toString());
+            var val = value.toString();
+            if (quoteFunctions) val = this._jsonQuote(val);
+
             //compress
             //FIXME: This should be controlled by config
             if (false){
@@ -479,7 +481,7 @@ msjs._toJSON = function(value, quoteFunctions, depth) {
                 // for non-JSON values.
 
                 for (var i = 0; i < value.length; i++) {
-                    partial[i] = this._toJSON(value[i], depth+1, quoteFunctions) || 'null';
+                    partial[i] = this._toJSON(value[i], includeFunctions, quoteFunctions, depth) || 'null';
                 }
 
                 // Join all of the elements together, separated with commas, and wrap them in
@@ -490,7 +492,7 @@ msjs._toJSON = function(value, quoteFunctions, depth) {
             // Otherwise, iterate through all of the keys in the object.
 
             for (var k in value) {
-                var v = this._toJSON(value[k], depth+1, quoteFunctions);
+                var v = this._toJSON(value[k], includeFunctions, quoteFunctions, depth+1);
                 if (v) {
                     partial.push('"' + this._jsonEscape(k) + '"' + ':' + v);
                 }
@@ -634,10 +636,10 @@ msjs._getPackList=  function(){
 
         if ( this._clientPublished.containsKey(item)){
             var args = [this._clientPublished.get(item)]; 
-            unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSON(args));
+            unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSONWithFunctions(args));
         } else if (item._msjs_getUnpacker){
             msjs.each(item._msjs_getUnpacker(), function(unpackInfo){
-                unpackPairs.push(msjs.toJSON(unpackInfo));
+                unpackPairs.push(msjs.toJSONWithFunctions(unpackInfo));
             });
         } else if (typeof item == "function"){
             var names = [];
@@ -682,7 +684,7 @@ msjs._getPackList=  function(){
             unpackF = unpackF.replace("$_args_$", names.join());
             unpackF = unpackF.replace("$_function_$", item.toString());
             unpackF = unpackF.replace("$_aliases_$", aliases);
-            unpackPairs.push( unpackF, msjs.toJSON(values) );
+            unpackPairs.push( unpackF, msjs.toJSONWithFunctions(values) );
         }
     };
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010 Sharegrove Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 var jsonRequest = msjs.require("msjs.jsonrequest");
 var defaultFile = "couch.databases";
 var defaultHost = "localhost";
@@ -70,7 +86,7 @@ var couch = msjs(function() {
         if (couchData[dbName].views) {
             jQuery.each(couchData[dbName].views, function(i, view) {
                 jsonRequest.put(db + "/" + view._id,
-                                msjs.toJSONQuoteFunctions(view));
+                                msjs.toJSONWithFunctions(view, true));
             });
         }
 
