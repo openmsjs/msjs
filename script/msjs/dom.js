@@ -15,9 +15,9 @@
  */
 
 /**
-    The dom object and loads the document, and then jQuery. It also provides a
-    few convenience methods.
-    @namespace The object that corresponds to the Java Page.
+    The dom object and loads the document, and jQuery, and exposes a method which coordinates
+    the packing and unpacking of a Page. It also provides a few convenience methods.
+    @namespace The script object that corresponds to the Java Page.
     @name msjs.dom
 */
 var dom = msjs.publish({}, "Client");
@@ -45,39 +45,30 @@ msjs.require("document");
 msjs.require("jquery");
 var graph = msjs.require("msjs.graph");
 
+/**
+    Get a string that uniquely identifies the given dom element on the page that
+    can be used directly in a CSS rule.
+    @name getCssId
+    @methodOf msjs.dom#
+    @param {DOM element} el The element to generate the id for.
+    @return {String} A string that can be used to locate the given DOM element in 
+    a CSS rule.
+*/
 dom.getCssId = function(el){
     this._ensureHasId(el);
     return "#" + el.id;
 }
 
-dom.seek = function(f, el){
-    if (el == null) {
-        if (arguments.length == 2) this._throwUndefinedElement("seek");
-        el = this.domElement;
-    }
-
-    if (f(el)) return el;
-    var q = [el.childNodes];
-    var m=0;
-    var n=0;
-    while(q.length > m){
-        var curr = q[m++];
-        n = 0;
-        while(curr.length > n){
-            var e = curr[n++];
-            if (f(e)) return e;
-            
-            if (e.childNodes && e.childNodes.length) q.push(e.childNodes);
-        }
-    }
-    return null;
-}
-
 /**
+    Get the coordinate information of an event that includes mouse
+    information, such as one representing a click or mouseover event. 
     @name getMousePositionFromEvent
     @methodOf msjs.dom#
+    @param {DOM event} event The event for which to get the position information.
+    @return {Dictionary} An object with a keys for layerX, layerY, clientX,
+    clientY, screenX, screenY, pageX, and pageY
 */
-dom.getMousePositionFromEvent = function(e) {
+dom.getMousePositionFromEvent = function(e) {       
     var event = e.domEvent || e;
     // http://www.quirksmode.org/dom/w3c_cssom.html#mousepos
     var pos = {
@@ -108,9 +99,12 @@ dom.getMousePositionFromEvent = function(e) {
 }
 
 /**
-    Returns event.target || event.srcElement.
+    Returns the target of the event. Depending on the browser, this is either 
+    event.target or event.srcElement.
     @name getTargetFromEvent
     @methodOf msjs.dom#
+    @param {DOM event} event 
+    @return {DOM element} The target of the event.
 */
 dom.getTargetFromEvent = function(event){
     return event.target || event.srcElement;
@@ -119,9 +113,11 @@ dom.getTargetFromEvent = function(event){
 /**
     Gets the pixel position of a DHTML element on the client
     and returns it in an object with the keys 'x', and 'y'.
-    @return Object Object in the form of {x : <n> : y <m>}
     @name getElementPosition
     @methodOf msjs.dom#
+    @param {DOM element} element The element for which to get the position .
+    @return {Dictionary} And object containing x and y keys with numeric values
+    for for the absolute pixel position of the given element.
  */
 dom.getElementPosition = function(e) {
     if (e == null) {
@@ -161,8 +157,8 @@ dom._ensureHasId = function(domElement){
 }
 
 /**
-    Unpacks the the information gathered in @link{msjs.dom#pack} on the
-    client.
+    Internal API. Unpacks the the information gathered in {@link msjs.dom#pack}
+    on the client.
     @name unpack
     @methodOf msjs.dom#
 */
@@ -215,7 +211,8 @@ dom.setPackInfo = function(packInfo){
 
 /*! msjs.server-only **/
 /**
-    Perpares info for transport to the client. Called by the Java Page
+    Internal API. Perpares info for transport to the client. Called by the Java
+    Page
     @name pack
     @methodOf msjs.dom#
 */
@@ -250,18 +247,10 @@ dom.pack = function(){
 
 }
 
-dom.getDomMsj = function(el){
-    return el.msj;
-}
-
 dom.getPackInfo = function(){
     return {
         newListeners: document.getEventHandlers()
     };
-}
-
-dom.setDomMsj = function(msj, el){
-    el.msj = msj;
 }
 
 dom._ensureHasId = function(domElement){
@@ -272,10 +261,18 @@ dom._ensureHasId = function(domElement){
 dom._cssRules = [];
 
 /**
-    Adds a css rule to the document
-    var args
+    Adds a css rule to the document.  The last argument should be an object
+    containing javascript CSS property names and values. The preceeding arguments, 
+    of which there may be any number, are CSS identifiers that will be joined into
+    a rule separated by spaces. Beware of the difference in the two examples below:
+    @example
+    //Applies border to .foo's in div
+    dom.addCss("div", ".foo", {border : "solid 1px"}); 
+    //Applies border to div.foo's
+    dom.addCss("div" + ".foo", {border : "solid 1px"}); 
     @name addCss
     @methodOf msjs.dom#
+    @param Arguments This method takes variable arguments.
 */
 dom.addCss = function(){
     var selector = "";

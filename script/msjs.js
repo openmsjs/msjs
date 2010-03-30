@@ -15,9 +15,15 @@
  */
 
 /**
-    An function that forms the root of the msjs API, and also makes
-    new graph nodes. When called as a function, it is syntactic
-    sugar for {@link msjs.graph#make}.
+    A function that forms the root of the msjs API, and also makes
+    new graph nodes. When called as a function, makes new 
+    {@link msjs.node}, just like {@link msjs.graph#make}.
+    @param {Function} produceFunction The function that will be called when dependencies for
+    this node change, or, if this node has no dependencies, the function that will be called
+    when the graph first starts. This argument is optional. A node with no produce function
+    is still useful for sending updates triggered by external events with the 
+    {@link msjs.node#update} method. See also the documention for {@link msjs.node#produceMsj}.
+    @return {msjs.node} A new {@link msjs.node}
     @namespace msjs exposes the require/publish system, as well some
     useful convenience methods.
     @name msjs
@@ -164,8 +170,10 @@ msjs.require = function(packageName){
     package are run in the client scope.
     {@link msjs#msjs.publish}
     @methodOf msjs#
-    @param {String} value T
+    @param {String} value The value to be stored as the binding for the
+    currently running package name.
     @param {String "Context"|"Singleton"|"Client"} scope Optional; defaults to "Context". 
+    @return The value that was published.
 */
 msjs.publish = function(value, scope){
     bindings[this.context.loadingPackage] = value;
@@ -298,7 +306,7 @@ msjs.isArray = function( value ){
     Write the given parameters to the local log, as the defined by the msjs
     context. For objects unknown to msjs that can't be serialized as JSON, this
     method can result in a stack trace. This method is variadic.
-    @param Arguments to write to the log. Each will be printed separated by commas.
+    @param Arguments Arguments to write to the log. Each will be printed separated by commas.
     @methodOf msjs#
 */
 msjs.log = function(){

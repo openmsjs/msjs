@@ -15,6 +15,7 @@
  */
 
 /**
+    Warning: these APIs are still experimental.
     @namespace A special {@link msjs.node} instance which can connect graphs
     @name msjs.transponder
 */
@@ -25,6 +26,10 @@ transponder.set = function (channel, nodeOrPackage){
     this.callInherited("set", arguments.callee, [channel, nodeOrPackage, true]);
 }
 
+/**
+    Overriden version of {@link msjs.node#depends} with special behavior to pass msj's
+    from one graph to another.
+*/
 transponder.depends = function (nodeOrPackage){
     var node = this.callInherited("depends", arguments.callee, arguments);
     if (node.packMe) throw "Transponder dependencies cannot be packed: " + node._getDebugName();

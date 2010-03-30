@@ -28,12 +28,11 @@ node._lastChecked = -1;
 node._lastMsjRefresh = -1;
 
 /**
+    Nodes have formal dependencies on other nodes, and each has a reference to
+    the graph object that contains them. Nodes are usually constructed with
+    calls to {@link msjs}.
+    @class A participant in the msjs graph.
     @name msjs.node
-    @constructor 
-    @class A participant in the msjs graph. Nodes have formal
-    dependencies on other nodes, and each have a reference to 
-    the graph object that contains them.
-    @example var myNode = node.make(function(){return myMsj})
 */
 node.rawMake = function(){
     var newNode = new nodeConstructor();
@@ -47,18 +46,30 @@ node.getId = function(){
 
 /**
     Adds an edge in the graph from the given node to this one. Also marks
-    this node as dirty.
-    @param {node} otherNode The node that this node depends on.
+    this node as dirty. This can be useful in cases where a node needs to
+    recalculate its message due to a change in another node, but doesn't
+    actually require that node's msj. This is also useful in conjunction with
+    {@link msjs.node#pull} to express an "always" depdency, since {@link
+    msjs.node#push} only includes the msj for the dependency if that node
+    updated during the current clock cycle.
+    @example
+    //Renderer needs both model and selection, no matter which one updates.
+    renderer.pull(renderer.depends(model), "model");
+    renderer.pull(renderer.depends(selection), "selection");
+    @param {msjs.node, String} otherNodeRef A reference to another node, given as either
+    a package name to be loaded with {@link msjs#require} or as a direct reference to a
+    node in the same graph.
+    @return {msjs.node} The other node for which the dependency was created.
     @name depends
     @methodOf msjs.node#
 */
 node.depends = function(otherNodeRef){
-    var otherNode = this.resolveReference(otherNodeRef);
+    var otherNode = this._resolveReference(otherNodeRef);
     this._graph.addEdge(otherNode, this);
     return otherNode;
 }
 
-node.resolveReference = function(nodeOrPackage){
+node._resolveReference = function(nodeOrPackage){
     if (typeof nodeOrPackage == "string"){
         //Treat as packagename
         return msjs.require(nodeOrPackage);
@@ -68,9 +79,12 @@ node.resolveReference = function(nodeOrPackage){
 }
 
 /**
-    Mark node as dirty and refresh msj.
+    Refresh this node's msj either with the supplied argument or by running the
+    node's produce function. Calls {@link msjs.graph#putUpdate} with the result.
     @name update
     @methodOf msjs.node#
+    @param msj The new value for the node's msj. If undefined, the node's produce 
+    function will run
 */
 node.update = function(msj){
     if (msj === void 0) msj = this._composeMsj(); 
@@ -78,9 +92,10 @@ node.update = function(msj){
 }
 
 /**
-    Get the msj produced by this node.
+    Get the last msj produced by this node.
     @name getMsj
     @methodOf msjs.node#
+    @return Last msj for this node, either returned from produceMsj or passed in by update.
 */
 node.getMsj = function(){
     return this._msj;
@@ -89,7 +104,7 @@ node.getMsj = function(){
 //called by graph
 node.updateMsj = function(msj, clock){
     this.dirty = false;
-    if (msj !== this.NOT_UPDATED){
+    if (msj !== void 0){
         this._msj = msj;
         this._lastMsjRefresh = clock;
         this._lastChecked = clock;
@@ -98,19 +113,40 @@ node.updateMsj = function(msj, clock){
 }
 
 /**
-    Compose the msj produced by this node 
-   @return The msj for this node. If the static value node.NOT_UPDATED is returned
-   by this method, it indicates that the node's msj has not changed. This
-   permits optimizations in the update process -- if none of a node's dependencies have
+   Protected. Compose the msj produced by this node 
+   @return The msj for this node. If the undefined value is returned by this
+   method, it indicates that the node's msj has not changed. This permits
+   optimizations in the update process -- if none of a node's dependencies have
    updated, the node is, by-definition, clean. 
-    @name _composeMsj
-    @methodOf msjs.node#
+   @name _composeMsj
+   @methodOf msjs.node#
 */
 node._composeMsj = function(){
     return this.produceMsj(this._collectInputs());
 }
 
-node.produceMsj = function(msj){}//returns undefined === NOT_UPDATED 
+/**
+    The method that this node runs to calculate its msj. This method is
+    automatically called when  one of the nodes it depends on changes, when
+    update is called with no arguments, or when the graph starts, if it has no
+    dependencies or it's marked {@link msjs.node#dirty}. Although this is
+    usually passed in with the call to {@link msjs} it can also be set directly
+    on the node instance. When called as a result of a graph update, the
+    produceMsj function is called with an object whose keys are msj's that of
+    the nodes that this node {@link msjs.node#push}es or {@link
+    msjs.node#pull}s.  In cases where the produceMsj function returns the
+    undefined value (as distinct from null,) the node is considered "not
+    updated" for this clock cycle, and nodes depending on this one will behave
+    accordingly. Nodes with no given produceMsj method use the default, which
+    returns undefined.
+
+    @name produceMsj
+    @param {Dictionary} msj The values for msj's of nodes that are pushed or pulled
+    by this node.
+    @return The msj for this node.
+    @methodOf msjs.node#
+*/
+node.produceMsj = function(msj){}
 
 
 //Override
@@ -124,7 +160,7 @@ node.isLocal = true;
 node.onLoad = null;
 node.onConnectionError = null;
 /**
-    Unpack this node on the client
+    Internal API. Unpack this node on the client
     @name unpack
     @methodOf msjs.node#
 */
@@ -141,14 +177,14 @@ node.unpack = function(packed){
     whether or not to pack the node.
     @name packMe
     @fieldOf msjs.node#
+    @type boolean or null
 */
 node.packMe = null;
 
 /**
-    Ensure that the cached version of the given node's msj is up-to-date with the
-    clock.
-    @param {Number} nodeId The ID of the node to clean.
-    @return {Number} If time at which this node was last updated
+    Internal API. Ensure that the cached version of the given node's msj is
+    up-to-date with the clock.
+    @return {Number} {@link msjs.graph#clock} time at which this node was last updated
     @name refreshMsj
     @methodOf msjs.node#
 */
@@ -213,22 +249,33 @@ node.set = function(property, nodeOrPackage, isTransient){ //careful; "transient
 
 /**
     Used to signal that the model has a dependency which is not explicitly set when the
-    model is created. models check their expectations when they run produce
+    model is created. models check their expectations when they run their {@link 
+    msjs.node#produceMsj} method and throw if the expected channel isn't set.
     @name expects
     @methodOf msjs.node#
+    @param {String} channel The name of the channel that this node expects to be set.
 */
 node.expects = function(property){
     this._ensureHasOwn("_expectations");
-    de.getGraphsIdsForUpdate = null;
     this._expectations.push(property);
 }
 
 node._expectations = [];
 
 /**
-    Pushes
+    Expresses a dependency between another node and this one, and sets the channel that
+    the other node's msj will arrive on  in this node's produceMsj function. This is the 
+    simplest way to wire two nodes together, and it's usually the right one. With a push
+    relationship, the msj from the other node will only be set if the other node has updated
+    during this graph clock tick. To make sure the message is always present, use
+    {@link msjs.node#pull} in conjunction with {@link msjs.node#depends}.
     @name push
     @methodOf msjs.node#
+    @param nodeOrPackage A string name of a package with a published binding for a node, 
+    or a direct reference to another node
+    @param {String} property The name of the channel on which to receive the other
+    node's message.
+    @return this
 */
 node.push = function(nodeOrPackage, property){
     this.set(property, nodeOrPackage, true);
@@ -236,32 +283,35 @@ node.push = function(nodeOrPackage, property){
 }
 
 /**
-    Adds the msj for the provided node to argument provided to this node's produce
+    Adds the msj for the provided node to argument provided to this node's produceMsj
     function, without expressing a dependency on that node. This method should be
     used with care; it's intended for retrieving information that is guaranteed to
     change before the other dependencies for this node force recalculation. Examples
     of this type of data include user information that doesn't change after it's set,
-    or cache information that's used for rendering.
+    or cache information that's used for rendering. This method is also handy
+    for breaking circular push dependencies, in cases where not all the relationships
+    need to be dependencies.
 
-    This method is also handy for breaking circular dependencies.
     @name pull
     @methodOf msjs.node#
-    @param nodeOrPackage A string name of a package or a reference to another node
+    @param nodeOrPackage A string name of a package with a published binding for a node, 
+    or a direct reference to another node
     @param {String} property The name of the channel on which to receive the other
     node's message.
+    @return this
 */
 node.pull = function(nodeOrPackage, property){
-    var node = this.resolveReference(nodeOrPackage);
+    var node = this._resolveReference(nodeOrPackage);
     this._ensureHasOwn( "_inputs" );
     this._inputs[property] = node.getId();
     return this;
 }
 
 /**
-    Protected method that prepares the input to the normal msj generation function. Nodes
-    which are set with the isTransient flag turned on will only have their msj included in
-    this hash if they have updated since the last time this node's _composeMsj function has
-    run. See {@link msjs.node#set} for more on this.
+    Protected. Prepares the input to the normal msj generation function. Nodes
+    which are set with the isTransient flag turned on will only have their msj
+    included in this hash if they have updated since the last time this node's
+    _composeMsj function has run. See {@link msjs.node#set} for more on this.
     @return {Object} Hash of the msj's of upstream nodes, by property name.
     @name _collectInputs
     @methodOf msjs.node#
@@ -301,14 +351,6 @@ node._collectInputs = function(){
 
 node.copyInputs = true;
 
-/**
-    Make an instance copy of a shared class Object or Array, if necessary. This method
-    copies an shared class arrays or hashes into the instance.
-
-    @param {String} prop The name of the property to be copied into the instance.
-    @name _ensureHasOwn
-    @methodOf msjs.node#
-*/
 node._ensureHasOwn = function(prop){
     if (!this.hasOwnProperty(prop)){
         if (msjs.isArray(this[prop])){
@@ -319,10 +361,10 @@ node._ensureHasOwn = function(prop){
     }
 }
 /**
-    The msjs "super" call. Calls the next version of the named method
-    in the prorotype inheritance chain. Note that currently, incorrect
-    arguments to this function (such as the wrong fName) will yield 
-    a stack overflow.
+    The msjs "super" call. Calls the next version of the named
+    method in the prorotype inheritance chain. Note that currently, incorrect
+    arguments to this function (such as the wrong fName) will yield a stack
+    overflow.
     @param {String} fName The name of the method.
     @param {Function} currF The currently exectuting function. Usually
     "arguments.callee" in the context of the currently executing method.
@@ -361,8 +403,13 @@ node.shutdown = function(){ }
 node._future = null;
 node._asyncLock = null;
 /**
-    Pack this node for transport to the client.
+    Run a function (usually one which calls update on the node itself) asynchronously.
+    This is useful for allowing a graph update to complete while a node does an
+    expensive calculation or calls out to a web service. Nodes which use this method
+    must be set to packMe=false. A given node's update function is protected by its own
+    lock, so an individual node will only run one async function at a time.
     @return {Future} A Java future representing the function run
+    @param {Function} A function to run asynchronously.
     @name async
     @methodOf msjs.node#
 */
@@ -383,7 +430,7 @@ node.async = function(f){
 }
 
 /**
-    Pack this node for transport to the client.
+    Internal API. Pack this node for transport to the client.
     @return {Object} Hash of this node's packed fields.
     @name pack
     @methodOf msjs.node#
