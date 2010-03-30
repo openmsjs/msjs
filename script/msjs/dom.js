@@ -15,7 +15,7 @@
  */
 
 /**
-    The dom object and loads the document, and jQuery, and exposes a method which coordinates
+    The dom object loads the document, and jQuery, and exposes a method which coordinates
     the packing and unpacking of a Page. It also provides a few convenience methods.
     @namespace The script object that corresponds to the Java Page.
     @name msjs.dom
@@ -263,8 +263,9 @@ dom._cssRules = [];
 /**
     Adds a css rule to the document.  The last argument should be an object
     containing javascript CSS property names and values. The preceeding arguments, 
-    of which there may be any number, are CSS identifiers that will be joined into
-    a rule separated by spaces. Beware of the difference in the two examples below:
+    of which there may be any number, are String CSS identifiers that will be
+    joined into a rule separated by spaces. Beware of the difference in the two
+    examples below:
     @example
     //Applies border to .foo's in div
     dom.addCss("div", ".foo", {border : "solid 1px"}); 
