@@ -307,6 +307,7 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/noship/easymock.jar!/" />
+          <root url="jar://$MODULE_DIR$/WEB-INF/lib/easymock.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

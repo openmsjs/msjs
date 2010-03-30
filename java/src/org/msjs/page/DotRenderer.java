@@ -23,15 +23,11 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import org.apache.log4j.Logger;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 import org.mozilla.javascript.ContextFactory;
+import org.msjs.config.BasicConfiguration;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.config.MsjsModule;
-import org.msjs.config.BasicConfiguration;
-import org.msjs.page.Page;
-import org.msjs.page.PageContextProvider;
 import org.msjs.script.FunctionParser;
 import org.msjs.script.MsjsScriptContext;
 import org.msjs.script.ScriptLocator;
@@ -95,6 +91,7 @@ public class DotRenderer {
         FileWriter writer = new FileWriter(new File(outLocation));
         writer.write(renderer.render(args[0]));
         writer.flush();
+        System.exit(0);
     }
 
     private static class MockModule implements Module {
