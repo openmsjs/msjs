@@ -14,6 +14,59 @@
  * the License.
  */
 
+/**
+    Invoke JSON web service requests and handle JSON responses.
+    @namespace A msjs.httprequest singleton instance that handles JSON request and responses.
+    @name msjs.jsonrequest
+    @see msjs.httprequest
+*/
 var jsonConverter = msjs.require("java.org.msjs.service.JSONConverter");
 var httpRequest = msjs.require("msjs.httprequest");
 msjs.publish(new httpRequest(jsonConverter, "application/json"), "Singleton");
+
+
+/**
+    Make a GET method HTTP call.
+    @param {String} url Fully qualified URL.
+    @return {Object} an object containing a status code and a result value like
+    {status: <status>, result: <result>}.
+    @name get
+    @methodOf msjs.jsonrequest#
+*/
+
+/**
+    Make a DELETE method HTTP call.
+    @param {String} url Fully qualified URL.
+    @return {Object} an object containing a status code and a result value like
+    {status: <status>, result: <result>}.
+    @name del
+    @methodOf msjs.jsonrequest#
+*/
+
+/**
+    Make a POST method HTTP call.
+    @param {String} url Fully qualified URL.
+    @param {String} content The content of the request. Uses UTF-8 encoding.
+    @return {Object} an object containing a status code and a result value like
+    {status: <status>, result: <result>}.
+    @name post
+    @methodOf msjs.jsonrequest#
+*/
+
+/**
+    Make a PUT method HTTP call.
+    @param {String} url Fully qualified URL.
+    @param {String} content The content of the request. Uses UTF-8 encoding.
+    @return {Object} an object containing a status code and a result value like
+    {status: <status>, result: <result>}.
+    @name put
+    @methodOf msjs.jsonrequest#
+*/
+
+/**
+    Checks to see if a response was successful
+    @param {Object} response A response object returned by get, del, post or put.
+    @return {boolean} True if 200 <= status code < 300.
+    @name isSuccess
+    @methodOf msjs.jsonrequest#
+*/
