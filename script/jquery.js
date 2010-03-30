@@ -6249,6 +6249,13 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 jQuery.extend({
     setUuid : function(newUuid){
         uuid = newUuid;
+    },
+    getReadyList : function(){
+        var r = readyList.concat();
+        //first function on readyList is jQuery built-in
+        //client will run it
+        r.shift();
+        return r;
     }
 });
 
@@ -6283,6 +6290,9 @@ jQuery.setPackInfo = function(packInfo){
     }
 
     this.setUuid(maxId +1);
+    msjs.each(packInfo.readyList, function(fRef){
+        $(document).ready(msjs.unpack(fRef));
+    });
 }
 
 jQuery._unpackObj = function(val){
@@ -6360,8 +6370,12 @@ jQuery.getPackInfo = function(){
             delete el[expando];
         }
     });
+
     return {
         cache: this._packObj(this.cache),
-        ids : ids
+        ids : ids,
+        readyList : msjs.map(this.getReadyList(), function(f){
+            return msjs.pack(f);
+        })
     };
 }
