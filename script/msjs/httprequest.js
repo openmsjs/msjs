@@ -16,24 +16,77 @@
 
 var utf8 = "UTF-8";
 var httpClient = msjs.require("java.org.apache.http.client.HttpClient");
+
+/**
+    Prototype to make HTTP requests with. For example, to create an instance to
+    handle JSON requests:
+    @example
+    new msjs.require("msjs.httprequest")(jsonConverter, "application/json")    
+
+    @namespace Prototype to make HTTP requests with.
+    @param {org.msjs.service.Converter} converter Converts an HTTP response into
+    a JavaScript object.
+    @param {String} mimeType The mime type for requests/responses.
+    @name msjs.httprequest
+*/
 var httpRequest = msjs.publish(function(converter, mimeType) {
+    /**
+        Make a GET method HTTP call.
+        @param {String} url Fully qualified URL.
+        @return {Object} an object containing a status code and a result value like
+        {status: <status>, result: <result>}.
+        @name get
+        @methodOf msjs.httprequest#
+    */
     this.get = function(url) {
         return submit(new org.apache.http.client.methods.HttpGet(url));
     };
 
-    // Add rev=<rev> to delete a specific revision
+    /**
+        Make a DELETE method HTTP call.
+        @param {String} url Fully qualified URL.
+        @return {Object} an object containing a status code and a result value like
+        {status: <status>, result: <result>}.
+        @name del
+        @methodOf msjs.httprequest#
+    */
     this.del = function(url) {
         return submit(new org.apache.http.client.methods.HttpDelete(url));
     };
 
+    /**
+        Make a POST method HTTP call.
+        @param {String} url Fully qualified URL.
+        @param {String} content The content of the request. Uses UTF-8 encoding.
+        @return {Object} an object containing a status code and a result value like
+        {status: <status>, result: <result>}.
+        @name post
+        @methodOf msjs.httprequest#
+    */
     this.post = function(url, content) {
         return submit(new org.apache.http.client.methods.HttpPost(url), content);
     };
 
+    /**
+        Make a PUT method HTTP call.
+        @param {String} url Fully qualified URL.
+        @param {String} content The content of the request. Uses UTF-8 encoding.
+        @return {Object} an object containing a status code and a result value like
+        {status: <status>, result: <result>}.
+        @name put
+        @methodOf msjs.httprequest#
+    */
     this.put = function(url, content) {
         return submit(new org.apache.http.client.methods.HttpPut(url), content);
     };
 
+    /**
+        Checks to see if a response was successful
+        @param {Object} response A response object returned by get, del, post or put.
+        @return {boolean} True if 200 <= status code < 300.
+        @name isSuccess
+        @methodOf msjs.httprequest#
+    */
     this.isSuccess = function(response) {
         return 200 <= response.status && response.status < 300;
     };
