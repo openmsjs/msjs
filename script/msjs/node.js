@@ -361,14 +361,14 @@ node._ensureHasOwn = function(prop){
     }
 }
 /**
-    The msjs "super" call. Calls the next version of the named
+    The node's "super" call. Calls the next version of the named
     method in the prorotype inheritance chain. Note that currently, incorrect
     arguments to this function (such as the wrong fName) will yield a stack
     overflow.
     @param {String} fName The name of the method.
     @param {Function} currF The currently exectuting function. Usually
     "arguments.callee" in the context of the currently executing method.
-    @param {Array} The list of arguments with which to call the call
+    @param {Array} args The list of arguments with which to call the call
     the superclass method.
     @name callInherited
     @methodOf msjs.node#
