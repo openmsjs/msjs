@@ -615,20 +615,6 @@ msjs.pack = function(value){
 }
 
 msjs.getPackInfo = function(){
-    var pl = this._getPackList();
-    return pl;
-}
-
-msjs._packList = [];
-msjs._dontPackNames = {
-    "document" : true, 
-    "msjs" : true, 
-    "arguments" : true,
-    "Number" : true,
-    "String" : true,
-
-}
-msjs._getPackList=  function(){
     var unpackPairs = [];
     var i =0;
     while(i < this._packList.length){
@@ -689,6 +675,27 @@ msjs._getPackList=  function(){
     };
 
     return "[" + unpackPairs.join() + "]";
+}
+
+msjs._packList = [];
+msjs._dontPackNames = {
+    "document" : true, 
+    "msjs" : true, 
+    "arguments" : true,
+    "Number" : true,
+    "String" : true,
+    "eval" : true,
+    "escape" : true,
+    "unescape" : true,
+    "decodeURI" : true,
+    "decodeURIComponent" : true,
+    "encodeURI" : true,
+    "encodeURIComponent" : true,
+    "isFinite" : true,
+    "isNaN" : true,
+    "parseFloat" : true,
+    "parseInt" : true
+
 }
 
 //Only call inject if needed; otherwise you always need to invoke Guice
