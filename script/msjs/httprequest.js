@@ -26,10 +26,11 @@ var httpClient = msjs.require("java.org.apache.http.client.HttpClient");
     @namespace Prototype to make HTTP requests with.
     @param {org.msjs.service.Converter} converter Converts an HTTP response into
     a JavaScript object.
-    @param {String} mimeType The mime type for requests/responses.
+    @param {String} defaultMimeType The default mime type for POST and PUT
+    requests. This can be overridden when making the request.
     @name msjs.httprequest
 */
-var httpRequest = msjs.publish(function(converter, mimeType) {
+var httpRequest = msjs.publish(function(converter, defaultMimeType) {
     /**
         Make a GET method HTTP call.
         @param {String} url Fully qualified URL.
@@ -58,26 +59,30 @@ var httpRequest = msjs.publish(function(converter, mimeType) {
         Make a POST method HTTP call.
         @param {String} url Fully qualified URL.
         @param {String} content The content of the request. Uses UTF-8 encoding.
+        @param {String} mimeType (optional) The mime type of the
+        content. Default is the mime type of the instance.
         @return {Object} an object containing a status code and a result value like
         {status: <status>, result: <result>}.
         @name post
         @methodOf msjs.httprequest#
     */
-    this.post = function(url, content) {
-        return submit(new org.apache.http.client.methods.HttpPost(url), content);
+    this.post = function(url, content, mimeType) {
+        return submitEntity(new org.apache.http.client.methods.HttpPost(url), content, mimeType);
     };
 
     /**
         Make a PUT method HTTP call.
         @param {String} url Fully qualified URL.
         @param {String} content The content of the request. Uses UTF-8 encoding.
+        @param {String} mimeType (optional) The mime type of the
+        content. Default is the mime type of the instance.
         @return {Object} an object containing a status code and a result value like
         {status: <status>, result: <result>}.
         @name put
         @methodOf msjs.httprequest#
     */
-    this.put = function(url, content) {
-        return submit(new org.apache.http.client.methods.HttpPut(url), content);
+    this.put = function(url, content, mimeType) {
+        return submitEntity(new org.apache.http.client.methods.HttpPut(url), content, mimeType);
     };
 
     /**
@@ -91,11 +96,12 @@ var httpRequest = msjs.publish(function(converter, mimeType) {
         return 200 <= response.status && response.status < 300;
     };
 
-    var submit = function(method, content) {
-        if (content) {
-            method.setEntity(new org.apache.http.entity.StringEntity(content, mimeType, utf8));
-        }
+    var submitEntity = function(method, content, mimeType) {
+        method.setEntity(new org.apache.http.entity.StringEntity(content, mimeType || defaultMimeType, utf8));
+        return submit(method);
+    };
 
+    var submit = function(method) {
         var response = httpClient.execute(method);
         var entity = response.getEntity();
         if (entity == null) {
