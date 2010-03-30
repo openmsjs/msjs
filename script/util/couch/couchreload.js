@@ -15,7 +15,7 @@
  */
 
 var jsonRequest = msjs.require("msjs.jsonrequest");
-var defaultFile = "couch.databases";
+var defaultFile = "util.couch.databases";
 var defaultHost = "localhost";
 var defaultPort = 5984;
 
