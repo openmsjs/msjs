@@ -86,6 +86,7 @@
         <copy toDir="${out.dir}/classes">
             <fileset dir="script">
                 <include name="document.js"/>
+                <include name="jquery.js"/>
                 <include name="msjs.js"/>
                 <include name="msjs/**"/>
             </fileset>
@@ -117,6 +118,7 @@
         <copy toDir="${staging.dir}/script">
             <fileset dir="script/">
                 <exclude name="document.js"/>
+                <exclude name="jquery.js"/>
                 <exclude name="msjs.js"/>
                 <exclude name="msjs/**"/>
                 <exclude name="test/**"/>
