@@ -16,6 +16,7 @@
 
 package org.msjs.config;
 
+import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +59,18 @@ public class TestMsjsConfiguration {
         assert(file.exists() );
         assert(file.canRead());
         assert(file.isDirectory());
+    }
+
+    @Test
+    public void testSystemProperty(){
+        java.lang.System.setProperty("msjs.scriptRoot", "${msjs.root}/testing");
+        //don't use the config that was already setup
+        MsjsConfiguration withPropertyConfig = BasicConfiguration.getConfiguration();
+
+        //check that it worked
+        assertTrue(withPropertyConfig.getScriptRoot().endsWith("testing"));
+        //check interpolation
+        assertFalse(withPropertyConfig.getScriptRoot().contains("msjs.root"));
     }
 
 }

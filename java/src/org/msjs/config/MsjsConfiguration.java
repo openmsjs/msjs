@@ -18,6 +18,7 @@ package org.msjs.config;
 
 import com.google.inject.Singleton;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -29,32 +30,8 @@ import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * Provides configuration values to classes within msjs. Configurations are loaded
- * out of two files: <code>msjs.config.xml</code> and (optionally)
- * <code>local.config.xml</code> These files are expected to be in a directory named
- * <code>lib/config</code> below the msjs root directory. The format of a config file is as
- * follows:
- * <pre>&lt;configurations&gt;
- * &lt;configuration name="default"&gt;
- * &lt;cheese&gt;cheddar&lt;/cheese&gt;
- * &lt;beverage&gt;beer&lt;/beverage&gt;
- * &lt;/configuration&gt;
- * &lt;configuration name="test"&gt;
- * &lt;depends&gt;default&lt;/depends&gt;
- * &lt;cheese&gt;provolone&lt;/cheese&gt;
- * &lt;meal&gt;Hamburger with ${cheese} and a ${beverage}&lt;/meal&gt;
- * &lt;/configuration&gt;
- * &lt;/configurations&gt;</pre>
- * <p/>
- * In this example, a MsjsConfiguration class loaded with the config named "test"
- * would have these values:
- * <pre> cheese: provolone
- * beverage: beer
- * meal : Hamburger with provolone and a beer</pre> Multiple <code>&lt;depends&gt;</code>
- * statements are allowed. They are processed in order; last one wins. Any property in any
- * named config may be specified in the local config file, including new configs that aren't
- * referenced in the main config file. Note, however, that the build system <em>ignores</em>
- * local config. For more about Configuration and variable interpolation, see the docs for
+ * Provides configuration values to classes within msjs.
+ * For more about Configuration and variable interpolation, see the docs for
  * {@link org.apache.commons.configuration.Configuration}
  */
 @Singleton
@@ -103,7 +80,9 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         msjsConfig = new File(configDir + "/" + MSJS_CONFIG);
         localConfig = new File(configDir + "/" + LOCAL_CONFIG);
 
-        // Read local config first. New properties loaded are added to property key and not overwritten.
+        // Read system properties first
+        // New properties loaded are added to property key and not overwritten.
+        loadSystemConfig();
         if (localConfig.exists()) loadConfig(localConfig);
         loadConfig(msjsConfig);
 
@@ -111,9 +90,6 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         String msjsRoot = getString(MSJS_ROOT);
         if (isEmpty(msjsRoot)) {
             msjsRoot = defaultMsjsRoot;
-            if (isEmpty(msjsRoot)) {
-                msjsRoot = System.getProperty(MSJS_ROOT);
-            }
         }
 
         if (isEmpty(msjsRoot)) {
@@ -130,6 +106,15 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         }
 
         configureLogger();
+    }
+
+    private void loadSystemConfig() {
+        SystemConfiguration sysConfig = new SystemConfiguration();
+        Iterator<String> keys = sysConfig.getKeys("msjs");
+        while (keys.hasNext()){
+            String key = keys.next();
+            setProperty(key, sysConfig.getProperty(key));
+        }
     }
 
     public void log() {
