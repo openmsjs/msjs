@@ -1043,9 +1043,8 @@ graph._determinePack = function(node){
         if (val && val.packMe != null) return val.packMe;
         if (typeof val != "function") continue;
         var freeVars = msjs.context.getFreeVariables(val);
-        var scope = msjs.context.getScope(val);
         for (var freeVar in freeVars){
-            var freeValue = scope[freeVar];
+            var freeValue = freeVars[freeVar];
             //e.g ... foo = new java.lang.Object();
             if (freeValue == java) return false;
             if (freeValue instanceof java.lang.Object) return false;

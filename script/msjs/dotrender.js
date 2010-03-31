@@ -62,9 +62,8 @@ msjs.publish({dotRender: function(){
         function processFreeVars(f, invert){
             if (!f) return;
             var freeVars = msjs.context.getFreeVariables(f);
-            var scope = msjs.context.getScope(f);
             for (var k in freeVars){
-                var val =scope[k];
+                var val =freeVars[k];
                 if (val == jQuery) continue;
 
                 if (val && val instanceof jQuery.fn){
@@ -118,9 +117,8 @@ msjs.publish({dotRender: function(){
     msjs.each(jQHandlers, function(handlerObj){
         var el = jQueryDomMap[handlerObj.guid];
         var freeVars = msjs.context.getFreeVariables(handlerObj.handler);
-        var scope = msjs.context.getScope(handlerObj.handler);
         for (var k in freeVars){
-            var val =scope[k];
+            var val =freeVars[k];
             if (val && val._debugRef && val.getId ){
                 //it's a node (more or less);
                     addDomElement(getNodeName(val), el, true);

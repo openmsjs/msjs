@@ -176,10 +176,6 @@ public class MsjsScriptContext extends ScriptContext {
         }
     }
 
-    public Scriptable getScope(Function f){
-        return f.getParentScope();
-    }
-
     public String getId(){
         return uuid.toString();
     }
@@ -230,13 +226,12 @@ public class MsjsScriptContext extends ScriptContext {
     };
 
     public ScriptableObject getFreeVariables(Function f){
-        return convertToJSObject(functionParser.getFreeVariables(f));
-    }
+        Set<String> vars = functionParser.getFreeVariables(f);
+        Scriptable scope = f.getParentScope();
 
-    private ScriptableObject convertToJSObject(final Set<String> vars) {
         ScriptableObject jsSet = makeObject();
         for (String freeVar : vars){
-            jsSet.put(freeVar, jsSet, true);
+            jsSet.put(freeVar, jsSet, scope.get(freeVar, scope));
         }
         return jsSet;
     }

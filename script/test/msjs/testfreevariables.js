@@ -15,7 +15,7 @@
  */
 
 var assert = msjs.require("msjs.assert");
-var a, b, freeVars;
+var a =true, b=true, freeVars;
 
 var f1 = function(x, y){
     var z;
@@ -29,6 +29,7 @@ assert(!freeVars.y);
 assert(!freeVars.z);
 
 
+var c = true;
 var f2 = function(msj){
     var z =c;
     var f1= function  (){ 

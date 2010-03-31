@@ -633,10 +633,9 @@ msjs.getPackInfo = function(){
             var values = [];
             var aliases = null;
 
-            var scope = msjs.context.getScope(item);
             var freeVariables = msjs.context.getFreeVariables(item);
             for (var k in freeVariables){
-                var val = scope[k];
+                var val = freeVariables[k];
                 if (k in msjs._dontPackNames) continue;
                 if (val instanceof java.lang.String) val = String(val);
                 if (val instanceof java.lang.Object) continue;
@@ -649,7 +648,7 @@ msjs.getPackInfo = function(){
                     aliases.push(k);
                 } else {
                     names.push(k);
-                    values.push(msjs.pack(scope[k]));
+                    values.push(msjs.pack(val));
                 }
             }
 
