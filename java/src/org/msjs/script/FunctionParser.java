@@ -75,12 +75,13 @@ public class FunctionParser {
         Set<String> varNames = new HashSet<String>();
         if (fn != null){
             addVarNames(fn, varNames);
-            final Map<String, ? extends Object> symbolTable = fn.getSymbolTable();
-            if (symbolTable != null) varNames.removeAll(symbolTable.keySet());
 
             for (int i = 0; i < fn.getFunctionCount(); i++){
                 varNames.addAll(getFreeVariablesInFunction(fn.getFunctionNode(i)));
             }
+
+            final Map<String, ? extends Object> symbolTable = fn.getSymbolTable();
+            if (symbolTable != null) varNames.removeAll(symbolTable.keySet());
         }
 
         return varNames;
