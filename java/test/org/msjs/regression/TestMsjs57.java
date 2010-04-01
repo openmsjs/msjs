@@ -14,24 +14,27 @@
  * the License.
  */
 
-package org.msjs.integration.regression;
+package org.msjs.regression;
 
-import com.gargoylesoftware.htmlunit.html.HtmlDivision;
+import com.gargoylesoftware.htmlunit.html.HtmlTableDataCell;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.msjs.integration.BaseIntegrationTest;
 
 import java.io.IOException;
+import java.util.List;
 
-public class TestMsjs56 extends BaseIntegrationTest{
+public class TestMsjs57 extends BaseIntegrationTest{
     @Override
     protected String getPageLocation() {
-        return "/test/pages/regression/msjs-56";
+        return "/test/pages/regression/msjs-57";
     }
 
     @Test
-    public void testClick() throws IOException {
-        HtmlDivision div = (HtmlDivision) getPage().getByXPath("//div").get(0);
-        //This errors if bug is present
-        div.click();
+    public void testTableContents() throws IOException {
+        List<HtmlTableDataCell> td = (List<HtmlTableDataCell>) getPage().getByXPath("//td");
+        assertEquals(td.get(0).getTextContent(), "one");
+        assertEquals(td.get(1).getTextContent(), "two");
+        assertEquals(td.get(2).getTextContent(), "three");
     }
 }

@@ -139,7 +139,7 @@
     </target>
 
     <!-- .......................... testing tasks  .............................. -->
-    <target name="test-all" depends="test, test-integration"
+    <target name="test-all" depends="test, test-integration, test-regression"
             description="Run unit and integration tests.">
         <echo>Ran 'em all</echo>
     </target>
@@ -155,7 +155,8 @@
             <batchtest fork="no" todir="${test.reports.dir}">
                 <fileset dir="${testsrc}">
                     <include name="**/Test*.java"/>
-                    <exclude name="**/integration/**"/>
+                    <exclude name="**/integration/**.java"/>
+                    <exclude name="**/regression/**.java"/>
                     <exclude name="**/selenium/*.java"/>
                 </fileset>
             </batchtest>
@@ -181,6 +182,30 @@
             <batchtest todir="${test.reports.dir}">
                 <fileset dir="${testsrc}">
                     <include name="**/integration/**/Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail message="At least one test failed or had an error.">
+            <condition>
+                <or>
+                    <isset property="test.results.error"/>
+                    <isset property="test.results.failure"/>
+                </or>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="test-regression" depends="compile-tests"
+            description="Run regression tests">
+        <mkdir dir="${test.reports.dir}"/>
+        <junit fork="yes" errorproperty="test.results.error"
+               failureproperty="test.results.failure">
+            <classpath refid="build.classpath"/>
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="${test.reports.dir}">
+                <fileset dir="${testsrc}">
+                    <include name="**/regression/**/Test*.java"/>
                 </fileset>
             </batchtest>
         </junit>
