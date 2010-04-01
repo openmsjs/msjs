@@ -48,11 +48,13 @@ msjs.publish({dotRender: function(){
     var domelements = [document.documentElement];
     var clusters = {};
 
-    function addDomElement(nodeName, el, invert){
+    function addDomRelationship(nodeName, el, invert){
         if (domelements.indexOf(el) == -1) domelements.push(el);
         var head = invert ? "inv" : "normal";
-        lines.push(nodeName + " -> " + getDomElementName(el) + 
-                    "[arrowhead="+head+", color=gray50];");
+        var line = nodeName + " -> " + getDomElementName(el) + 
+                    "[arrowhead="+head+", color=gray50];";
+        if (lines.indexOf(line) > -1) return;
+        lines.push(line);
     }
 
 
@@ -68,7 +70,7 @@ msjs.publish({dotRender: function(){
 
                 if (val && val instanceof jQuery.fn){
                     val.each(function(n, el){
-                        addDomElement(nodeName, el, false);
+                        addDomRelationship(nodeName, el, false);
                     });
 
 
@@ -76,7 +78,7 @@ msjs.publish({dotRender: function(){
 
                 //FIXME -- use instanceof here
                 if (val && val.nodeName){
-                    addDomElement(nodeName, val, false);
+                    addDomRelationship(nodeName, val, false);
                 }
             }
         }
@@ -84,6 +86,9 @@ msjs.publish({dotRender: function(){
         processFreeVars(node._updateF, true);
     });
 
+
+    //run the graph, in case this installs jQuery handlers or something
+    graph.refreshAll();
 
     //inspect the jQuery cache for to see if any handlers refer
     //to msjs nodes
@@ -104,6 +109,7 @@ msjs.publish({dotRender: function(){
     }
 
 
+
     seekHandlers(jQuery.cache);
     jQueryDomMap = {};
     var expando = jQuery.expando;
@@ -121,7 +127,7 @@ msjs.publish({dotRender: function(){
             var val =freeVars[k];
             if (val && val._debugRef && val.getId ){
                 //it's a node (more or less);
-                    addDomElement(getNodeName(val), el, true);
+                    addDomRelationship(getNodeName(val), el, true);
                 }
             }
     });
