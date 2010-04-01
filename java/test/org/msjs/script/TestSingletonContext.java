@@ -19,6 +19,8 @@ package org.msjs.script;
 import static junit.framework.Assert.assertEquals;
 import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.ScriptableObject;
 
 import java.util.concurrent.ExecutionException;
 
@@ -26,6 +28,7 @@ public class TestSingletonContext {
     private static final Logger logger = Logger.getLogger(TestSingletonScope.class);
 
     private final ScriptContextTestProvider provider = new ScriptContextTestProvider();
+
     private MsjsScriptContext getMsjsScriptContext() {
         return provider.get();
     }
@@ -38,10 +41,16 @@ public class TestSingletonContext {
 
         context1.loadPackage(testScript);
         context2.loadPackage(testScript);
-        final Object binding1 = context1.getBindings().get(testScript, context1.getBindings());
-        assertEquals(context1, binding1);
-        final Object binding2 = context2.getBindings().get(testScript, context2.getBindings());
-        assertEquals(context2, binding2);
+        assertEquals(context1, getJavaBinding(testScript, context1));
+        assertEquals(context2, getJavaBinding(testScript, context2));
     }
-    
+
+    private Object getJavaBinding(final String binding,
+                                  final MsjsScriptContext context) {
+        final ScriptableObject bindings = context.getBindings();
+        final NativeJavaObject javaObject = (NativeJavaObject) bindings.get(binding,
+                                                                            context.getBindings());
+        return javaObject.unwrap();
+    }
+
 }

@@ -129,5 +129,16 @@ public class ScriptContext {
         }
     }
 
+    protected Object javaToJS(final Object value) {
+        cxFactory.enterContext();
+        try{
+            return Context.javaToJS(value, makeObject());
+        } finally{
+            Context.exit();
+        }
+
+    }
+
+
 
 }
