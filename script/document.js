@@ -509,6 +509,14 @@ document.isElement = function(value){
     return value && value instanceof domelement;
 }
 
+document._msjs_getUnpacker = function() {
+    return [function(){return document}, []];
+}
+
+document._getDebugName = function(){
+    return "document";
+}
+
 //Since elements that aren't part of the document aren't
 //returned by this function, this is a list of lists
 document._idcache = {};
