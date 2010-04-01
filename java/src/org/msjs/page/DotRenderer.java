@@ -51,7 +51,7 @@ public class DotRenderer {
     private final PageContextProvider provider;
 
     @Inject
-    DotRenderer(PageContextProvider provider) {
+    public DotRenderer(PageContextProvider provider) {
         this.provider = provider;
     }
 

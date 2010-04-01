@@ -40,7 +40,6 @@ public class TestSingletonContext {
         context2.loadPackage(testScript);
         final Object binding1 = context1.getBindings().get(testScript, context1.getBindings());
         assertEquals(context1, binding1);
-        if(context1 == context2.getBindings().get(testScript,  context2.getBindings()))logger.info("BAD!");
         final Object binding2 = context2.getBindings().get(testScript, context2.getBindings());
         assertEquals(context2, binding2);
     }

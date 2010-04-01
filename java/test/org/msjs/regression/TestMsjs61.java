@@ -14,23 +14,23 @@
  * the License.
  */
 
-package org.msjs.page;
+package org.msjs.regression;
 
 import org.junit.Test;
+import org.msjs.page.BaseDotRendererTest;
+import org.msjs.page.DotRenderer;
 
 import java.io.FileNotFoundException;
 
-public class TestDotRenderer extends BaseDotRendererTest {
+public class TestMsjs61 extends BaseDotRendererTest {
     @Test
-    public void basicTest() throws FileNotFoundException {
+    public void testRendering() throws FileNotFoundException {
         DotRenderer renderer = new DotRenderer(provider);
-        String output = renderer.render("test/pages/tutorial");
-
-        assertContains("\"submit#0\" -> \"#", output);
-        assertContains("\"renderer#2\" -> \"#", output);//domelement
-        assertContains("\"submit#0\" -> \"encrypt#1\"", output);
-        assertContains("\"encrypt#1\" -> \"renderer#2\"", output);
+        String output = renderer.render("test/pages/regression/msjs-61");
+        //Make sure package name is set correctly for anonymous node
+        assertContains("test.pages.regression.files.anonymousnode", output);
 
     }
+
 
 }
