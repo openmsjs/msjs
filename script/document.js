@@ -516,6 +516,7 @@ document._msjs_getUnpacker = function() {
 document._getDebugName = function(){
     return "document";
 }
+document.nodeType = 9;
 
 //Since elements that aren't part of the document aren't
 //returned by this function, this is a list of lists
