@@ -313,7 +313,9 @@ domelement.cloneNode = function(deep) {
 
     for (var k in this){
         if (this._isAttribute(k)) {
-            clone[k] = msjs.copy(this[k]);
+            //clone copies ids
+            var attr = k == "_id" ? "id" : k;
+            clone[attr] = msjs.copy(this[attr]);
         }
     }
 
@@ -507,16 +509,33 @@ document.isElement = function(value){
     return value && value instanceof domelement;
 }
 
+//Since elements that aren't part of the document aren't
+//returned by this function, this is a list of lists
 document._idcache = {};
 document.getElementById = function(id){
-    return this._idcache[id];
+    var list = this._idcache[id];
+    for (var i=0; list && i< list.length; i++){
+        var el = list[i];
+        if (this._isInDocument(el)) return el;
+    }
+    return null;
+}
+
+document._isInDocument = function(el){
+    var p = el;
+    while (p.parentNode != null){
+        p = p.parentNode
+    }
+    return p == this.documentElement;
 }
 
 domelement.__defineSetter__("id", function(id){
     if (this._id){
-        document._idcache[this._id] = null;
+        var index = document._idcache.indexOf(this._id);
+        document._idcache.splice(index, 1);
     }
-    document._idcache[id] = this;
+    if (!document._idcache[id]) document._idcache[id] = [];
+    document._idcache[id].push(this);
     this._id = id;
 });
 

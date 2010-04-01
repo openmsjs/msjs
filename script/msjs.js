@@ -319,7 +319,9 @@ msjs.log = function(){
     var self = this;
     this.map(arguments, function(o){
         var v;
-        if(o && o._getDebugName){
+        if(typeof o == "xml"){
+            v = o.toXMLString();
+        } else if(o && o._getDebugName){
             v = o._getDebugName();
         } else if(o instanceof java.lang.String){
             v = String(o);
