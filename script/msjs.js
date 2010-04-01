@@ -679,6 +679,7 @@ msjs.getPackInfo = function(){
 
 msjs._packList = [];
 msjs._dontPackNames = {
+    "undefined" : true,
     "document" : true, 
     "msjs" : true, 
     "arguments" : true,
