@@ -289,8 +289,11 @@ node.push = function(nodeOrPackage, property){
     change before the other dependencies for this node force recalculation. Examples
     of this type of data include user information that doesn't change after it's set,
     or cache information that's used for rendering. This method is also handy
-    for breaking circular push dependencies, in cases where not all the relationships
-    need to be dependencies.
+    for breaking circular push dependencies, in cases where not all the
+    relationships need to be dependencies. This method can be used in
+    conjunction with {@link msjs.node#depends} in order to always receive
+    the message from another node, whether it's been updated or not. To just
+    receive messages when another node changes, use {@link msjs.node#push} 
 
     @name pull
     @methodOf msjs.node#
