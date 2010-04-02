@@ -62,11 +62,3 @@ msjs.publish(new httpRequest(jsonConverter, "application/json"), "Singleton");
     @name put
     @methodOf msjs.jsonrequest#
 */
-
-/**
-    Checks to see if a response was successful
-    @param {Object} response A response object returned by get, del, post or put.
-    @return {boolean} True if 200 <= status code < 300.
-    @name isSuccess
-    @methodOf msjs.jsonrequest#
-*/

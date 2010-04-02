@@ -85,17 +85,6 @@ var httpRequest = msjs.publish(function(converter, defaultMimeType) {
         return submitEntity(new org.apache.http.client.methods.HttpPut(url), content, mimeType);
     };
 
-    /**
-        Checks to see if a response was successful
-        @param {Object} response A response object returned by get, del, post or put.
-        @return {boolean} True if 200 <= status code < 300.
-        @name isSuccess
-        @methodOf msjs.httprequest#
-    */
-    this.isSuccess = function(response) {
-        return 200 <= response.status && response.status < 300;
-    };
-
     var submitEntity = function(method, content, mimeType) {
         method.setEntity(new org.apache.http.entity.StringEntity(content, mimeType || defaultMimeType, utf8));
         return submit(method);
