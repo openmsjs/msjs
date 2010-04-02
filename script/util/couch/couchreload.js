@@ -20,6 +20,9 @@ var defaultHost = "localhost";
 var defaultPort = 5984;
 
 var status = $(<div/>).css({fontSize: "20px"}).appendTo("body");
+var isSuccess = function(response) {
+    return 200 <= response.status && response.status < 300;
+};
 
 $(<div>
     <b>Query parameters:</b>
@@ -72,12 +75,12 @@ var couch = msjs(function() {
         var response = jsonRequest.get(db);
         var created = reset;
         if (reset) {
-            if (jsonRequest.isSuccess(response)) {
+            if (isSuccess(response)) {
                 jsonRequest.del(db);
             }
             jsonRequest.put(db);
         } else {
-            if (!jsonRequest.isSuccess(response)) {
+            if (!isSuccess(response)) {
                 jsonRequest.put(db);
                 created = true;
             }
