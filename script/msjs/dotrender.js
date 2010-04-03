@@ -228,5 +228,5 @@ msjs.publish({dotRender: function(){
     lines.push("}");
 
 
-    return "digraph G {\n" + clusterLines.join("\n") + lines.join("\n");
+    return "digraph G {\n" + clusterLines.join("\n") + "\n" + lines.join("\n");
 }});
