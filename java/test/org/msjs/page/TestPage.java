@@ -24,7 +24,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.msjs.config.BasicConfiguration;
 import org.msjs.script.ScriptContextTestProvider;
+import static org.easymock.EasyMock.createNiceMock;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -32,6 +34,7 @@ import java.util.concurrent.Executors;
 public class TestPage {
     private static String testRoot;
     private static PageContextProvider provider;
+    private static HttpServletRequest mockRequest;
 
     @BeforeClass
     public static void setup() {
@@ -39,20 +42,22 @@ public class TestPage {
         provider = new PageContextProvider(new ScriptContextTestProvider(),
                 Executors.newSingleThreadExecutor(),
                 BasicConfiguration.getConfiguration());
+        mockRequest = createNiceMock(HttpServletRequest.class);
+
     }
 
 
     @Test
     public void basicTest() throws FileNotFoundException {
         Page page = new Page(provider.get(testRoot + "/empty", false));
-        Document rendering = page.render();
+        Document rendering = page.render(mockRequest);
         assertEquals("html", rendering.getRootElement().getName());
     }
 
     @Test
     public void documentStuff() throws FileNotFoundException {
         Page page = new Page(provider.get(testRoot + "/empty", false));
-        Document rendering = page.render();
+        Document rendering = page.render(mockRequest);
 
         Element e = rendering.getRootElement();
 

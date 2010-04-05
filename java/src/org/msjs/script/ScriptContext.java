@@ -120,25 +120,19 @@ public class ScriptContext {
     }
 
     public Object callMethod(final Scriptable jsObject, final String methodName,
-                             final Object[] args) {
+                             final Object[] inArgs) {
+        Object[] args = new Object[inArgs.length];
+        Scriptable start = makeObject();
         cxFactory.enterContext();
         try{
+            for (int i = 0; i < inArgs.length; i++){
+                args[i] = Context.javaToJS(inArgs[i], start);
+            }
             return ScriptableObject.callMethod(jsObject, methodName, args);
         } finally{
             Context.exit();
         }
     }
-
-    protected Object javaToJS(final Object value) {
-        cxFactory.enterContext();
-        try{
-            return Context.javaToJS(value, makeObject());
-        } finally{
-            Context.exit();
-        }
-
-    }
-
 
 
 }

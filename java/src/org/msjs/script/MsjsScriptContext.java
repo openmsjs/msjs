@@ -83,9 +83,8 @@ public class MsjsScriptContext extends ScriptContext {
         }
 
         //FIXME? this publishes a reference to an object that is not fully constructed
-        final Object[] contextArg = {javaToJS(this), getGlobalScope()};
-        bindings = (ScriptableObject) ScriptableObject.callMethod(msjs,
-                                                                  "bindContext", contextArg);
+        final Object[] contextArg = {this, getGlobalScope()};
+        bindings = (ScriptableObject) callMethod(msjs, "bindContext", contextArg);
 
     }
 

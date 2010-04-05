@@ -26,6 +26,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.msjs.service.JSONConverter;
 import org.msjs.script.MsjsScriptContext;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,13 +53,14 @@ public class Page {
     }
 
 
-    public Document render() {
+    public Document render(final HttpServletRequest request) {
         //careful with this order. msjs packs/unpacks info about closures
         //but graph calls msjs after the nodes are constructed and before
         //they're unpacked so that references to graph nodes are handled
         //properly
+        final Object[] args = {request};
         NativeJavaObject rendering =
-                (NativeJavaObject) context.callMethodOnBinding("msjs.dom", "pack", EMPTY_LIST);
+                (NativeJavaObject) context.callMethodOnBinding("msjs.dom", "pack", args);
         final DocType dt = new DocType("html",
                 "-//W3C//DTD XHTML 1.0 Transitional//EN",
                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");

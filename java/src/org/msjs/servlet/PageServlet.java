@@ -75,7 +75,7 @@ public class PageServlet extends HttpServlet {
             final String scriptPath = getScriptLocation(request);
             logger.trace("doGet " + scriptPath);
             Page page = pages.getNew(scriptPath, isCacheAllowed(request));
-            Document rendering = page.render();
+            Document rendering = page.render(request);
 
             //would rather set content type to xhtml, but this is the best
             //solution for now, given browser situation
