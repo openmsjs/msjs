@@ -216,7 +216,10 @@ dom.setPackInfo = function(packInfo){
     @name pack
     @methodOf msjs.dom#
 */
-dom.pack = function(){
+dom.pack = function(request){
+    var queryString  = request.getQueryString() || "";
+    if (queryString) queryString = "?" + queryString;
+    location.href = request.getRequestURL() + queryString;
 
     var unpackF = function(){
         var dom = msjs.require('msjs.dom');
