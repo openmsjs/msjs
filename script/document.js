@@ -518,6 +518,46 @@ document._getDebugName = function(){
 }
 document.nodeType = 9;
 
+document.__defineSetter__("cookie", function(s){
+    if (!s) return;
+    var pairs = s.split(";");
+    var cookie = {};
+    msjs.each(pairs, function(pair){
+        var parts = pair.split("=");
+        var k = new java.lang.String(parts[0]).trim().toString();
+        var v = new java.lang.String(parts[1]).trim().toString();
+        switch(k){
+            case "expires":
+                /* TODO
+                if (cookie.expires < now){
+                    throw "Remove cookie";
+                }
+                */
+            case "path":
+                cookie[k] = v;
+                break;
+            default:
+                cookie.name = k;
+                cookie.value = v;
+        }
+
+    });
+    this._cookies.push(cookie);
+
+
+});
+
+document.__defineGetter__("cookie", function(){
+    var s = "";
+    var keyVals = msjs.map(this._cookies, function(cookie){
+        return cookie.name + (cookie.value ? "=" + cookie.value : "");
+    });
+
+    return keyVals.join("; ");
+});
+
+document._cookies = [];
+
 //Since elements that aren't part of the document aren't
 //returned by this function, this is a list of lists
 document._idcache = {};

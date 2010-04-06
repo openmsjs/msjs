@@ -220,6 +220,7 @@ dom.pack = function(request){
     var queryString  = request.getQueryString() || "";
     if (queryString) queryString = "?" + queryString;
     location.href = request.getRequestURL() + queryString;
+    this._handleCookies(request);
 
     var unpackF = function(){
         var dom = msjs.require('msjs.dom');
@@ -260,7 +261,30 @@ dom.prepareReconnect = function(request){
     return msjs.require("msjs.graph").prepareReconnect(inboundQueue);
 }
 
+dom._handleCookies = function(request){
+    var cookies = request.getCookies();
+    if (!cookies) return;
+    msjs.each(cookies, function(cookie){
+        var pairs = [];
+
+        var nameVal = cookie.getName();
+        var v = cookie.getValue();
+        if (v) nameVal += "="+ v;
+
+        pairs.push(nameVal);
+        pairs.push("expires=" + cookie.getMaxAge());
+        if (cookie.getPath()){
+            pairs.push("path=" + cookie.getPath());
+        }
+
+        document.cookie = pairs.join("; ");
+    });
+}
+
 dom._handleUpdateRequest = function(request){
+    //deal with cookies
+    this._handleCookies(request);
+
     //returns the inbound queue
     var q = request.getParameter("q");
     if (q == null) throw "No request queue!";

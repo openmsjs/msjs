@@ -93,7 +93,7 @@ public class Page {
     public Result prepareReconnect(final HttpServletRequest request) {
         final Object[] args = {request};
         String reconnectInfo = (String) context.callMethodOnBinding(
-                "msjs.graph", "prepareReconnect", args
+                "msjs.dom", "prepareReconnect", args
         );
 
         Result result = new Result("reconnect", reconnectInfo);
