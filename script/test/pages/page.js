@@ -6,13 +6,10 @@ msjs(function(){
 
 function parseCookies(cookies){
     var pairs = cookies.split(";");
-    var out = {};
-    msjs.each(pairs, function(pair){
-        var splitPair = pair.split("=");
-        out[ splitPair[0] ] = splitPair[1];
-    });
 
-    return out;
+    return msjs.map(pairs, function(pair){
+        return pair.split("=");
+    });
 }
 
 var serverCookies = msjs(function(){
@@ -34,11 +31,11 @@ var showCookies = msjs(function(msj){
     tbody.children().remove();
     for (var k in msj){
         var cookies = msj[k];
-        for (var key in cookies){
+        msjs.each(cookies, function(pair){
             var tr = $("<tr>").appendTo(tbody);
-            $("<td>").appendTo(tr).text(key);
-            $("<td>").appendTo(tr).text(cookies[key]);
-        }
+            $("<td>").appendTo(tr).text(pair[0]);
+            $("<td>").appendTo(tr).text(pair[1] || "");
+        });
 
     }
 });

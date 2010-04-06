@@ -521,6 +521,10 @@ document.nodeType = 9;
 document.__defineSetter__("cookie", function(s){
     if (!s) return;
     var pairs = s.split(";");
+
+    //TODO: make sure we don't already have this cookie
+
+
     var cookie = new javax.servlet.http.Cookie();
     msjs.each(pairs, function(pair){
         var parts = pair.split("=");
@@ -533,6 +537,9 @@ document.__defineSetter__("cookie", function(s){
                     throw "Remove cookie";
                 }
                 */
+                var df = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+                var now = new Date();
+                cookie.setMaxAge(now.getTime()/1000 - df.parse(v).getTime());
                 break;
             case "path":
                 cookie.setPath(v);
@@ -557,16 +564,13 @@ document.__defineGetter__("cookie", function(){
     //msjs.log('dates', gmt, now.getTime(), javaDate);
     msjs.log('parse', gmt, new java.util.Date(gmt));
     msjs.log('pars', now.getTime(), (new java.util.Date(gmt)).getTime());
-    var df = java.text.DateFormat.getDateInstance();
-    msjs.log('arse', df.parse(gmt));
+    //var df = java.text.DateFormat.getDateInstance();
+    //msjs.log('arse', df.parse(gmt));
 
-    var seen = {};
+
     function appendCookie(cookie){
-        var key = cookie.name + "; "+ cookie.path;
-        msjs.log(key, cookie.value);
-        if (seen[key]) return;
-        seen[key] = true;
         if (s) s += "; ";
+        msjs.log(s);
         s += cookie.name + (cookie.value ? "=" + cookie.value : "");
     }
 
