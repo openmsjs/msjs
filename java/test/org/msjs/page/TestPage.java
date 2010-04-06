@@ -17,6 +17,7 @@
 package org.msjs.page;
 
 import static junit.framework.Assert.assertEquals;
+import org.easymock.EasyMock;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -24,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.msjs.config.BasicConfiguration;
 import org.msjs.script.ScriptContextTestProvider;
-import static org.easymock.EasyMock.createNiceMock;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
@@ -42,7 +42,11 @@ public class TestPage {
         provider = new PageContextProvider(new ScriptContextTestProvider(),
                 Executors.newSingleThreadExecutor(),
                 BasicConfiguration.getConfiguration());
-        mockRequest = createNiceMock(HttpServletRequest.class);
+        mockRequest = EasyMock.createNiceMock(HttpServletRequest.class);
+        EasyMock.expect(mockRequest.getRequestURL()).andReturn(new StringBuffer("mocked://test/empty.msjs")).anyTimes();
+        EasyMock.expect(mockRequest.getQueryString()).andReturn("").anyTimes();
+        EasyMock.replay(mockRequest);
+
 
     }
 
