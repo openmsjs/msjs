@@ -521,7 +521,7 @@ document.nodeType = 9;
 document.__defineSetter__("cookie", function(s){
     if (!s) return;
     var pairs = s.split(";");
-    var cookie = {};
+    var cookie = new javax.servlet.http.Cookie();
     msjs.each(pairs, function(pair){
         var parts = pair.split("=");
         var k = new java.lang.String(parts[0]).trim().toString();
@@ -533,30 +533,55 @@ document.__defineSetter__("cookie", function(s){
                     throw "Remove cookie";
                 }
                 */
+                break;
             case "path":
-                cookie[k] = v;
+                cookie.setPath(v);
                 break;
             default:
-                cookie.name = k;
-                cookie.value = v;
+                cookie.setName(k);
+                cookie.setValue(v);
         }
 
     });
-    this._cookies.push(cookie);
+    this._cookiesAdded.push(cookie);
 
 
 });
 
 document.__defineGetter__("cookie", function(){
     var s = "";
-    var keyVals = msjs.map(this._cookies, function(cookie){
-        return cookie.name + (cookie.value ? "=" + cookie.value : "");
-    });
 
-    return keyVals.join("; ");
+    var now = new Date();
+    var gmt = now.toUTCString();
+    //var javaDate = (new java.text.SimpleDateFormat() ).parse(gmt);
+    //msjs.log('dates', gmt, now.getTime(), javaDate);
+    msjs.log('parse', gmt, new java.util.Date(gmt));
+    msjs.log('pars', now.getTime(), (new java.util.Date(gmt)).getTime());
+    var df = java.text.DateFormat.getDateInstance();
+    msjs.log('arse', df.parse(gmt));
+
+    var seen = {};
+    function appendCookie(cookie){
+        var key = cookie.name + "; "+ cookie.path;
+        msjs.log(key, cookie.value);
+        if (seen[key]) return;
+        seen[key] = true;
+        if (s) s += "; ";
+        s += cookie.name + (cookie.value ? "=" + cookie.value : "");
+    }
+
+    msjs.each(this._cookiesAdded, appendCookie);
+    msjs.each(this._cookiesIncoming, appendCookie);
+
+    return s;
 });
 
-document._cookies = [];
+document.setIncomingCookies = function(cookies){
+    this._cookiesIncoming = cookies;
+}
+
+document._cookiesIncoming = msjs.THE_EMPTY_LIST;
+document._cookiesAdded = [];
 
 //Since elements that aren't part of the document aren't
 //returned by this function, this is a list of lists
