@@ -137,12 +137,6 @@ public class PageServlet extends HttpServlet {
         writer.append("<response>");
 
         try{
-            String queue = request.getParameter("q");
-            if (queue == null) {
-                throw new RuntimeException("No request queue");
-            }
-            logger.trace("Inbound queue is " + queue);
-
             //TODO: If you add a bad "id" paramter to the query string of your POST request,
             //you can mess up msjs pretty badly, since that overrides the POSTed id
             String id = request.getParameter("id");
@@ -155,9 +149,9 @@ public class PageServlet extends HttpServlet {
             if (page == null){
                 page = pages.getNew(getScriptLocation(request), isCacheAllowed(request));
                 logger.trace("Reconnnect graph " + id + " to new graph " + page.getId());
-                result = page.prepareReconnect(queue);
+                result = page.prepareReconnect(request);
             } else {
-                page.acceptMsj(queue);
+                page.acceptMsj(request);
                 //Send the headers to acknowledge receipt before starting (potential) long poll
                 response.flushBuffer();
                 //this blocks, waiting for the request to have data or be supplanted by

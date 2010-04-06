@@ -250,6 +250,23 @@ dom.pack = function(request){
 
 }
 
+dom.acceptMsj = function(request){
+    var inboundQueue = this._handleUpdateRequest(request);
+    return msjs.require("msjs.graph").acceptMsjFromRemote(inboundQueue);
+}
+
+dom.prepareReconnect = function(request){
+    var inboundQueue = this._handleUpdateRequest(request);
+    return msjs.require("msjs.graph").prepareReconnect(inboundQueue);
+}
+
+dom._handleUpdateRequest = function(request){
+    //returns the inbound queue
+    var q = request.getParameter("q");
+    if (q == null) throw "No request queue!";
+    return msjs.require("java.org.msjs.service.JSONConverter").convertToJS(q);
+}
+
 dom.getPackInfo = function(){
     return {
         newListeners: document.getEventHandlers()

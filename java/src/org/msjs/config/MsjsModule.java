@@ -18,6 +18,7 @@ package org.msjs.config;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -28,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.mozilla.javascript.ContextFactory;
 import org.msjs.script.MsjsContextFactory;
+import org.msjs.script.ScriptContext;
 
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
@@ -67,10 +69,14 @@ public class MsjsModule implements Module {
     @Override
     public void configure(final Binder binder) {
         binder.bind(MsjsConfiguration.class).toInstance(config);
-        binder.bind(ContextFactory.class).toInstance(new MsjsContextFactory());
+        final MsjsContextFactory msjsContextFactory = new MsjsContextFactory();
+        binder.bind(ContextFactory.class).toInstance(msjsContextFactory);
         binder.bind(ExecutorService.class).toInstance(executorService);
         binder.bind(HttpClient.class).toInstance(new DefaultHttpClient(connectionManager));
         binder.bind(Timer.class).toInstance(timer);
+        binder.bind(ScriptContext.class)
+                .annotatedWith(Names.named("JSONContext"))
+                .toInstance(new ScriptContext(msjsContextFactory));
     }
 
     public void shutdown() {

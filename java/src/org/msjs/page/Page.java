@@ -23,11 +23,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptableObject;
-import org.msjs.service.JSONConverter;
 import org.msjs.script.MsjsScriptContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,7 +38,6 @@ public class Page {
     private static final Logger logger = Logger.getLogger(Page.class);
 
     private static final Object[] EMPTY_LIST = new Object[]{};
-    private JSONConverter jsonConverter;
     private long lastActiveTime;
 
     private static final AtomicInteger pollCount = new AtomicInteger(0);
@@ -48,7 +45,6 @@ public class Page {
     @Inject
     public Page(MsjsScriptContext context) {
         this.context = context;
-        jsonConverter = new JSONConverter(context);
         updateActiveTime();
     }
 
@@ -68,11 +64,9 @@ public class Page {
         return new Document((Element) rendering.unwrap(), dt);
     }
 
-    public void acceptMsj(String stringMsj) {
-        final ScriptableObject msj = (ScriptableObject)
-                jsonConverter.convertToJS(new StringReader(stringMsj));
-        Object[] args = {msj};
-        context.callMethodOnBinding("msjs.graph", "acceptMsjFromRemote", args);
+    public void acceptMsj(HttpServletRequest request) {
+        Object[] args = {request};
+        context.callMethodOnBinding("msjs.dom", "acceptMsj", args);
         updateActiveTime();
     }
 
@@ -96,11 +90,8 @@ public class Page {
 
     }
 
-    public Result prepareReconnect(final String stringMsj) {
-        final ScriptableObject msj = (ScriptableObject)
-                jsonConverter.convertToJS(new StringReader(stringMsj));
-
-        final ScriptableObject[] args = {msj};
+    public Result prepareReconnect(final HttpServletRequest request) {
+        final Object[] args = {request};
         String reconnectInfo = (String) context.callMethodOnBinding(
                 "msjs.graph", "prepareReconnect", args
         );
@@ -112,7 +103,8 @@ public class Page {
 
 
     /**
-     * The context for scripts executed by this page
+     * The context for scripts executed by this page.
+     * This is just visible for the DotRenderer.
      *
      * @return The script context for this page.
      */

@@ -43,13 +43,14 @@ package org.msjs.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import org.mozilla.javascript.ScriptableObject;
-import org.msjs.script.MsjsScriptContext;
 import org.msjs.script.ScriptContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class JSONConverter implements Converter {
     private final ScriptContext context;
 
     @Inject
-    public JSONConverter(MsjsScriptContext context) {
+    public JSONConverter(@Named("JSONContext") ScriptContext context) {
         this.context = context;
     }
 
@@ -75,6 +76,9 @@ public class JSONConverter implements Converter {
         return this.nextValue();
     }
 
+    public synchronized Object convertToJS(String json) {
+        return convertToJS(new StringReader(json));
+    }
 
     /**
      * Back up one character. This provides a sort of lookahead capability,
