@@ -630,6 +630,38 @@ msjs.pack = function(value){
     return value;
 }
 
+/**
+    Internal API. Determines whether the given value can be packed
+    for transport to the client.
+    @return {boolean, null} true if the object can be packed, false if
+    it can't, and null if the result is indeterminate
+*/
+msjs.isPackable = function(val){
+    if (!val) return null;
+    if (val instanceof java.lang.Object) return false;
+    if (val && val.packMe != null) return val.packMe;
+    //FIXME!
+    if (val ==msjs.require("msjs.graph")) return null;
+    
+    switch (typeof val){
+        case "function":
+            var freeVars = msjs.context.getFreeVariables(val);
+            //special check for e.g.
+            //return new java.lang.Object();
+            if ("java" in freeVars) return false;
+            return this.isPackable(freeVars);
+        case "object":
+            for (var k in val){
+                if (!val.hasOwnProperty(k)) continue;
+                var isPackable = this.isPackable(val[k]);
+                if (isPackable != null) return isPackable;
+            }
+        default:
+            return null;
+    }
+}
+
+
 msjs.getPackInfo = function(){
     var unpackPairs = [];
     var i =0;
@@ -725,6 +757,7 @@ msjs.getExecutor = function(){
 
 //The rest of this stuff is overrides of client APIs
 /**#nocode+*/
+var singletons = [];
 msjs.require = function(packageName){
     var isJava = packageName.indexOf("java.") == 0;
 
@@ -746,6 +779,9 @@ msjs.require = function(packageName){
             var value = this.context.getFromSingletonScope(packageName);
             if (value !== void 0){
                 bindings[packageName] = value;
+                if (value && typeof value == "object"){
+                    singletons.push(value);
+                }
             } else {
                 bindings[packageName] = this._packageIsLoading;
 
