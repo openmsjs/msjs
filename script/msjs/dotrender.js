@@ -122,6 +122,7 @@ msjs.publish({dotRender: function(){
 
     msjs.each(jQHandlers, function(handlerObj){
         var el = jQueryDomMap[handlerObj.guid];
+        if (!el) return;
         var freeVars = msjs.context.getFreeVariables(handlerObj.handler);
         for (var k in freeVars){
             var val =freeVars[k];
