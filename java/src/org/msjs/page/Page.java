@@ -21,10 +21,12 @@ import org.apache.log4j.Logger;
 import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptableObject;
 import org.msjs.script.MsjsScriptContext;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,7 +63,8 @@ public class Page {
                 "-//W3C//DTD XHTML 1.0 Transitional//EN",
                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
         updateActiveTime();
-        return new Document((Element) rendering.unwrap(), dt);
+        final Document document = new Document((Element) rendering.unwrap(), dt);
+        return document;
     }
 
     public void acceptMsj(HttpServletRequest request) {
@@ -99,6 +102,19 @@ public class Page {
         Result result = new Result("reconnect", reconnectInfo);
         updateActiveTime();
         return result;
+    }
+
+    public synchronized Cookie[] getUpdatedCookies(){
+        NativeArray jsCookies = (NativeArray) context.callMethodOnBinding(
+                "msjs.dom", "getUpdatedCookies", EMPTY_LIST
+        );
+        
+        Cookie[] cookies= new Cookie[(int) jsCookies.getLength()];
+        for (int i = 0; i < cookies.length; i++){
+            final NativeJavaObject cookie = (NativeJavaObject) jsCookies.get(0, jsCookies);
+            cookies[i] = (Cookie) cookie.unwrap();
+        }
+        return cookies;
     }
 
 

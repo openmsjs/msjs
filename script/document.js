@@ -362,6 +362,7 @@ domelement._isAttribute = function(attr) {
 var onload = "(" + function(){msjs.require('msjs.graph').bodyOnLoad()} +")()";
 var document = {};
 document._listeners = [];
+document.packMe = true;
 
 domelement.addEventListener = function(type, callback, useCapture){
     document._listeners.push( {
@@ -525,12 +526,14 @@ document.__defineSetter__("cookie", function(s){
     //TODO: make sure we don't already have this cookie
 
 
-    var cookie = new javax.servlet.http.Cookie();
-    msjs.each(pairs, function(pair){
+    var cookie;
+    msjs.each(pairs, function(pair, n){
         var parts = pair.split("=");
-        var k = new java.lang.String(parts[0]).trim().toString();
-        var v = new java.lang.String(parts[1]).trim().toString();
-        switch(k){
+        var k = new java.lang.String(parts.shift()).trim().toString();
+        var v = new java.lang.String(parts.join("=")).trim().toString();
+        if (n == 0){
+            cookie = new javax.servlet.http.Cookie(k, v)
+        } else switch(k){
             case "expires":
                 /* TODO
                 if (cookie.expires < now){
@@ -544,9 +547,6 @@ document.__defineSetter__("cookie", function(s){
             case "path":
                 cookie.setPath(v);
                 break;
-            default:
-                cookie.setName(k);
-                cookie.setValue(v);
         }
 
     });
@@ -558,19 +558,8 @@ document.__defineSetter__("cookie", function(s){
 document.__defineGetter__("cookie", function(){
     var s = "";
 
-    var now = new Date();
-    var gmt = now.toUTCString();
-    //var javaDate = (new java.text.SimpleDateFormat() ).parse(gmt);
-    //msjs.log('dates', gmt, now.getTime(), javaDate);
-    msjs.log('parse', gmt, new java.util.Date(gmt));
-    msjs.log('pars', now.getTime(), (new java.util.Date(gmt)).getTime());
-    //var df = java.text.DateFormat.getDateInstance();
-    //msjs.log('arse', df.parse(gmt));
-
-
     function appendCookie(cookie){
         if (s) s += "; ";
-        msjs.log(s);
         s += cookie.name + (cookie.value ? "=" + cookie.value : "");
     }
 
@@ -582,6 +571,12 @@ document.__defineGetter__("cookie", function(){
 
 document.setIncomingCookies = function(cookies){
     this._cookiesIncoming = cookies;
+}
+
+document.getUpdatedCookies = function(){
+    var c = this._cookiesAdded;
+    this._cookiesAdded = [];
+    return c;
 }
 
 document._cookiesIncoming = msjs.THE_EMPTY_LIST;
@@ -670,7 +665,7 @@ domelement._findSibling = function(direction){
 //document puts itself in the global scope, just like document on the client
 var global =msjs.require("global"); 
 global.document = document;
-global.location = {}; //TODO: href
+global.location = {href:""}; //This is set in dom.pack
 global.window = global;
 
 msjs.require("global").navigator = {

@@ -27,6 +27,7 @@ import org.msjs.page.Result;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,6 +86,9 @@ public class PageServlet extends HttpServlet {
             response.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Expires", "0");
+            for (Cookie cookie : page.getUpdatedCookies()){
+                response.addCookie(cookie);
+            }
 
             returnDocument(response, rendering);
             logger.debug("Response time: " + (System.currentTimeMillis() -t ));

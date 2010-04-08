@@ -220,7 +220,7 @@ dom.pack = function(request){
     var queryString  = request.getQueryString() || "";
     if (queryString) queryString = "?" + queryString;
     location.href = request.getRequestURL() + queryString;
-    this._handleCookies(request);
+    document.setIncomingCookies(request.getCookies());
 
     var unpackF = function(){
         var dom = msjs.require('msjs.dom');
@@ -261,14 +261,11 @@ dom.prepareReconnect = function(request){
     return msjs.require("msjs.graph").prepareReconnect(inboundQueue);
 }
 
-dom._handleCookies = function(request){
-    document.setIncomingCookies(request.getCookies());
+dom.getUpdatedCookies = function(request){
+    return document.getUpdatedCookies();
 }
 
 dom._handleUpdateRequest = function(request){
-    //deal with cookies
-    this._handleCookies(request);
-
     //returns the inbound queue
     var q = request.getParameter("q");
     if (q == null) throw "No request queue!";
