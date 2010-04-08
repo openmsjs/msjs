@@ -250,7 +250,8 @@ msjs.map = function(arr, f){
 
 /**
     Apply a function to each element in the given array, or to a non-object value.
-    Does not error if passed null, but does on undefined.
+    Does not error if passed null, but does on undefined. If the passed function
+    returns "false", the iteration stops.
 
     @param obj The input value
     @param {Function(elemnt n)} f The function to call with each element of
@@ -262,7 +263,7 @@ msjs.map = function(arr, f){
 msjs.each = function(obj, f){
     if (!isNaN(obj.length) && (typeof obj != "string")){
         for (var i=0; i<obj.length; i++){
-            f(obj[i], i);
+            if (f(obj[i], i) == false) return;
         }
     } else if (obj){
         f(obj, 0);
