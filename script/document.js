@@ -535,17 +535,18 @@ document.__defineSetter__("cookie", function(s){
             cookie = new javax.servlet.http.Cookie(k, v)
         } else switch(k){
             case "expires":
-                /* TODO
-                if (cookie.expires < now){
-                    throw "Remove cookie";
-                }
-                */
                 var df = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
                 var now = new Date();
-                cookie.setMaxAge(now.getTime()/1000 - df.parse(v).getTime());
+                cookie.setMaxAge(now.getTime() - df.parse(v).getTime());
                 break;
             case "path":
                 cookie.setPath(v);
+                break;
+            case "domain":
+                cookie.setDomain(v);
+                break;
+            case "secure":
+                cookie.setSecure(true);
                 break;
         }
 

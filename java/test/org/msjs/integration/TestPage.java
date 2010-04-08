@@ -35,4 +35,6 @@ public class TestPage extends BaseIntegrationTest{
         assertTrue( div.getTextContent().matches("page location is.*test/pages/page.msjs.*"));
 
     }
+
+    //TODO: Test cookies
 }

@@ -17,8 +17,12 @@ var init = msjs(function(){
         }
     });
 
-    $("<div/>").text("old query string was" + oldQueryString).appendTo(div);;
-    document.cookie= serverCookieName + "=" + escape(qstring);
+    $("<div/>").text("old query string was " + oldQueryString).appendTo(div);;
+
+    //expires in 1 day
+    var expires = new Date( new Date().getTime() + 24*60*60*1000 );
+    document.cookie= serverCookieName + "=" + escape(qstring) + 
+        "; expires=" + expires.toUTCString()+";";
 
     return qstring;
 });
