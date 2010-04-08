@@ -309,6 +309,7 @@ dom.addCss = function(){
     for (var i=0; i<arguments.length-1; i++){
         if (selector) selector += " ";
         var arg = arguments[i];
+        if (arg instanceof jQuery.fn) arg = arg[0];
         selector += typeof arg == "string" ? arg : this.getCssId(arg);
     }
 
