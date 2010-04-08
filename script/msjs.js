@@ -261,14 +261,17 @@ msjs.map = function(arr, f){
     @methodOf msjs#
 */
 msjs.each = function(obj, f){
+    if (!obj){
+        if  (obj === void 0) throw "Undefined value for each";
+        else return;
+    }
+
     if (!isNaN(obj.length) && (typeof obj != "string")){
         for (var i=0; i<obj.length; i++){
             if (f(obj[i], i) == false) return;
         }
     } else if (obj){
         f(obj, 0);
-    } else if (obj === void 0){
-        throw "Undefined value for each";
     }
 }
 
