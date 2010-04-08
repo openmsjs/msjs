@@ -6342,8 +6342,12 @@ jQuery.fn._getDebugName = function(){
     return "jQuery[" + els.join() + "]";
 }
 
-jQuery.packMe = true;
-jQuery.fn.packMe = true;
+jQuery._msjs_isPackable = function(){
+    return true;
+};
+jQuery.fn._msjs_isPackable = function(){
+    return true;
+};
 
 jQuery._packObj = function(val){
     if(val && typeof val == "object" && !val._msjs_getUnpacker){

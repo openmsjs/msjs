@@ -1033,13 +1033,15 @@ graph.getPackInfo = function(){
 }
 
 graph._determinePack = function(node){
+    if (node.packMe != null) return node.packMe;
     if (node.onLoad || node.onConnectionError) return true;
 
-    var nodeIsPackable = msjs.isPackable(node);
     //default to packing nodes
-    if (nodeIsPackable == null) nodeIsPackable = true;
+    return msjs.isPackable(node) != false;
+}
 
-    return nodeIsPackable;
+graph._msjs_isPackable = function(){
+    return null;
 }
 
 graph._wantToPack = function(node, packMap){

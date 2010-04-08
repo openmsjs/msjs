@@ -630,6 +630,7 @@ msjs.pack = function(value){
     return value;
 }
 
+var packStack = [];
 /**
     Internal API. Determines whether the given value can be packed
     for transport to the client.
@@ -639,25 +640,33 @@ msjs.pack = function(value){
 msjs.isPackable = function(val){
     if (!val) return null;
     if (val instanceof java.lang.Object) return false;
-    if (val && val.packMe != null) return val.packMe;
-    //FIXME!
-    if (val ==msjs.require("msjs.graph")) return null;
-    
-    switch (typeof val){
-        case "function":
-            var freeVars = msjs.context.getFreeVariables(val);
-            //special check for e.g.
-            //return new java.lang.Object();
-            if ("java" in freeVars) return false;
-            return this.isPackable(freeVars);
-        case "object":
-            for (var k in val){
-                if (!val.hasOwnProperty(k)) continue;
-                var isPackable = this.isPackable(val[k]);
-                if (isPackable != null) return isPackable;
-            }
-        default:
-            return null;
+    if (val && val._msjs_isPackable) return val._msjs_isPackable();
+
+    if (val && typeof val == "object" && packStack.indexOf(val) > -1){
+        return null;
+    }
+
+    //use try finally for AOP!
+    packStack.push(val);
+    try{
+        switch (typeof val){
+            case "function":
+                var freeVars = msjs.context.getFreeVariables(val);
+                //special check for e.g.
+                //return new java.lang.Object();
+                if ("java" in freeVars) return false;
+                return this.isPackable(freeVars);
+            case "object":
+                for (var k in val){
+                    if (!val.hasOwnProperty(k)) continue;
+                    var isPackable = this.isPackable(val[k]);
+                    if (isPackable != null) return isPackable;
+                }
+            default:
+                return null;
+        }
+    } finally {
+        if (val != packStack.pop()) throw "Error determining pack";
     }
 }
 
@@ -686,7 +695,9 @@ msjs.getPackInfo = function(){
                 if (k in msjs._dontPackNames) continue;
                 if (val instanceof java.lang.String) val = String(val);
                 if (val instanceof java.lang.Object) continue;
-                if (val && val.packMe == false) continue;
+                if (val && val._msjs_isPackable && 
+                    val._msjs_isPackable() == false) continue;
+
                 if (val === void 0) continue;
 
                 if (val == item){

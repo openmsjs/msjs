@@ -33,7 +33,9 @@ var domelement = domElementConstructor.prototype;
 domelement._all = [];
 
 domelement.parentNode = null;
-domelement.packMe = true;
+domelement._msjs_isPackable = function(){
+    return true;
+};
 
 domelement.make = function(pDom){
     var d = new domElementConstructor();
@@ -349,7 +351,7 @@ domelement._isAttribute = function(attr) {
         case "$packageName":
         case "_idcache":
         case "_removed":
-        case "packMe":
+        case "_msjs_isPackable":
         case "_debugRef":
         case "_listeners":
         case "_isPacked":
@@ -362,7 +364,9 @@ domelement._isAttribute = function(attr) {
 var onload = "(" + function(){msjs.require('msjs.graph').bodyOnLoad()} +")()";
 var document = {};
 document._listeners = [];
-document.packMe = true;
+document._msjs_isPackable = function(){
+    return true;
+};;
 
 domelement.addEventListener = function(type, callback, useCapture){
     document._listeners.push( {

@@ -21,7 +21,9 @@
     @name msjs.dom
 */
 var dom = msjs.publish({}, "Client");
-dom.packMe = true;
+dom._msjs_isPackable = function(){
+    return true;
+};
 
 //dom is the interface to java-land, so these require statements
 //are necessary to load the modules that Page uses
