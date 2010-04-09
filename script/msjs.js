@@ -147,7 +147,11 @@ msjs._packageIsLoading = {};
     returned, otherwise the corresponding file is loaded, and the value passed
     to {@link msjs#msjs.publish} within that script is stored under that package
     name.  In general, cyclic package dependencies can be broken by moving the
-    {@link msjs#msjs.publish} call to the top of the file.
+    {@link msjs#msjs.publish} call to the top of the file. In general, it's best
+    to call this method at construction time, since the packing system relies
+    on introspecting members and free function variables to determine whether a node
+    can be packed and run on the client.
+
 
     @methodOf msjs#
     @param {String} packageName The name of the package to retrieve. If the package name
