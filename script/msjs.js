@@ -642,8 +642,11 @@ msjs.isPackable = function(val){
     if (val instanceof java.lang.Object) return false;
     if (val && val._msjs_isPackable) return val._msjs_isPackable();
 
-    if (val && typeof val == "object" && packStack.indexOf(val) > -1){
-        return null;
+    if (val && typeof val == "object" ){
+        //circular reference
+        if ( packStack.indexOf(val) > -1) return null;
+        //singletons can't be packed
+        if ( singletons.indexOf(val) > -1) return false;
     }
 
     //use try finally for AOP!
@@ -790,9 +793,6 @@ msjs.require = function(packageName){
             var value = this.context.getFromSingletonScope(packageName);
             if (value !== void 0){
                 bindings[packageName] = value;
-                if (value && typeof value == "object"){
-                    singletons.push(value);
-                }
             } else {
                 bindings[packageName] = this._packageIsLoading;
 
@@ -838,6 +838,9 @@ msjs.publish = function(value, scope){
             break;
         case "Singleton":
             value = this.context.assignToSingletonScope(packageName, value);
+            if (value && typeof value == "object"){
+                singletons.push(value);
+            }
             break;
         case "Context":
             break;
