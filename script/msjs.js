@@ -797,6 +797,9 @@ msjs.require = function(packageName){
             var value = this.context.getFromSingletonScope(packageName);
             if (value !== void 0){
                 bindings[packageName] = value;
+                if (value && typeof value == "object"){
+                    singletons.push(value);
+                }
             } else {
                 bindings[packageName] = this._packageIsLoading;
 
