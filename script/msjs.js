@@ -653,7 +653,6 @@ msjs.isPackable = function(val){
         if ( singletons.indexOf(val) > -1) return false;
     }
 
-    //use try finally for AOP!
     packStack.push(val);
     try{
         switch (typeof val){
@@ -677,6 +676,10 @@ msjs.isPackable = function(val){
     }
 }
 
+
+msjs._msjs_isPackable = function(){
+    return null;
+}
 
 msjs.getPackInfo = function(){
     var unpackPairs = [];
