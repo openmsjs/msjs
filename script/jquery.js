@@ -6397,11 +6397,26 @@ jQuery.event.add = function(){
     _events.push(msjs.map(arguments, function(x){return x}));
 }
 
+jQuery.event.remove = function( elem, types, handler, pos ) {
+    var i =0; 
+    while( i<_events.length){
+        var event = _events[i];
+
+        var remove = false;
+        //FIXME: Can types be something other than a string?
+        //mostly untested
+        if (event[0] == elem && event[1] == types &&
+            (handler == null || handler == event[2]) ){
+            remove = true;
+        }
+
+        if (remove) _events.splice(i, 1);
+        else i++;
+    }
+}
+
 //called by dotrenderer
 jQuery._msjs_getEvents = function(){
     return _events;
 }
 
-jQuery.event.remove = function(){
-    throw "Event removal not yet supported";
-}
