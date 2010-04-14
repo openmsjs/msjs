@@ -92,42 +92,22 @@ msjs.publish({dotRender: function(){
 
     //inspect the jQuery cache for to see if any handlers refer
     //to msjs nodes
-    var jQHandlers = [];
-    function seekHandlers(obj){
-        if (!obj) return;
-        if (typeof obj != "object") return;
-
-        if (obj.guid!= null && obj.handler){
-            jQHandlers.push(obj);
-        } else {
-            for (var k in obj){
-                if (obj.hasOwnProperty(k)){
-                    seekHandlers(obj[k]);
-                }
+    msjs.each(jQuery._msjs_getEvents(), function(eventInfo){
+        var el, handler;
+        msjs.each(eventInfo, function(arg){
+            if (!arg) return;
+            if (arg && arg.nodeName){
+                el = arg;
+            } else if (typeof arg == "function"){
+                handler = arg;
             }
-        }
-    }
+        });
 
-
-
-    seekHandlers(jQuery.cache);
-    jQueryDomMap = {};
-    var expando = jQuery.expando;
-    msjs.each(document.getElementsByTagName("*"), function(el){
-        var id = el[expando];
-        if (id != null) {
-            jQueryDomMap[id] = el;
-        }
-    });
-
-    msjs.each(jQHandlers, function(handlerObj){
-        var el = jQueryDomMap[handlerObj.guid];
-        if (!el) return;
-        var freeVars = msjs.context.getFreeVariables(handlerObj.handler);
+        var freeVars = msjs.context.getFreeVariables(handler);
         for (var k in freeVars){
             var val =freeVars[k];
             if (val && val._debugRef && val.getId ){
-                //it's a node (more or less);
+                    //it's a node (more or less);
                     addDomRelationship(getNodeName(val), el, true);
                 }
             }

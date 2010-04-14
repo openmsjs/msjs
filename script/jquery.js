@@ -6290,16 +6290,23 @@ jQuery.setPackInfo = function(packInfo){
     }
 
     this.setUuid(maxId +1);
+
     msjs.each(packInfo.readyList, function(fRef){
         $(document).ready(msjs.unpack(fRef));
+    });
+    
+    msjs.each(this._unpackObj(packInfo.events), function(eventArgs){
+        jQuery.event.add.apply(jQuery, eventArgs);
     });
 }
 
 jQuery._unpackObj = function(val){
-    if(val && !val._msjs_packed && typeof val == "object"){
-        for (var k in val){
-            if (val.hasOwnProperty(k)){
-                val[k] = jQuery._unpackObj(val[k]);
+    if(val && val._msjs_packed == null){
+        if (typeof val == "object" || msjs.isArray(val)){
+            for (var k in val){
+                if (val.hasOwnProperty(k)){
+                    val[k] = jQuery._unpackObj(val[k]);
+                }
             }
         }
         return val;
@@ -6380,6 +6387,21 @@ jQuery.getPackInfo = function(){
         ids : ids,
         readyList : msjs.map(this.getReadyList(), function(f){
             return msjs.pack(f);
-        })
+        }),
+        events : this._packObj(_events)
     };
+}
+
+var _events = [];
+jQuery.event.add = function(){
+    _events.push(msjs.map(arguments, function(x){return x}));
+}
+
+//called by dotrenderer
+jQuery._msjs_getEvents = function(){
+    return _events;
+}
+
+jQuery.event.remove = function(){
+    throw "Event removal not yet supported";
 }

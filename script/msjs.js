@@ -620,7 +620,7 @@ msjs.assignDebugNames = function(packageName, scope){
 */
 msjs.pack = function(value){
     var putInPackList = value && (
-            typeof value == "function" ||
+            (typeof value == "function" && !(value instanceof RegExp) )||
             value._msjs_getUnpacker ||
             this._clientPublished.containsKey(value)
     );
@@ -696,10 +696,6 @@ msjs.getPackInfo = function(){
             msjs.each(item._msjs_getUnpacker(), function(unpackInfo){
                 unpackPairs.push(msjs.toJSONWithFunctions(unpackInfo));
             });
-        } else if (item instanceof RegExp){
-            //careful, typeof (new RegExp()) == "function"
-            unpackPairs.push(this._unpackRegExp.toString(), 
-                             msjs.toJSONWithFunctions([item.toString()]));
         } else if (typeof item == "function"){
             var names = [];
             var values = [];
@@ -886,8 +882,4 @@ msjs._unpackClosure = function( $_args_$ ){
 
 msjs._unpackClientPublished = function(packageName){
     return msjs.require(packageName);
-}
-
-msjs._unpackRegExp = function(re){
-    return new RegExp(re);
 }
