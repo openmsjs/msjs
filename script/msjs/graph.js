@@ -98,6 +98,7 @@ graph._setRemoteUpdateQueueOffset = function(pos){
     }
 }
 
+graph._doingReset = false;
 graph.getMsjForRemote = function(){
     this._updateLock.lock();
     try {
@@ -121,6 +122,18 @@ graph.getMsjForRemote = function(){
             updateQueueOffset : updateQueueOffset,
             updateQueue : updateQueue
         };
+
+        if (this._doingReset) {
+            msj.nodeResets = {};
+            //FIXME: This duplicates msjs from nodes with pending updates
+            //no harm in this, but it's not as efficient as it could be
+            msjs.each(this._nodes, function(node){
+                if (node.doesRemoteUpdate){
+                    msj.nodeResets[node.getId()] = node.getMsj();
+                }
+            });
+            this._doingReset = false;
+        }
 
         return msj;
     } finally {
@@ -159,6 +172,19 @@ graph._valve = {
 
 graph.acceptMsjFromRemote = function(remote){
     if (!remote) return;
+
+    if (remote.nodeResets){
+        for (var id in remote.nodeResets){
+            this.getNode(id).reset(remote.nodeResets[id]);
+        }
+
+        if (!this.hasRemote){
+            //this is a client graph reconnecting to a new server graph
+            this.pack();
+            this._doingReset = true;
+            reopen = true;
+        }
+    }
 
     var reopen = false;
     this._remoteHasPendingUpdates = remote.hasPendingUpdates;
@@ -372,8 +398,8 @@ graph._redirect = function(url){
     }, 200);
 }
 
-graph._doReconnect = function(info){
-    this.id = info.id;
+graph._doReconnect = function(newId){
+    this.id = newId;
     this.clock = 0;
     this._expectedUpdateFromRemote = 0;
     this._acknowledgedUpdate = 0;
@@ -381,20 +407,16 @@ graph._doReconnect = function(info){
     this._nextUpdateNumber = 0;
     //now shift the update queue back, so that it appears as though
     //info.resendUpdate is the first element in the queue
-    this._setRemoteUpdateQueueOffset(info.resendUpdate);
+    this._setRemoteUpdateQueueOffset(this.updateQueueOffset);
     //and tell that the server that this is the first update
     this._remoteUpdateQueueOffset = 0;
 
-    //invalidate client nodes, allowing them to call update if necessary
-    var update = info.resetNodes;
     msjs.each(this._nodes, function(node){
-        var newMsj = node.invalidate();
-        if (newMsj != this.NOT_UPDATED){
-            update[node.getId()] = newMsj;
-        }
+        node.invalidate();
     });
 
-    this.doLocalUpdate(update);
+    this._doingReset = true;
+    this._valve.pressurize();
 
 }
 
@@ -600,19 +622,13 @@ graph.setTimeout = function(f, dur){
     to call this method from within a running update. This method is called by {@link
     msjs.node#update}.
 
-    @param {msjs.node} node The node for which to send an updated msj.
-    @param msj The new msj for that node.
+    @param {map} map A map of node ids to new msjs for those nodes.
     @name putUpdate
     @methodOf msjs.graph#
 */
-graph.putUpdate = function(node, msj){
-    var update = {};
-    update[node.getId()] = msj;
-    this.doLocalUpdate(update);
-}
-
-graph.doLocalUpdate = function(update){
+graph.putUpdate = function(update){
     this._processUpdate(update, true);
+
     if (this._hasQueuedUpdatesForRemote()){
         this._valve.pressurize();
     }
@@ -1060,28 +1076,6 @@ graph.needsMsjPack = function(nid){
     }
 
     return false;
-}
-
-graph.prepareReconnect = function(remote){
-    var packInfo = this.pack();
-
-    var resetNodes = {};
-
-    msjs.each(this._nodes, function(node){
-        if (node.doesRemoteUpdate){
-            resetNodes[node.getId()] = node.getMsj();
-        }
-    });
-
-    var reconnectInfo = {
-        id : packInfo.id,
-        clock : packInfo.clock,
-        resetNodes : resetNodes,
-        resendUpdate : remote.updateQueueOffset
-    };
-
-    return msjs.toJSONWithFunctions(reconnectInfo);
-
 }
 
 graph.async = function(callback){

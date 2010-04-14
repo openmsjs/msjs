@@ -62,7 +62,7 @@ transponder.acceptTransmission = function(channels){
         }
     }
 
-    this._graph.doLocalUpdate(update);
+    this._graph.putUpdate(update);
 }
 
 //This is package private. It's called by msjs.transponders and

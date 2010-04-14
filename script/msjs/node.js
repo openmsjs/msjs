@@ -87,8 +87,10 @@ node._resolveReference = function(nodeOrPackage){
     function will run
 */
 node.update = function(msj){
-    if (msj === void 0) msj = this._composeMsj(); 
-    this._graph.putUpdate(this, msj);
+    if (msj === void 0) msj = this._composeMsj();
+    var graphUpdate = {};
+    graphUpdate[this.getId()] = msj;
+    this._graph.putUpdate(graphUpdate);
 }
 
 /**
@@ -225,6 +227,10 @@ node.getNode = function(nid){
 node.invalidate = function(){
     this._lastChecked = -1;
     this._lastMsjRefresh = -1;
+}
+
+node.reset = function(newMsj){
+    this._msj = newMsj;
 }
 
 node._inputs = {};

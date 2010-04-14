@@ -258,11 +258,6 @@ dom.acceptMsj = function(request){
     return msjs.require("msjs.graph").acceptMsjFromRemote(inboundQueue);
 }
 
-dom.prepareReconnect = function(request){
-    var inboundQueue = this._handleUpdateRequest(request);
-    return msjs.require("msjs.graph").prepareReconnect(inboundQueue);
-}
-
 dom.getUpdatedCookies = function(request){
     return document.getUpdatedCookies();
 }
