@@ -657,6 +657,7 @@ msjs.isPackable = function(val){
     try{
         switch (typeof val){
             case "function":
+                if (val instanceof RegExp) return null;
                 var freeVars = msjs.context.getFreeVariables(val);
                 //special check for e.g.
                 //return new java.lang.Object();
@@ -689,11 +690,16 @@ msjs.getPackInfo = function(){
 
         if ( this._clientPublished.containsKey(item)){
             var args = [this._clientPublished.get(item)]; 
-            unpackPairs.push(this._unpackClientPublished.toString(), msjs.toJSONWithFunctions(args));
+            unpackPairs.push(this._unpackClientPublished.toString(),
+                             msjs.toJSONWithFunctions(args));
         } else if (item._msjs_getUnpacker){
             msjs.each(item._msjs_getUnpacker(), function(unpackInfo){
                 unpackPairs.push(msjs.toJSONWithFunctions(unpackInfo));
             });
+        } else if (item instanceof RegExp){
+            //careful, typeof (new RegExp()) == "function"
+            unpackPairs.push(this._unpackRegExp.toString(), 
+                             msjs.toJSONWithFunctions([item.toString()]));
         } else if (typeof item == "function"){
             var names = [];
             var values = [];
@@ -880,4 +886,8 @@ msjs._unpackClosure = function( $_args_$ ){
 
 msjs._unpackClientPublished = function(packageName){
     return msjs.require(packageName);
+}
+
+msjs._unpackRegExp = function(re){
+    return new RegExp(re);
 }
