@@ -41,7 +41,7 @@ public abstract class BaseTest {
     protected static MsjsConfiguration config;
     private static final Logger logger = Logger.getLogger(BaseTest.class);
 
-    private static String host;
+    protected static String host;
     protected static long waitTime;
 
     @BeforeClass
