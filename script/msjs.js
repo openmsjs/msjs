@@ -641,6 +641,9 @@ msjs.assignDebugNames = function(packageName, scope){
     var publishedValue = bindings[packageName];
     for (var k in scope){
         var val = scope[k];
+
+        if (typeof(val) == "function" && val._msjs_node) val = val._msjs_node;
+
         if (val == publishedValue) didPublished = true;
         if (val && val._setDebugInfo) val._setDebugInfo(k, packageName)
     }
