@@ -21,7 +21,7 @@ var form = $(<form>
     <input type="submit" value="Go"/>
 </form>).appendTo("body");
 
-var submit = msjs(form, "submit", function(){
+var submit = msjs.bind(form, "submit", function(){
     return form.find("input").val();
 });
 

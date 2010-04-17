@@ -29,39 +29,29 @@
     @name msjs
 */
 var msjs = function(){
-    var node,
-        graph = msjs.require("msjs.graph");
-    switch (arguments.length){
-        case 0:
-        case 1:
-            node = graph.make(arguments[0]);
-            //FIXME: This is just here 'till we port the tests and examples
-            return node;
-        case 2:
-            //make a new node and wire it to the last
-            var dependency = arguments[0];
-            if (dependency._msjs_node) dependency = dependency._msjs_node;
-            node = graph.make(arguments[1]);
-            node.depends(dependency);
-            break;
-        case 3:
-            //bind jquery handler
-            var jqObj = arguments[0];
-            var eventName = arguments[1];
-            var produceFunction = arguments[2];
+    var graph = msjs.require("msjs.graph");
+        node = graph.make(arguments[arguments.length-1]);
 
-            var node = graph.make();
-            jqObj.bind(eventName, function(){
-                node.update(produceFunction.apply(msjs.require("global"), arguments));
-            });
-            break;
-            
+    for (var i=0; i<arguments.length-1; i++){
+        node.depends(arguments[i]);
     }
 
-
-    return node.asFunction();
+    return arguments.length > 1 ? node.asFunction() : node;
 
 }
+
+msjs.bind = function(jqObj, eventName, f){
+    var jqObj = arguments[0];
+    var eventName = arguments[1];
+    var node = msjs();
+
+    jqObj.bind(eventName, function(){
+        node.update(f.apply(msjs.require("global"), arguments));
+    });
+
+    return node.asFunction();
+}
+
 
 /**
     The context is the link between msjs and the environment in which

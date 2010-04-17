@@ -72,7 +72,11 @@ node.depends = function(otherNodeRef){
 node._resolveReference = function(nodeOrPackage){
     if (typeof nodeOrPackage == "string"){
         //Treat as packagename
-        return msjs.require(nodeOrPackage);
+        nodeOrPackage =  msjs.require(nodeOrPackage);
+    }
+
+    if (typeof nodeOrPackage == "function"){
+        nodeOrPackage = nodeOrPackage._msjs_node;
     }
 
     return nodeOrPackage;
@@ -282,6 +286,7 @@ node._expectations = [];
     @name push
     @methodOf msjs.node#
     @param nodeOrPackage A string name of a package with a published binding for a node, 
+
     or a direct reference to another node
     @param {String} property The name of the channel on which to receive the other
     node's message.
@@ -420,8 +425,15 @@ node.asFunction = function(){
             return self.depends.apply(self, arguments);
         }
 
-        return f;
+        f._msjs_getUnpacker = function(){
+            return [self._unpackMessengerF, [self.getId()] ];
+        };
+
+        this._asFunction = f;
+
     }
+
+    return this._asFunction;
 }
 msjs.publish(node, "Client");
 
@@ -496,6 +508,10 @@ node._msjs_getUnpacker = function(){
 //just a template for unpacking
 node._unpackF = function(id){
     return msjs.require("msjs.graph").getNode(id);
+};
+
+node._unpackMessengerF = function(id){
+    return msjs.require("msjs.graph").getNode(id).asFunction();
 };
 
 node._selectForPack = function(packType, k){
