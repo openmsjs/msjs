@@ -93,6 +93,10 @@ node.update = function(msj){
     this._graph.putUpdate(graphUpdate);
 }
 
+node.get = function(){
+    return msjs.copy(this._msj);
+}
+
 /**
     Get the last msj produced by this node.
     @name getMsj
@@ -407,7 +411,7 @@ node._asFunction = null;
 node.asFunction = function(){
     var self = this;
     if (!this._asFunction){
-        var f = function(){ return msjs.copy(self.getMsj()); }
+        var f = function(){ return self.get(); }
 
         //don't look at this for packability
         f._msjs_isPackable = msjs._msjs_isPackable;
