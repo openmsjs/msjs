@@ -32,10 +32,11 @@ var msjs = function(){
     var node,
         graph = msjs.require("msjs.graph");
     switch (arguments.length){
+        case 0:
         case 1:
-            //TODO: This should be just be:
-            //var node = msjs.require("msjs.graph").make(produceFunction);
-            return graph.make(arguments[0]);
+            node = graph.make(arguments[0]);
+            //FIXME: This is just here 'till we port the tests and examples
+            return node;
         case 2:
             //make a new node and wire it to the last
             var dependency = arguments[0];
@@ -56,6 +57,7 @@ var msjs = function(){
             break;
             
     }
+
 
     var f = function(){
         return msjs.copy(node.getMsj());
