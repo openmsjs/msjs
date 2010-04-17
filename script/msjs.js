@@ -28,8 +28,44 @@
     useful convenience methods.
     @name msjs
 */
-var msjs = function(produceFunction){
-    return msjs.require("msjs.graph").make(produceFunction);
+var msjs = function(){
+    var node,
+        graph = msjs.require("msjs.graph");
+    switch (arguments.length){
+        case 1:
+            //TODO: This should be just be:
+            //var node = msjs.require("msjs.graph").make(produceFunction);
+            return graph.make(arguments[0]);
+        case 2:
+            //make a new node and wire it to the last
+            var dependency = arguments[0];
+            if (dependency._msjs_node) dependency = dependency._msjs_node;
+            node = graph.make(arguments[1]);
+            node.depends(dependency);
+            break;
+        case 3:
+            //bind jquery handler
+            var jqObj = arguments[0];
+            var eventName = arguments[1];
+            var produceFunction = arguments[2];
+
+            var node = graph.make();
+            jqObj.bind(eventName, function(){
+                node.update(produceFunction.apply(msjs.require("global"), arguments));
+            });
+            break;
+            
+    }
+
+    var f = function(){
+        return msjs.copy(node.getMsj());
+    }
+
+    //don't look at this for packability
+    f._msjs_isPackable = msjs._msjs_isPackable;
+    f._msjs_node = node;
+
+    return f;
 }
 
 /**
@@ -658,6 +694,7 @@ msjs.isPackable = function(val){
         switch (typeof val){
             case "function":
                 if (val instanceof RegExp) return null;
+                if (val._msjs_node) return null;
                 var freeVars = msjs.context.getFreeVariables(val);
                 //special check for e.g.
                 //return new java.lang.Object();
@@ -765,7 +802,8 @@ msjs._dontPackNames = {
     "isFinite" : true,
     "isNaN" : true,
     "parseFloat" : true,
-    "parseInt" : true
+    "parseInt" : true,
+    "_msjs_node" : true
 
 }
 

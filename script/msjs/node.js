@@ -509,11 +509,23 @@ node.needsCachedMsj = function(otherNid){
 }
 
 node.getInputs = function(){
-    var inputs = [];
+    var inputs = {};
     for (var channel in this._inputs){
-        inputs.push(this._inputs[channel]);
+        inputs[(this._inputs[channel])] = true;
     }
-    return inputs;
+
+    var freeVars = msjs.context.getFreeVariables(this.produceMsj);
+    for (var k in freeVars){
+        var n = freeVars[k];
+        if (!n) continue;
+        if (n instanceof java.lang.Object) continue;
+        if (n._msjs_node) n = n._msjs_node;
+        if (n instanceof node) inputs[n.getId()] = true;
+    }
+
+    var inputsList = [];
+    for (var id in inputs) inputsList.push(id);
+    return inputsList;
 }
 
 node._setDebugInfo = function(localName, packageName){

@@ -21,21 +21,16 @@ var form = $(<form>
     <input type="submit" value="Go"/>
 </form>).appendTo("body");
 
-var submit = msjs();
-form.submit( function(event){
-    submit.update( form.find("input").val() );
+var submit = msjs(form, "submit", function(){
+    return form.find("input").val();
 });
-
 
 var MD5er = new Packages.org.msjs.service.MD5();
-var encrypt = msjs(function(msj){
-    return MD5er.encrypt(msj.submit);
+var encrypt = msjs(submit, function(){
+    return MD5er.encrypt(submit());
 });
-encrypt.push(submit, "submit");
 
 var output = $(<div><span>MD5 hash key is: </span><span/></div>).appendTo(document.body);
-var renderer =  msjs(function(msj){
-    output.find("span").last().text(msj.encrypted);
-
+msjs(encrypt, function(){
+    output.find("span").last().text(encrypt());
 });
-renderer.push(encrypt, "encrypted");
