@@ -59,15 +59,8 @@ var msjs = function(){
     }
 
 
-    var f = function(){
-        return msjs.copy(node.getMsj());
-    }
+    return node.asFunction();
 
-    //don't look at this for packability
-    f._msjs_isPackable = msjs._msjs_isPackable;
-    f._msjs_node = node;
-
-    return f;
 }
 
 /**

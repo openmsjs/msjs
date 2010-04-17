@@ -403,6 +403,22 @@ node.callInherited = function ( fName, currF, args ){
 }
 
 
+node._asFunction = null;
+node.asFunction = function(){
+    var self = this;
+    if (!this._asFunction){
+        var f = function(){ return msjs.copy(self.getMsj()); }
+
+        //don't look at this for packability
+        f._msjs_isPackable = msjs._msjs_isPackable;
+        f._msjs_node = self;
+        f.depends = function(){
+            return self.depends.apply(self, arguments);
+        }
+
+        return f;
+    }
+}
 msjs.publish(node, "Client");
 
 /*! msjs.server-only **/
