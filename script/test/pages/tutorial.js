@@ -31,6 +31,7 @@ var encrypt = msjs(submit, function(){
 });
 
 var output = $(<div><span>MD5 hash key is: </span><span/></div>).appendTo(document.body);
-msjs(encrypt, function(){
+//FIXME: Unless this value is assigned, the dotrenderer messes up
+var renderer = msjs(encrypt, function(){
     output.find("span").last().text(encrypt());
 });
