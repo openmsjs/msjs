@@ -56,7 +56,7 @@ graph.make = function(produceFunction){
     this._cache = {};
     return node;
 }
-    
+
 /**
     The graph tracks state changes with a clock. Whenever a node is marked
     dirty, the "time" on the clock is recorded, and the clock is advanced. The
@@ -944,7 +944,7 @@ graph._pack = function(){
 
     var packMap = {};
     var self = this;
-    msjs.map(this._topoSort(), function(nid){
+    msjs.each(this._topoSort(), function(nid){
         var node = self.getNode(nid);
         //every node gets refreshed
         node.packMe = self._determinePack(node); 
@@ -986,7 +986,7 @@ graph._pack = function(){
         }
 
         packed = node.pack(packType);
-        
+
 
         if (remoteUpdaters[nid] && packType == "packed"){
             packed.doesRemoteUpdate = true;
