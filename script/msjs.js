@@ -36,7 +36,7 @@ var msjs = function(){
         node.depends(arguments[i]);
     }
 
-    return arguments.length > 1 ? node.asFunction() : node;
+    return arguments.length > 1 ? node.messenger() : node;
 
 }
 
@@ -49,7 +49,7 @@ msjs.bind = function(jqObj, eventName, f){
         node.update(f.apply(msjs.require("global"), arguments));
     });
 
-    return node.asFunction();
+    return node.messenger();
 }
 
 

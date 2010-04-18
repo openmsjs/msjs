@@ -412,30 +412,34 @@ node.callInherited = function ( fName, currF, args ){
 }
 
 
-node._asFunction = null;
-node.asFunction = function(){
+node._messenger = null;
+node.messenger = function(){
     var self = this;
-    if (!this._asFunction){
-        var f = function(){ return self.get(); }
+    if (!this._messenger){
+        this._messenger = function(){ return self.get(); }
 
         //don't look at this for packability
-        f._msjs_isPackable = msjs._msjs_isPackable;
-        f._msjs_node = self;
-        f.depends = function(){
-            return self.depends.apply(self, arguments);
-        }
+        this._messenger._msjs_isPackable = msjs._msjs_isPackable;
+        this._messenger._msjs_node = self;
+        msjs.each(["depends", "update", "isUpdated"], function(name){
+            self._messenger[name] = function(){
+                return self[name].apply(self, arguments);
+            }
+        });
 
-        f._msjs_getUnpacker = function(){
+        this._messenger._msjs_getUnpacker = function(){
             return [self._unpackMessengerF, [self.getId()] ];
         };
 
-        this._asFunction = f;
-
     }
 
-    return this._asFunction;
+    return this._messenger;
 }
 msjs.publish(node, "Client");
+
+node.isUpdated = function(){
+    return this.getLastUpdate() == this._graph.clock;
+}
 
 /*! msjs.server-only **/
 //protected
@@ -511,7 +515,7 @@ node._unpackF = function(id){
 };
 
 node._unpackMessengerF = function(id){
-    return msjs.require("msjs.graph").getNode(id).asFunction();
+    return msjs.require("msjs.graph").getNode(id).messenger();
 };
 
 node._selectForPack = function(packType, k){

@@ -16,34 +16,26 @@
 
 var a = msjs(function(){
     return "a";
-});
+}).messenger();
 
 var b = msjs(function(){
     return "b";
-});
+}).messenger();
 
-var result = msjs(function(msj){
-    if (msj.a) return msj.a;
-    if (msj.b) return msj.b;
+var c  = msjs(function(){return null;});
+var result = msjs(a, b, c, function(){
+    if (a.isUpdated()) return a();
+    if (b.isUpdated()) return b();
     return "none";
 });
 
-result.set("a", a, true);
-result.set("b", b, true);
-
-var c  = msjs(function(){return null;});
-result.set("c", c);
-
-a.refreshMsj();
-b.refreshMsj();
-c.refreshMsj();
-result.refreshMsj();
+msjs.require("msjs.graph").refreshAll();
 
 var assert = msjs.require("msjs.assert");
-assert(result.getMsj() == 'a');
+assert(result() == 'a');
 
 b.update();
-assert(result.getMsj() == 'b');
+assert(result() == 'b');
 
 c.update();
-assert(result.getMsj() == 'none');
+assert(result() == 'none');
