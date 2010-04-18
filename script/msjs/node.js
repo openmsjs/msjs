@@ -65,7 +65,7 @@ node.getId = function(){
 */
 node.depends = function(otherNodeRef){
     var otherNode = this._resolveReference(otherNodeRef);
-    this._graph.addEdge(otherNode, this);
+    this.graph.addEdge(otherNode, this);
     return otherNode;
 }
 
@@ -94,7 +94,7 @@ node.update = function(msj){
     if (msj === void 0) msj = this._composeMsj();
     var graphUpdate = {};
     graphUpdate[this.getId()] = msj;
-    this._graph.putUpdate(graphUpdate);
+    this.graph.putUpdate(graphUpdate);
 }
 
 node.get = function(){
@@ -199,12 +199,12 @@ node.packMe = null;
     @methodOf msjs.node#
 */
 node.refreshMsj = function(){
-    var tick = this._graph.clock;
+    var tick = this.graph.clock;
 
     //just an optimization
     if (this._lastChecked == tick) return this._lastMsjRefresh;
 
-    var dependencies = this._graph.getDependencies(this);
+    var dependencies = this.graph.getDependencies(this);
     //sources update at the beginning
     var maxRefreshed = dependencies.length ? -1 : 0;
     for (var i=0; maxRefreshed != tick && i<dependencies.length; i++){
@@ -219,7 +219,7 @@ node.refreshMsj = function(){
         this.updateMsj(this._composeMsj(), tick);
     }
 
-    this._lastChecked = this._graph.clock;
+    this._lastChecked = this.graph.clock;
 
     return this._lastMsjRefresh;
 };
@@ -229,7 +229,7 @@ node.getLastUpdate = function(){
 };
 
 node.getNode = function(nid){
-    return this._graph.getNode(nid);
+    return this.graph.getNode(nid);
 }
 
 node.invalidate = function(){
@@ -336,7 +336,7 @@ node.pull = function(nodeOrPackage, property){
 */
 node._collectInputs = function(){
     var msj = {};
-    var graph = this._graph;
+    var graph = this.graph;
 
     for (var k in this._inputs){
         var node = graph.getNode(this._inputs[k]);
@@ -350,7 +350,7 @@ node._collectInputs = function(){
             }
         }
 
-        if ( this._transient[k] && (node.getLastUpdate() < this._graph.clock) ){
+        if ( this._transient[k] && (node.getLastUpdate() < this.graph.clock) ){
             continue;
         }
 
@@ -427,6 +427,8 @@ node.messenger = function(){
             }
         });
 
+        self._messenger.node = this;
+
         this._messenger._msjs_getUnpacker = function(){
             return [self._unpackMessengerF, [self.getId()] ];
         };
@@ -438,7 +440,7 @@ node.messenger = function(){
 msjs.publish(node, "Client");
 
 node.isUpdated = function(){
-    return this.getLastUpdate() == this._graph.clock;
+    return this.getLastUpdate() == this.graph.clock;
 }
 
 /*! msjs.server-only **/
@@ -471,7 +473,7 @@ node.async = function(f){
             lock.unlock();
         }
     }
-    return this._graph.async(f);
+    return this.graph.async(f);
 }
 
 /**
@@ -524,14 +526,14 @@ node._selectForPack = function(packType, k){
     if (packType == "notPacked") return false;
 
     if (k == "_msj"){
-        return this._graph.needsMsjPack(this.getId());
+        return this.graph.needsMsjPack(this.getId());
     }
     if (k == "_lastMsjRefresh") return true;
     if (packType == "cached") return false;
 
     if (k == "packMe") return false;
     if (k == "constructor") return false;
-    if (k == "_graph") return false;
+    if (k == "graph") return false;
 
     return true;
 

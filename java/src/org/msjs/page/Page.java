@@ -75,7 +75,7 @@ public class Page {
 
 
     /**
-     * Calls <code>msjs.node._graph.getMsjForRemote</code>, blocking if appropriate.
+     * Calls <code>msjs.node.graph.getMsjForRemote</code>, blocking if appropriate.
      *
      * @return JSON for the outbound msj queue.
      */

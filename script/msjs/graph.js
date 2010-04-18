@@ -47,7 +47,7 @@ graph.make = function(produceFunction){
     var id = this._nodes.length;
     this._nodes.push(node);
     node._id = id;
-    node._graph = this;
+    node.graph = this;
 
     //make a new row
     this._adjacencyMatrix[id] = {};
@@ -544,7 +544,7 @@ graph.setPackInfo = function(packed){
     //Do this in two steps, so nodes can refer to one another
     this._nodes = msjs.map(packedNodes, function(packedNode){
         var node =  msjs.require("msjs.node").rawMake();
-        node._graph = self;
+        node.graph = self;
         return node;
     });
 
