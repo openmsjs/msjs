@@ -647,6 +647,8 @@ graph._hasQueuedUpdatesForRemote = function() {
 
 // This is guarded by _updateLock
 graph._processUpdate = function(update, secure){
+    //can't re-enter udpates
+    if (this._updateLock.isHeldByCurrentThread()) return;
     this._updateLock.lock();
     try {
         var tick = ++this.clock;
@@ -783,7 +785,12 @@ graph._getDebugName = function(){
     return "graph " + this.id;
 }
 
-graph._updateLock = {lock: function(){}, unlock: function(){} };
+graph._updateLock = {
+    _locked : 0,
+    lock: function(){ this._locked++ }, 
+    unlock: function(){ this._locked-- } , 
+    isHeldByCurrentThread : function(){ return this._locked > 0 }
+};
 msjs.publish(graph, "Client");
 
 /*! msjs.server-only **/

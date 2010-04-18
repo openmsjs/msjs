@@ -62,13 +62,13 @@ transponder.acceptTransmission = function(channels){
         }
     }
 
-    this._graph.putUpdate(update);
+    this.graph.putUpdate(update);
 }
 
 //This is package private. It's called by msjs.transponders and
 //should not be overriden
 transponder.getGraphId = function(){
-    return this._graph.id;
+    return this.graph.id;
 }
 
 /**
@@ -82,4 +82,4 @@ transponder.getOtherGraphIds = function (msj){
 }
 
 transponders.register(transponder);
-transponder._graph.setConnected();
+transponder.graph.setConnected();
