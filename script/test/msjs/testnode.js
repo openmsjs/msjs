@@ -27,16 +27,13 @@ var cNode = msjs(function(){return cCount++;});
 
 bNode.depends(aNode);
 cNode.depends(bNode);
-assert(aNode.getMsj() == null);
-aNode.refreshMsj();
-bNode.refreshMsj();
-cNode.refreshMsj();
+msjs.require("msjs.graph").refreshAll();
 
-assert(bNode.getMsj() == 0);
+assert(bNode() == 0);
 //call it again to make sure result is cached
-assert(bNode.getMsj() == 0);
-assert(cNode.getMsj() == 0);
+assert(bNode() == 0);
+assert(cNode() == 0);
 
 aNode.update();
-assert(bNode.getMsj() == 1);
-assert(cNode.getMsj() == 1);
+assert(bNode() == 1);
+assert(cNode() == 1);

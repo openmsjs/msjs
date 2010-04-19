@@ -29,11 +29,6 @@ public class TestMsjs extends BaseScriptTest {
     }
 
     @Test
-    public void testModel() {
-        runTest("testmodel.js");
-    }
-
-    @Test
     public void testPacking() {
         runTest("testpacking.js");
     }
