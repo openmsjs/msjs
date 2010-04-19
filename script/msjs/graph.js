@@ -21,6 +21,7 @@
     @name msjs.graph
 */
 var graph = {};
+graph.id = msjs.id;
 graph._nodes = [];
 graph._adjacencyMatrix = [];
 //true==clean, false==dirty

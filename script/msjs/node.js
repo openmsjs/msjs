@@ -420,8 +420,9 @@ node.messenger = function(){
 
         //don't look at this for packability
         this._messenger._msjs_isPackable = msjs._msjs_isPackable;
-        this._messenger._msjs_node = self;
-        msjs.each(["depends", "update", "isUpdated"], function(name){
+        this._messenger._msjs_node = this;
+        this._messenger.graph = this.graph;
+        msjs.each(["depends", "update", "isUpdated", "getId"], function(name){
             self._messenger[name] = function(){
                 return self[name].apply(self, arguments);
             }
