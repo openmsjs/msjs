@@ -16,18 +16,18 @@
 
 var a = msjs(function(){
     return "a";
-}).messenger();
+});
 
 var b = msjs(function(){
     return "b";
-}).messenger();
+});
 
 var c  = msjs(function(){return null;});
-var result = msjs(a, b, c, function(){
+var result = msjs(function(){
     if (a.isUpdated()) return a();
     if (b.isUpdated()) return b();
     return "none";
-});
+}).depends(a,b,c);
 
 msjs.require("msjs.graph").refreshAll();
 
