@@ -33,8 +33,6 @@ e.depends(d);
 var graph = msjs.require("msjs.graph");
 var sorted = graph._topoSort();
 var assert = msjs.require("msjs.assert");
-assert(a == graph.getNode(sorted[0]));
-assert(b == graph.getNode(sorted[1]));
-assert(c == graph.getNode(sorted[2]));
-assert(d == graph.getNode(sorted[3]));
-assert(e == graph.getNode(sorted[4]));
+msjs.each([a,b,c,d,e], function(node, n){
+    assert(node.getId() == sorted[n]);
+});
