@@ -29,7 +29,12 @@ var msjF = function(x){return x};
 
 var packed;
 
-var packedNode = msjs(msjF);
+var getNode = function(messenger){
+    return messenger.graph.getNode(messenger.getId())
+}
+
+var packedNode = getNode(msjs(msjF));
+
 packed = packedNode.pack("packed");
 //three properties, id, unpacker, and msjF
 assert(countProperties(packed) == 2);
@@ -39,29 +44,10 @@ assert(packed != null);
 assert(typeof packed.produceMsj == 'object');
 assert(packed.produceMsj._msjs_packed != null);
 
-var notPackedNode = msjs(msjF);
+var notPackedNode = getNode(msjs(msjF));
 packed = notPackedNode.pack("notPacked");
 assert(packed != null);
 assert(packed._msjF == null);
-//id, packer, and isPresent
 assert(countProperties(packed) == 2);
-
-
-var packedModel = msjs(msjF);
-packedModel.set("channel", packedNode, true);
-packed = packedModel.pack("packed");
-//five properties: id,  packer, msjF, _inputs, _transient
-assert(countProperties(packed) == 4);
-assert(packed._inputs.channel == packedNode.getId());
-assert(packed._transient.channel == true);
-
-var notPackedModel = msjs(msjF);
-packed = notPackedModel.pack("notPacked");
-assert(packed != null);
-assert(packed._msjF == null);
-//id and isPresent
-assert(countProperties(packed) == 2);
-
-
-//TODO: test that unpacker property is set correctly by
-//calling graph pack function
+assert(packed._id != null);
+assert(packed.isLocal == false);

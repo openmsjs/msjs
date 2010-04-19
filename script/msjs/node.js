@@ -538,6 +538,7 @@ node._selectForPack = function(packType, k){
     if (k == "packMe") return false;
     if (k == "constructor") return false;
     if (k == "graph") return false;
+    if (k == "_messenger") return false;
 
     return true;
 
