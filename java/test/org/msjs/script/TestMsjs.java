@@ -84,16 +84,6 @@ public class TestMsjs extends BaseScriptTest {
     }
 
     @Test
-    public void testTransponder() {
-        runTest("testtransponder.js");
-    }
-
-    @Test
-    public void testBadTransponderDependency() {
-        runTest("testbadtransponderdependency.js");
-    }
-
-    @Test
     public void testFreeVariables() {
         runTest("testfreevariables.js");
     }

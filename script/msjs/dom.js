@@ -164,7 +164,8 @@ dom._ensureHasId = function(domElement){
     @name unpack
     @methodOf msjs.dom#
 */
-dom.unpack = function(packInfo, packedClientPackages){
+dom.unpack = function(id, packInfo, packedClientPackages){
+    msjs.id = id;
     msjs.setPackInfo(packInfo);
 
     function unpackPackage(packageName){
@@ -243,6 +244,7 @@ dom.pack = function(request){
     });
 
     var script = "("+ unpackF.toString() +")("+ 
+        msjs.toJSON(msjs.id) + "," +
         msjs.getPackInfo() + "," +
         msjs.toJSONWithFunctions(packedClientPackages) + 
     ")";

@@ -427,8 +427,6 @@ node.messenger = function(){
             }
         });
 
-        self._messenger.node = this;
-
         this._messenger._msjs_getUnpacker = function(){
             return [self._unpackMessengerF, [self.getId()] ];
         };

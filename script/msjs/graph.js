@@ -28,7 +28,6 @@ graph._componentDirtiers = [];
 graph._tc = null;
 graph._cache = {};
 graph.NOT_UPDATED = void 0;
-graph.id = msjs.context.id;
 
 /**
     Make a new {@link msjs.node}
@@ -383,7 +382,7 @@ graph._sendQueuedMsjsFromIframe = function(failOk) {
     //NB: This sends even if there are no msjs in queue
     var jsonQ = this.getMsjForRemoteAsJSON();
     //msjs.log(jsonQ);
-    var params = "id=" + this.id + "&q=" + encodeURIComponent(jsonQ);
+    var params = "id=" + msjs.id + "&q=" + encodeURIComponent(jsonQ);
 
     this._addConnection(request);
 
@@ -399,7 +398,7 @@ graph._redirect = function(url){
 }
 
 graph._doReconnect = function(newId){
-    this.id = newId;
+    msjs.id = newId;
     this.clock = 0;
     this._expectedUpdateFromRemote = 0;
     this._acknowledgedUpdate = 0;
@@ -531,7 +530,6 @@ graph._abortConnections = function() {
     @methodOf msjs.graph#
 */
 graph.setPackInfo = function(packed){
-    this.id = packed.id;
     this.clock =packed.clock;
     this.hasRemote = true;
     this._adjacencyMatrix = packed._adjacencyMatrix;
@@ -785,7 +783,7 @@ graph._getMinimumDistances = function(map){
 
 //Override
 graph._getDebugName = function(){
-    return "graph " + this.id;
+    return "graph " + msjs.id;
 }
 
 graph._updateLock = {
@@ -946,7 +944,7 @@ graph.pack = function() {
 // This is unsynchronized. It shouldn't be run w/o protection from _pack.
 graph._pack = function(){
     if (this.hasRemote){
-        throw "Graph was already packed! " + this.id;
+        throw "Graph was already packed! " + msjs.id;
     }
     this._assertNoStrongComponents();
 
@@ -1009,7 +1007,6 @@ graph._pack = function(){
     this.profile.packTime = (new Date()).getTime() - t;
     return {
         nodes : nodes, 
-        id : this.id,
         _isConnected : this._isConnected,
         clock : this.clock,
         profile : this.profile,

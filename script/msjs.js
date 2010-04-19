@@ -159,7 +159,6 @@ msjs.isClient = true;
 //global scope on the client is simple
 var bindings = { global : this, msjs : msjs};
 
-
 msjs._packageIsLoading = {};
 
 /**
@@ -604,6 +603,7 @@ msjs.isClient = false;
 msjs.bindContext = function(context, global){
     // Server overrides context value
     this.context = context;
+    this.id = context.id;
     global.msjs = this;
     bindings.global = global;
     return bindings;
