@@ -555,8 +555,8 @@ msjs._newlines = /\n/g;
 msjs.THE_EMPTY_LIST = [];
 
 msjs.setPackInfo = function(packInfo){
-    this.id = packInfo.id;
-    this._packed = packInfo.packed;
+    this.id = packInfo.pop();
+    this._packed = packInfo;
 }
 
 msjs.getClosure = function(scopeNum, index){
@@ -782,7 +782,10 @@ msjs.getPackInfo = function(){
         }
     };
 
-    return "{id:" + msjs.toJSON(msjs.id) +",packed:[" + unpackPairs.join() + "]}";
+    //This is messy, but push the msjs.id on the pack list.
+    //Using a hash with pre-stringified JSON is ungainly.
+    unpackPairs.push(msjs.toJSON(this.id));
+    return '[' + unpackPairs.join() + ']';
 }
 
 msjs._packList = [];
