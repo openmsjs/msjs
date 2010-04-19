@@ -13,15 +13,19 @@ var submit = msjs.bind(form, "submit", function(){
 });
 
 var list = msjs.require("test.pages.chat.list");
+var initializer = msjs(function(){
+    return list;
+}).messenger();
+
 var updater = msjs(submit, function(){
     list.push(submit());
     return list;
 });
 
 var out =$(<div/>).appendTo("body");
-msjs(updater, function(){
+msjs(initializer, updater, function(){
     out.children().remove();
-    msjs.each(updater(), function(item){
+    msjs.each(initializer() || updater(), function(item){
         $("<div/>").text(item.name + ": " + item.message).appendTo(out);
     });
 });
