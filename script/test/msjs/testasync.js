@@ -38,7 +38,6 @@ a.async(function(){
     latch.countDown();
 });
 
-assert(a.getMsj() == null);
 starter.countDown();
 latch.await();
 var graph = msjs.require("msjs.graph");
@@ -71,7 +70,7 @@ b.async(function(){
     latch.countDown();
 });
 
-assert(b.getMsj() == null);
+assert(b() == null);
 starter.countDown();
 latch.await();
 
