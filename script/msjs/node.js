@@ -63,10 +63,13 @@ node.getId = function(){
     @name depends
     @methodOf msjs.node#
 */
-node.depends = function(otherNodeRef){
-    var otherNode = this._resolveReference(otherNodeRef);
-    this.graph.addEdge(otherNode, this);
-    return otherNode;
+node.depends = function(){
+    var self = this;
+    msjs.each(arguments, function(otherNodeRef){
+        var otherNode = self._resolveReference(otherNodeRef);
+        self.graph.addEdge(otherNode, self);
+    });
+    return this;
 }
 
 node._resolveReference = function(nodeOrPackage){
@@ -424,7 +427,9 @@ node.messenger = function(){
         this._messenger.graph = this.graph;
         msjs.each(["depends", "update", "isUpdated", "getId"], function(name){
             self._messenger[name] = function(){
-                return self[name].apply(self, arguments);
+                var r = self[name].apply(self, arguments);
+                //return the messenger, not the node
+                return r == self ? this : r;
             }
         });
 

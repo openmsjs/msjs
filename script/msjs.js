@@ -29,29 +29,24 @@
     @name msjs
 */
 var msjs = function(){
-    var graph = msjs.require("msjs.graph");
+    var graph = msjs.require("msjs.graph"),
+        node;
+
+    if (arguments.length == 3){
+        var jqObj = arguments[0];
+        var eventName = arguments[1];
+        var f = arguments[2];
+        var node = graph.make();
+
+        jqObj.bind(eventName, function(){
+            node.update(f.apply(msjs.require("global"), arguments));
+        });
+    } else {
         node = graph.make(arguments[arguments.length-1]);
-
-    for (var i=0; i<arguments.length-1; i++){
-        node.depends(arguments[i]);
     }
-
-    return arguments.length > 1 ? node.messenger() : node;
-
-}
-
-msjs.bind = function(jqObj, eventName, f){
-    var jqObj = arguments[0];
-    var eventName = arguments[1];
-    var node = msjs();
-
-    jqObj.bind(eventName, function(){
-        node.update(f.apply(msjs.require("global"), arguments));
-    });
 
     return node.messenger();
 }
-
 
 /**
     The context is the link between msjs and the environment in which

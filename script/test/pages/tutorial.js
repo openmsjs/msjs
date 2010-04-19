@@ -21,17 +21,17 @@ var form = $(<form>
     <input type="submit" value="Go"/>
 </form>).appendTo("body");
 
-var submit = msjs.bind(form, "submit", function(){
+var submit = msjs(form, "submit", function(){
     return form.find("input").val();
 });
 
 var MD5er = new Packages.org.msjs.service.MD5();
-var encrypt = msjs(submit, function(){
+var encrypt = msjs(function(){
     return MD5er.encrypt(submit());
-});
+}).depends(submit);
 
 var output = $(<div><span>MD5 hash key is: </span><span/></div>).appendTo(document.body);
 //FIXME: Unless this value is assigned, the dotrenderer messes up
-var renderer = msjs(encrypt, function(){
+var renderer = msjs(function(){
     output.find("span").last().text(encrypt());
-});
+}).depends(encrypt);
