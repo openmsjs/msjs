@@ -648,7 +648,10 @@ graph._hasQueuedUpdatesForRemote = function() {
 // This is guarded by _updateLock
 graph._processUpdate = function(update, secure){
     //can't re-enter udpates
-    if (this._updateLock.isHeldByCurrentThread()) return;
+    if (this._updateLock.isHeldByCurrentThread()){
+        msjs.log("WARNING: Ignoring re-entrant update call", this);
+        return;
+    }
     this._updateLock.lock();
     try {
         var tick = ++this.clock;
