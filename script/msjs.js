@@ -275,7 +275,7 @@ msjs.map = function(arr, f){
 /**
     Apply a function to each element in the given array, or to a non-object value.
     Does not error if passed null, but does on undefined. If the passed function
-    returns "false", the iteration stops.
+    returns "false", the iteration stops. This method also handles java Iterables.
 
     @param obj The input value
     @param {Function(elemnt n)} f The function to call with each element of
@@ -288,6 +288,18 @@ msjs.each = function(obj, f){
     if (!obj){
         if  (obj === void 0) throw "Undefined value for each";
         else return;
+    }
+
+    if ( !this.isClient && obj instanceof java.lang.Object && 
+         "iterator" in obj && 
+         typeof obj.iterator == "function" ){
+        var it = obj.iterator();
+        var i =0;
+        while(it.hasNext()){
+            if (f(it.next(), i++) == false) return;
+        }
+
+        return;
     }
 
     if (!isNaN(obj.length) && (typeof obj != "string")){
