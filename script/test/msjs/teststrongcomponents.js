@@ -18,8 +18,8 @@ var assert = msjs.require("msjs.assert");
 
 var a = msjs();
 var b = msjs();
-a.set("model", b);
-b.set("model", a);
+a.depends(b);
+b.depends(a);
 
 var caughtException = false;
 try{
