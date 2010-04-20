@@ -105,7 +105,7 @@ public class MsjsScriptContext extends ScriptContext {
             loadingScope = makeObject();
             runScript(script, loadingScope);
 
-            Object[] args ={ name, loadingScope };
+            Object[] args ={ loadingScope };
             callMethodOnBinding("msjs", "assignDebugNames", args);
             loadingPackage = outerPackage;
             loadingScope = outerScope;

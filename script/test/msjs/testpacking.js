@@ -31,8 +31,6 @@ var packed;
 
 var packedNode = msjs(msjF);
 packed = packedNode.pack("packed");
-msjs.log(packedNode, packed.produceMsj);
-msjs.log(packed);
 //three properties, id, produceMsj, _lastMsjRefresh
 assert(countProperties(packed) == 3);
 
@@ -41,10 +39,11 @@ assert(packed != null);
 assert(typeof packed.produceMsj == 'object');
 assert(packed.produceMsj._msjs_packed != null);
 assert(packed._id != null);
-assert(packed._lastMsjRefresh != null);
+assert(packed._packageName != null);
 
 var notPackedNode = msjs(msjF);
 packed = notPackedNode.pack("notPacked");
+msjs.log(packed);
 assert(packed != null);
 assert(packed._msjF == null);
 assert(countProperties(packed) == 2);

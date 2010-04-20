@@ -643,20 +643,12 @@ msjs.bindContext = function(context, global){
 msjs.clientPackages = ["msjs"];
 msjs._clientPublished = new java.util.HashMap();
 
-msjs.assignDebugNames = function(packageName, scope){
-    //handle anonymous nodes
+msjs.assignDebugNames = function(scope){
     var didPublished = false;
-    var publishedValue = bindings[packageName];
     for (var k in scope){
         var val = scope[k];
 
-        if (val == publishedValue) didPublished = true;
-        if (val && val._setDebugInfo) val._setDebugInfo(k, packageName)
-    }
-
-    if ( !didPublished && publishedValue && 
-         publishedValue._setDebugInfo ){
-        publishedValue._setDebugInfo("unnamed", packageName);
+        if (val && val._setDebugInfo) val._setDebugInfo(k)
     }
 }
 

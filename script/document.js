@@ -352,7 +352,6 @@ domelement._isAttribute = function(attr) {
         case "_idcache":
         case "_removed":
         case "_msjs_isPackable":
-        case "_debugRef":
         case "_listeners":
         case "_isPacked":
             return false;

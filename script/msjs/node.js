@@ -36,6 +36,7 @@ node.rawMake = function(){
         if (memberName == "rawMake") continue;
         self[memberName] = node[memberName];
     }
+    self._packageName = msjs.context.loadingPackage;
     return self;
 }
 
@@ -318,8 +319,11 @@ node._unpackMessengerF = function(id){
 };
 
 node._selectForPack = function(packType, k){
+    if (isNotMember(this, k)) return false;
+
     //only pack ids of not packed nodes
     if (k == "_id") return true;
+    if (k == "_debugRef" && this._debugRef != node._debugRef) return true;
     if (packType == "notPacked") return false;
 
     //cached members
@@ -328,15 +332,8 @@ node._selectForPack = function(packType, k){
     if (packType == "cached") return false;
 
     //packed members
-
     //be sure to pack produceMsj, even though it appears in nodeMembers
     if (k == "produceMsj") return true;
-    if (!this.hasOwnProperty(k)) return false;
-    if (k == "prototype") return false;
-    if (node[k] !== undefined) return false;
-    if (k == "_packMe") return false;
-    if (k == "constructor") return false;
-    if (k == "graph") return false;
 
     return true;
 
@@ -359,17 +356,29 @@ node.getInputs = function(){
 
 node.isMsjsNode = true;
 
-node._setDebugInfo = function(localName, packageName){
-    if (!this.hasOwnProperty("_debugRef")) this._debugRef = localName;
-    if (!this.hasOwnProperty("_packageName")) this._packageName = packageName;
+node._setDebugInfo = function(localName){
+    this._debugRef = localName;
+}
+
+var dontPack = {
+    prototype : true,
+    _packMe : true,
+    constructor : true,
+    graph : true
+}
+
+function isNotMember(instance, name){
+    return dontPack[name] ||
+           instance[name] == node[name] ||
+           !instance.hasOwnProperty(name);
 }
 
 node._msjs_isPackable = function(){
     var producePackable = msjs.isPackable(this.produceMsj);
     if (producePackable != null) return producePackable;
-    return producePackable;
+
     for (var k in this){
-        if (node[k] !== void 0 || !this.hasOwnProperty(k)) continue;
+        if (isNotMember(this, k)) continue;
         var p = msjs.isPackable(this[k]);
         if (p != null) return p;
     }

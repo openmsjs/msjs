@@ -23,7 +23,8 @@ msjs.publish({dotRender: function(){
     var graph = msjs.require("msjs.graph");
 
     function getNodeName(node){
-        return '"' + node._debugRef + "#" + node.getId() + '"';
+        var localName = node._debugRef || "node";
+        return '"' + localName + "#" + node.getId() + '"';
     }
 
     function getDomElementName(domel){
