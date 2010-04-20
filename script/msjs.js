@@ -177,13 +177,14 @@ msjs._packageIsLoading = {};
     @return The published binding for that package name.
 */
 var mscope = this;
-msjs.require = function(arg, localScope){
+msjs.require = function(arg){
     if (typeof arg == "string"){
         return msjs._require(arg);
     } else {
-        var setLocalVariable = function(name, value){ 
-            localScope[name] = value;
-        };
+        if (this.isClient) {
+            msjs.log("Can't require map on client", arg);
+            throw "Use of map argument to require is not supported on the client."
+        }
 
         for (var k in arg){
             msjs.context.loadingScope[k] = msjs._require(arg[k]);

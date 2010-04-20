@@ -106,7 +106,7 @@ public class ScriptContext {
     }
 
 
-    Scriptable runScript(Script script, Scriptable runScope) {
+    protected Scriptable runScript(Script script, Scriptable runScope) {
         Context cx = cxFactory.enterContext();
         try{
             runScope.setPrototype(globalScope);

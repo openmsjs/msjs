@@ -25,71 +25,77 @@ public class TestMsjs extends BaseScriptTest {
 
     @Test
     public void testNode() {
-        runTest("testnode.js");
+        runTest("testnode");
     }
 
     @Test
     public void testPacking() {
-        runTest("testpacking.js");
+        runTest("testpacking");
     }
 
     @Test
     public void testRequires() {
-        runTest("testrequires.js");
+        runTest("testrequires");
     }
 
     @Test
     public void testTransient() {
-        runTest("testtransient.js");
+        runTest("testtransient");
     }
 
     @Test
     public void testStrongComponents() {
-        runTest("teststrongcomponents.js");
+        runTest("teststrongcomponents");
     }
 
     @Test
     public void testJSON() {
-        runTest("testjson.js");
+        runTest("testjson");
     }
 
     @Test
     public void testInclude() {
-        runTest("testinclude.js");
+        runTest("testinclude");
     }
 
     @Test
     public void testAsync() {
-        runTest("testasync.js");
+        runTest("testasync");
     }
 
     @Test
     public void testTopoSort() {
-        runTest("testtoposort.js");
+        runTest("testtoposort");
     }
 
     @Test
     public void testPublishTwice() {
-        runTest("testpublishtwice.js");
+        runTest("testpublishtwice");
     }
 
     @Test
     public void testFreeVariables() {
-        runTest("testfreevariables.js");
+        runTest("testfreevariables");
     }
 
     @Test
     public void testFunctionPack() {
-        runTest("testfunctionpack.js");
+        runTest("testfunctionpack");
     }
 
     @Test
     public void testJavaWrap() {
-        runTest("testjavawrap.js");
+        runTest("testjavawrap");
     }
 
     @Test
     public void testDeterminePack() {
-        runTest("testdeterminepack.js");
+        runTest("testdeterminepack");
     }
+
+    @Test
+    public void testRequireMap() {
+        runTest("testrequiremap");
+    }
+
 }

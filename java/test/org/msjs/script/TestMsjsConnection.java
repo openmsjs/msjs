@@ -25,16 +25,16 @@ public class TestMsjsConnection extends BaseScriptTest{
 
     @Test
     public void testUpdateGraph() {
-        runTest("testupdategraph.js");
+        runTest("testupdategraph");
     }
 
     @Test
     public void testAcceptUpdates() {
-        runTest("testacceptupdates.js");
+        runTest("testacceptupdates");
     }
 
     @Test
     public void testSendUpdates() {
-        runTest("testsendupdates.js");
+        runTest("testsendupdates");
     }
 }

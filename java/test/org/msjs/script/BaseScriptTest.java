@@ -27,13 +27,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
+import org.msjs.config.BasicConfiguration;
 import org.msjs.config.MsjsConfiguration;
 import org.msjs.config.MsjsModule;
-import org.msjs.config.BasicConfiguration;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,18 +50,15 @@ public abstract class BaseScriptTest {
 
     protected void runTest(String testfile)  {
         final MsjsScriptContext context = injector.getInstance(MsjsScriptContext.class);
-        String testRoot = config.getScriptRoot() + getTestDirectory();
+        String testRoot = getTestDirectory();
         context.setInjector(injector);
 
 
         try{
-            context.runScript(getScript(new FileReader(new File(testRoot + "/" + testfile))),
-                              context.makeObject());
+            context.loadPackage(testRoot + "/" + testfile);
         } catch (JavaScriptException e){
             logger.info("Script error: " + e.getMessage());
             org.junit.Assert.fail(e.getScriptStackTrace());
-        } catch (IOException e){
-            org.junit.Assert.fail("Couldn't find test: " + testfile);
         }
     }
 

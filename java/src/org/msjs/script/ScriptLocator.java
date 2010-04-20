@@ -119,7 +119,6 @@ public class ScriptLocator {
             throws FileNotFoundException {
         final String slashed = packageName.replace('.', File.separatorChar).replace('/', File.separatorChar);
         final String path = scriptRoot + File.separatorChar + slashed + ".js";
-        
         return new FileReader(new File(path));
     }
 

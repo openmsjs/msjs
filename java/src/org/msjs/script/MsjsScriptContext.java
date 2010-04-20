@@ -138,7 +138,7 @@ public class MsjsScriptContext extends ScriptContext {
     }
 
     @Override
-    Scriptable runScript(final Script script, Scriptable scope) {
+    protected Scriptable runScript(final Script script, Scriptable scope) {
         try{
             return super.runScript(script, scope);
         }catch(Exception e){
