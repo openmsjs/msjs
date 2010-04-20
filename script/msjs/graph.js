@@ -172,7 +172,7 @@ graph.acceptMsjFromRemote = function(remote){
 
     if (remote.nodeResets){
         for (var id in remote.nodeResets){
-            this.getNode(id).reset(remote.nodeResets[id]);
+            this.getNode(id).updateMsj(remote.nodeResets[id]);
         }
 
         if (!this.hasRemote){

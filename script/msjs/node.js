@@ -47,7 +47,7 @@ var did = false;
     The method that this node runs to calculate its msj. This method is
     automatically called when  one of the nodes it depends on changes, when
     update is called with no arguments, or when the graph starts, if it has no
-    dependencies or it's marked {@link msjs.node#dirty}. Although this is
+    dependencies. Although this is
     usually passed in with the call to {@link msjs} it can also be set directly
     on the node instance. When called as a result of a graph update, the
     produceMsj function is called with an object whose keys are msj's that of
@@ -124,11 +124,12 @@ node.getMsj = function(){
 
 //called by graph
 node.updateMsj = function(msj, clock){
-    this.dirty = false;
     if (msj !== void 0){
         this._msj = msj;
-        this.lastMsjUpdate = clock;
-        this._lastChecked = clock;
+        if (clock != null){
+            this.lastMsjUpdate = clock;
+            this._lastChecked = clock;
+        }
     }
     return this.lastMsjUpdate;
 }
@@ -191,11 +192,6 @@ node.invalidate = function(){
     this._lastChecked = -1;
     this.lastMsjUpdate = -1;
 }
-
-node.reset = function(newMsj){
-    this._msj = newMsj;
-}
-
 
 node.isUpdated = function(){
     return this.lastMsjUpdate == this.graph.clock;
