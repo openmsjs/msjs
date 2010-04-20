@@ -184,10 +184,6 @@ node.getLastUpdate = function(){
     return this._lastMsjRefresh;
 };
 
-node.getNode = function(nid){
-    return this.graph.getNode(nid);
-}
-
 node.invalidate = function(){
     this._lastChecked = -1;
     this._lastMsjRefresh = -1;
@@ -197,25 +193,12 @@ node.reset = function(newMsj){
     this._msj = newMsj;
 }
 
-node._inputs = {};
-node._transient = {};
-
-
-node._ensureHasOwn = function(prop){
-    if (!this.hasOwnProperty(prop)){
-        if (msjs.isArray(this[prop])){
-            this[prop] = this[prop].concat();
-        } else {
-            this[prop] = msjs.copy(this[prop]);
-        }
-    }
-}
-
-msjs.publish(node, "Client");
 
 node.isUpdated = function(){
     return this.getLastUpdate() == this.graph.clock;
 }
+
+msjs.publish(node, "Client");
 
 /**
     Instructions about the packing disposition of this instance, for transport
