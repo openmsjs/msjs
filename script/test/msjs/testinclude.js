@@ -20,7 +20,7 @@ var outer = msjs();
 
 var one = msjs.require("test.msjs.includes.one");
 assert(one != null);
-assert(one instanceof node);
+assert(one.isMsjsNode);
 
 var two = msjs.require("test.msjs.includes.two");
 assert(two != null);

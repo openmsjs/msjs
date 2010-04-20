@@ -26,7 +26,6 @@ graph._nodes = [];
 graph._adjacencyMatrix = [];
 graph._tc = null;
 graph._cache = {};
-graph.NOT_UPDATED = void 0;
 
 /**
     Make a new {@link msjs.node}

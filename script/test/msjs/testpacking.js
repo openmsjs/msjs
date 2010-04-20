@@ -29,22 +29,21 @@ var msjF = function(x){return x};
 
 var packed;
 
-var getNode = function(messenger){
-    return messenger.graph.getNode(messenger.getId())
-}
-
-var packedNode = getNode(msjs(msjF));
-
+var packedNode = msjs(msjF);
 packed = packedNode.pack("packed");
-//three properties, id, unpacker, and msjF
-assert(countProperties(packed) == 2);
+msjs.log(packedNode, packed.produceMsj);
+msjs.log(packed);
+//three properties, id, produceMsj, _lastMsjRefresh
+assert(countProperties(packed) == 3);
 
 assert(packed != null);
 //produceMsj should be packed as a reference to a closure
 assert(typeof packed.produceMsj == 'object');
 assert(packed.produceMsj._msjs_packed != null);
+assert(packed._id != null);
+assert(packed._lastMsjRefresh != null);
 
-var notPackedNode = getNode(msjs(msjF));
+var notPackedNode = msjs(msjF);
 packed = notPackedNode.pack("notPacked");
 assert(packed != null);
 assert(packed._msjF == null);

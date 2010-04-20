@@ -15,15 +15,13 @@
  */
 
 //need this to express the dependency
-var nodeConstructor = function(){};
-var node = nodeConstructor.prototype;
+var node = {};
 
-node.NOT_UPDATED = void 0;//must match graph
 node.doesRemoteUpdate = false;
 
-node._msj = node.NOT_UPDATED;
 node._lastChecked = -1;
 node._lastMsjRefresh = -1;
+
 
 /**
     Nodes have formal dependencies on other nodes, and each has a reference to
@@ -33,9 +31,36 @@ node._lastMsjRefresh = -1;
     @name msjs.node
 */
 node.rawMake = function(){
-    var newNode = new nodeConstructor();
-    return newNode;
+    var self = function(){ return self.get(); }
+    for (var memberName in node){
+        if (memberName == "rawMake") continue;
+        self[memberName] = node[memberName];
+    }
+    return self;
 }
+
+/**
+    The method that this node runs to calculate its msj. This method is
+    automatically called when  one of the nodes it depends on changes, when
+    update is called with no arguments, or when the graph starts, if it has no
+    dependencies or it's marked {@link msjs.node#dirty}. Although this is
+    usually passed in with the call to {@link msjs} it can also be set directly
+    on the node instance. When called as a result of a graph update, the
+    produceMsj function is called with an object whose keys are msj's that of
+    the nodes that this node {@link msjs.node#push}es or {@link
+    msjs.node#pull}s.  In cases where the produceMsj function returns the
+    undefined value (as distinct from null,) the node is considered "not
+    updated" for this clock cycle, and nodes depending on this one will behave
+    accordingly. Nodes with no given produceMsj method use the default, which
+    returns undefined.
+
+    @name produceMsj
+    @param {Dictionary} msj The values for msj's of nodes that are pushed or pulled
+    by this node.
+    @return The msj for this node.
+    @methodOf msjs.node#
+*/
+node.produceMsj = function(msj){}
 
 node.getId = function(){
     return this._id;
@@ -63,10 +88,6 @@ node._resolveReference = function(nodeOrPackage){
     if (typeof nodeOrPackage == "string"){
         //Treat as packagename
         nodeOrPackage =  msjs.require(nodeOrPackage);
-    }
-
-    if (typeof nodeOrPackage == "function"){
-        nodeOrPackage = nodeOrPackage._msjs_node;
     }
 
     return nodeOrPackage;
@@ -112,33 +133,12 @@ node.updateMsj = function(msj, clock){
     return this._lastMsjRefresh;
 }
 
-/**
-    The method that this node runs to calculate its msj. This method is
-    automatically called when  one of the nodes it depends on changes, when
-    update is called with no arguments, or when the graph starts, if it has no
-    dependencies or it's marked {@link msjs.node#dirty}. Although this is
-    usually passed in with the call to {@link msjs} it can also be set directly
-    on the node instance. When called as a result of a graph update, the
-    produceMsj function is called with an object whose keys are msj's that of
-    the nodes that this node {@link msjs.node#push}es or {@link
-    msjs.node#pull}s.  In cases where the produceMsj function returns the
-    undefined value (as distinct from null,) the node is considered "not
-    updated" for this clock cycle, and nodes depending on this one will behave
-    accordingly. Nodes with no given produceMsj method use the default, which
-    returns undefined.
-
-    @name produceMsj
-    @param {Dictionary} msj The values for msj's of nodes that are pushed or pulled
-    by this node.
-    @return The msj for this node.
-    @methodOf msjs.node#
-*/
-node.produceMsj = function(msj){}
-
-
 //Override
+node._debugRef;
 node._getDebugName = function(){
-    return this._packageName +"#"+ this.getId() + ":" + this._debugRef;
+    var name = this._packageName +"#"+ this.getId();
+    if (this._debugRef) name += ":" + this._debugRef;
+    return name;
 }
 
 //not true for nodes which are cached or notPacked
@@ -221,32 +221,6 @@ node._ensureHasOwn = function(prop){
     }
 }
 
-node._messenger = null;
-node.messenger = function(){
-    var self = this;
-    if (!this._messenger){
-        this._messenger = function(){ return self.get(); }
-
-        //don't look at this for packability
-        this._messenger._msjs_isPackable = msjs._msjs_isPackable;
-        this._messenger._msjs_node = this;
-        this._messenger.graph = this.graph;
-        msjs.each(["depends", "update", "isUpdated", "getId", "async", "setPack"], function(name){
-            self._messenger[name] = function(){
-                var r = self[name].apply(self, arguments);
-                //return the messenger, not the node
-                return r == self ? this : r;
-            }
-        });
-
-        this._messenger._msjs_getUnpacker = function(){
-            return [self._unpackMessengerF, [self.getId()] ];
-        };
-
-    }
-
-    return this._messenger;
-}
 msjs.publish(node, "Client");
 
 node.isUpdated = function(){
@@ -344,20 +318,25 @@ node._unpackMessengerF = function(id){
 };
 
 node._selectForPack = function(packType, k){
-    if (!this.hasOwnProperty(k)) return false;
+    //only pack ids of not packed nodes
     if (k == "_id") return true;
     if (packType == "notPacked") return false;
 
-    if (k == "_msj"){
-        return this.graph.needsMsjPack(this.getId());
-    }
+    //cached members
+    if (k == "_msj") return true;
     if (k == "_lastMsjRefresh") return true;
     if (packType == "cached") return false;
 
+    //packed members
+
+    //be sure to pack produceMsj, even though it appears in nodeMembers
+    if (k == "produceMsj") return true;
+    if (!this.hasOwnProperty(k)) return false;
+    if (k == "prototype") return false;
+    if (node[k] !== undefined) return false;
     if (k == "_packMe") return false;
     if (k == "constructor") return false;
     if (k == "graph") return false;
-    if (k == "_messenger") return false;
 
     return true;
 
@@ -370,8 +349,7 @@ node.getInputs = function(){
         var n = freeVars[k];
         if (!n) continue;
         if (n instanceof java.lang.Object) continue;
-        if (n._msjs_node) n = n._msjs_node;
-        if (n instanceof node) inputs[n.getId()] = true;
+        if (n.isMsjsNode) inputs[n.getId()] = true;
     }
 
     var inputsList = [];
@@ -379,7 +357,22 @@ node.getInputs = function(){
     return inputsList;
 }
 
+node.isMsjsNode = true;
+
 node._setDebugInfo = function(localName, packageName){
     if (!this.hasOwnProperty("_debugRef")) this._debugRef = localName;
     if (!this.hasOwnProperty("_packageName")) this._packageName = packageName;
+}
+
+node._msjs_isPackable = function(){
+    var producePackable = msjs.isPackable(this.produceMsj);
+    if (producePackable != null) return producePackable;
+    return producePackable;
+    for (var k in this){
+        if (node[k] !== void 0 || !this.hasOwnProperty(k)) continue;
+        var p = msjs.isPackable(this[k]);
+        if (p != null) return p;
+    }
+
+    return null;
 }

@@ -45,7 +45,7 @@ var msjs = function(){
         node = graph.make(arguments[arguments.length-1]);
     }
 
-    return node.messenger();
+    return node;
 }
 
 /**
@@ -650,8 +650,6 @@ msjs.assignDebugNames = function(packageName, scope){
     for (var k in scope){
         var val = scope[k];
 
-        if (typeof(val) == "function" && val._msjs_node) val = val._msjs_node;
-
         if (val == publishedValue) didPublished = true;
         if (val && val._setDebugInfo) val._setDebugInfo(k, packageName)
     }
@@ -707,7 +705,6 @@ msjs.isPackable = function(val){
         switch (typeof val){
             case "function":
                 if (val instanceof RegExp) return null;
-                if (val._msjs_node) return null;
                 var freeVars = msjs.context.getFreeVariables(val);
                 //special check for e.g.
                 //return new java.lang.Object();
