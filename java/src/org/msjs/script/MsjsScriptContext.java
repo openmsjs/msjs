@@ -54,6 +54,7 @@ public class MsjsScriptContext extends ScriptContext {
     private final UUID uuid;
     private final ScriptableObject bindings;
     private String loadingPackage;
+    private Scriptable loadingScope;
     private final FunctionParser functionParser;
 
 
@@ -74,13 +75,14 @@ public class MsjsScriptContext extends ScriptContext {
         this.functionParser = functionParser;
 
 
-        final Scriptable msjs;
+        Scriptable msjsScope = makeObject();
         try{
-            Scriptable msjsScope = runScript(locator.getScript("msjs"));
-            msjs = (Scriptable) msjsScope.get("msjs", msjsScope);
+            runScript(locator.getScript("msjs"), msjsScope);
         } catch (FileNotFoundException e){
             throw new RuntimeException(e);
         }
+
+        final Scriptable msjs = (Scriptable) msjsScope.get("msjs", msjsScope);
 
         //FIXME? this publishes a reference to an object that is not fully constructed
         final Object[] contextArg = {this, getGlobalScope()};
@@ -98,12 +100,15 @@ public class MsjsScriptContext extends ScriptContext {
         try{
             final Script script = locator.getScript(name);
             String outerPackage = loadingPackage;
+            Scriptable outerScope = loadingScope;
             loadingPackage = name;
-            Scriptable scope = runScript(script);
+            loadingScope = makeObject();
+            runScript(script, loadingScope);
 
-            Object[] args ={ name, scope };
+            Object[] args ={ name, loadingScope };
             callMethodOnBinding("msjs", "assignDebugNames", args);
             loadingPackage = outerPackage;
+            loadingScope = outerScope;
             return bindings.get(name, bindings);
         } catch (Exception e){
             throw launderException(e);
@@ -112,6 +117,10 @@ public class MsjsScriptContext extends ScriptContext {
 
     public String getLoadingPackage() {
         return loadingPackage;
+    }
+
+    public Scriptable getLoadingScope() {
+        return loadingScope;
     }
 
     public Object getFromSingletonScope(String name){
@@ -129,9 +138,9 @@ public class MsjsScriptContext extends ScriptContext {
     }
 
     @Override
-    Scriptable runScript(final Script script) {
+    Scriptable runScript(final Script script, Scriptable scope) {
         try{
-            return super.runScript(script);
+            return super.runScript(script, scope);
         }catch(Exception e){
             throw launderException(e);
         }

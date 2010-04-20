@@ -106,10 +106,9 @@ public class ScriptContext {
     }
 
 
-    Scriptable runScript(Script script) {
+    Scriptable runScript(Script script, Scriptable runScope) {
         Context cx = cxFactory.enterContext();
         try{
-            ScriptableObject runScope = makeObject();
             runScope.setPrototype(globalScope);
             runScope.setParentScope(null);
             script.exec(cx, runScope);

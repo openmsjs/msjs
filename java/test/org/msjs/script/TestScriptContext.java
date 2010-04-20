@@ -48,7 +48,7 @@ public class TestScriptContext {
     @Test
     public void simpleTest() throws Exception{
         Reader reader = new FileReader( new File( testScriptPath + "/assign.js"));
-        Scriptable result = context.runScript(compiler.compile(reader));
+        Scriptable result = context.runScript(compiler.compile(reader), context.makeObject());
 
         assertEquals( 1.0, result.get("one", result));
         assertEquals( "2", result.get("two", result));

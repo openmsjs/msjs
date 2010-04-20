@@ -58,7 +58,8 @@ public abstract class BaseScriptTest {
 
 
         try{
-            context.runScript(getScript(new FileReader(new File(testRoot + "/" + testfile))));
+            context.runScript(getScript(new FileReader(new File(testRoot + "/" + testfile))),
+                              context.makeObject());
         } catch (JavaScriptException e){
             logger.info("Script error: " + e.getMessage());
             org.junit.Assert.fail(e.getScriptStackTrace());

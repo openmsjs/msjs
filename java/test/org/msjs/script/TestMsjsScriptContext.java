@@ -56,7 +56,7 @@ public class TestMsjsScriptContext {
     @Test
     public void runScriptSuccess() throws IOException {
         Reader reader = getFileReader(config.getScriptRoot() + "/test/assign.js");
-        cx.runScript(compiler.compile(reader));
+        cx.runScript(compiler.compile(reader), cx.makeObject());
     }
 
     @Test

@@ -60,6 +60,7 @@ msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
     },
+    loadingScope: (function(){ return this })(),
     redirect : function(url){
         location.href = url;
     },
@@ -175,7 +176,22 @@ msjs._packageIsLoading = {};
     dependency system used on the Java side.
     @return The published binding for that package name.
 */
-msjs.require = function(packageName){
+var mscope = this;
+msjs.require = function(arg, localScope){
+    if (typeof arg == "string"){
+        return msjs._require(arg);
+    } else {
+        var setLocalVariable = function(name, value){ 
+            localScope[name] = value;
+        };
+
+        for (var k in arg){
+            msjs.context.loadingScope[k] = msjs._require(arg[k]);
+        }
+    }
+}
+
+msjs._require = function(packageName){
     return bindings[packageName];
 }
 
@@ -818,7 +834,7 @@ msjs.getExecutor = function(){
 //The rest of this stuff is overrides of client APIs
 /**#nocode+*/
 var singletons = [];
-msjs.require = function(packageName){
+msjs._require = function(packageName){
     var isJava = packageName.indexOf("java.") == 0;
 
     if (!isJava && packageName.toLowerCase() != packageName){
