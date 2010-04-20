@@ -182,6 +182,7 @@ msjs.require = function(arg){
         return msjs._require(arg);
     } else {
         if (this.isClient) {
+            //FIXME: Bug #MSJS-69
             msjs.log("Can't require map on client", arg);
             throw "Use of map argument to require is not supported on the client."
         }
