@@ -69,11 +69,6 @@ public class TestMsjs extends BaseScriptTest {
     }
 
     @Test
-    public void testMsjCaching() {
-        runTest("testmsjcaching.js");
-    }
-
-    @Test
     public void testPublishTwice() {
         runTest("testpublishtwice.js");
     }

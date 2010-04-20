@@ -94,7 +94,7 @@ node._resolveReference = function(nodeOrPackage){
     function will run
 */
 node.update = function(msj){
-    if (msj === void 0) msj = this._composeMsj();
+    if (msj === void 0) msj = this.produceMsj();
     var graphUpdate = {};
     graphUpdate[this.getId()] = msj;
     this.graph.putUpdate(graphUpdate);
@@ -123,19 +123,6 @@ node.updateMsj = function(msj, clock){
         this._lastChecked = clock;
     }
     return this._lastMsjRefresh;
-}
-
-/**
-   Protected. Compose the msj produced by this node 
-   @return The msj for this node. If the undefined value is returned by this
-   method, it indicates that the node's msj has not changed. This permits
-   optimizations in the update process -- if none of a node's dependencies have
-   updated, the node is, by-definition, clean. 
-   @name _composeMsj
-   @methodOf msjs.node#
-*/
-node._composeMsj = function(){
-    return this.produceMsj(this._collectInputs());
 }
 
 /**
@@ -219,7 +206,7 @@ node.refreshMsj = function(){
     var needsUpdate = (maxRefreshed>this._lastChecked) || this.dirty;
     //msjs.log('refresh', this._debugRef, dependencies.length, maxRefreshed, needsUpdate);
     if (needsUpdate){
-        this.updateMsj(this._composeMsj(), tick);
+        this.updateMsj(this.produceMsj(), tick);
     }
 
     this._lastChecked = this.graph.clock;
@@ -247,130 +234,6 @@ node.reset = function(newMsj){
 node._inputs = {};
 node._transient = {};
 
-
-//This method is deprecated. Use node.push instead
-node.set = function(property, nodeOrPackage, isTransient){ //careful; "transient" is keyword
-    var node = this.depends(nodeOrPackage);
-    if (!node || !node.getId) throw "Can't set " + property + " in " + this._getDebugName();
-
-    this._ensureHasOwn( "_inputs" );
-    var nodeId = node.getId();
-    this._inputs[property] = nodeId;
-    if (isTransient){
-        this._ensureHasOwn("_transient");
-        this._transient[property] = true;
-    }
-
-    return node;
-}
-
-/**
-    Used to signal that the model has a dependency which is not explicitly set when the
-    model is created. models check their expectations when they run their {@link 
-    msjs.node#produceMsj} method and throw if the expected channel isn't set.
-    @name expects
-    @methodOf msjs.node#
-    @param {String} channel The name of the channel that this node expects to be set.
-*/
-node.expects = function(property){
-    this._ensureHasOwn("_expectations");
-    this._expectations.push(property);
-}
-
-node._expectations = [];
-
-/**
-    Expresses a dependency between another node and this one, and sets the channel that
-    the other node's msj will arrive on  in this node's produceMsj function. This is the 
-    simplest way to wire two nodes together, and it's usually the right one. With a push
-    relationship, the msj from the other node will only be set if the other node has updated
-    during this graph clock tick. To make sure the message is always present, use
-    {@link msjs.node#pull} in conjunction with {@link msjs.node#depends}.
-    @name push
-    @methodOf msjs.node#
-    @param nodeOrPackage A string name of a package with a published binding for a node, 
-
-    or a direct reference to another node
-    @param {String} property The name of the channel on which to receive the other
-    node's message.
-    @return this
-*/
-node.push = function(nodeOrPackage, property){
-    this.set(property, nodeOrPackage, true);
-    return this;
-}
-
-/**
-    Adds the msj for the provided node to argument provided to this node's produceMsj
-    function, without expressing a dependency on that node. This method should be
-    used with care; it's intended for retrieving information that is guaranteed to
-    change before the other dependencies for this node force recalculation. Examples
-    of this type of data include user information that doesn't change after it's set,
-    or cache information that's used for rendering. This method is also handy
-    for breaking circular push dependencies, in cases where not all the
-    relationships need to be dependencies. This method can be used in
-    conjunction with {@link msjs.node#depends} in order to always receive
-    the message from another node, whether it's been updated or not. To just
-    receive messages when another node changes, use {@link msjs.node#push} 
-
-    @name pull
-    @methodOf msjs.node#
-    @param nodeOrPackage A string name of a package with a published binding for a node, 
-    or a direct reference to another node
-    @param {String} property The name of the channel on which to receive the other
-    node's message.
-    @return this
-*/
-node.pull = function(nodeOrPackage, property){
-    var node = this._resolveReference(nodeOrPackage);
-    this._ensureHasOwn( "_inputs" );
-    this._inputs[property] = node.getId();
-    return this;
-}
-
-/**
-    Protected. Prepares the input to the normal msj generation function. Nodes
-    which are set with the isTransient flag turned on will only have their msj
-    included in this hash if they have updated since the last time this node's
-    _composeMsj function has run. See {@link msjs.node#set} for more on this.
-    @return {Object} Hash of the msj's of upstream nodes, by property name.
-    @name _collectInputs
-    @methodOf msjs.node#
-*/
-node._collectInputs = function(){
-    var msj = {};
-    var graph = this.graph;
-
-    for (var k in this._inputs){
-        var node = graph.getNode(this._inputs[k]);
-
-        if (this._expectations.length){
-            for (var i=0; i<this._expectations.length; i++){
-                if (k == this._expectations[i]){
-                    this._expectations.splice(i,1);
-                    break;
-                }
-            }
-        }
-
-        if ( this._transient[k] && (node.getLastUpdate() < this.graph.clock) ){
-            continue;
-        }
-
-        var val = node.getMsj(); 
-
-        msj[k] = val;
-    }
-    
-    if (this._expectations.length) {
-        throw (this._getDebugName() + " expects " + this._expectations);
-    }
-
-    if (this.copyInputs) msj = msjs.copy(msj);
-    return msj;
-};
-
-node.copyInputs = true;
 
 node._ensureHasOwn = function(prop){
     if (!this.hasOwnProperty(prop)){
