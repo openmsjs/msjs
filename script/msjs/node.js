@@ -21,8 +21,6 @@ var node = nodeConstructor.prototype;
 node.NOT_UPDATED = void 0;//must match graph
 node.doesRemoteUpdate = false;
 
-node._msjF = null;
-node.dirty = false;
 node._msj = node.NOT_UPDATED;
 node._lastChecked = -1;
 node._lastMsjRefresh = -1;
@@ -39,27 +37,16 @@ node.rawMake = function(){
     return newNode;
 }
 
-
 node.getId = function(){
     return this._id;
 }
 
 /**
-    Adds an edge in the graph from the given node to this one. Also marks
-    this node as dirty. This can be useful in cases where a node needs to
-    recalculate its message due to a change in another node, but doesn't
-    actually require that node's msj. This is also useful in conjunction with
-    {@link msjs.node#pull} to express an "always" depdency, since {@link
-    msjs.node#push} only includes the msj for the dependency if that node
-    updated during the current clock cycle.
-    @example
-    //Renderer needs both model and selection, no matter which one updates.
-    renderer.pull(renderer.depends(model), "model");
-    renderer.pull(renderer.depends(selection), "selection");
+    Adds an edge in the graph from the given node to this one. Accepts multiple arguments
     @param {msjs.node, String} otherNodeRef A reference to another node, given as either
     a package name to be loaded with {@link msjs#require} or as a direct reference to a
     node in the same graph.
-    @return {msjs.node} The other node for which the dependency was created.
+    @return {msjs.node} this
     @name depends
     @methodOf msjs.node#
 */
@@ -192,9 +179,7 @@ node.refreshMsj = function(){
         maxRefreshed = Math.max(maxRefreshed, dependencies[i].getLastUpdate());
     }
 
-    //only update if the depedencies were dirty, or this node was directly
-    //marked dirty
-    var needsUpdate = (maxRefreshed>this._lastChecked) || this.dirty;
+    var needsUpdate = (maxRefreshed>this._lastChecked);
     //msjs.log('refresh', this._debugRef, dependencies.length, maxRefreshed, needsUpdate);
     if (needsUpdate){
         this.updateMsj(this.produceMsj(), tick);

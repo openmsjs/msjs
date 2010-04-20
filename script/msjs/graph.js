@@ -24,8 +24,6 @@ var graph = {};
 graph.id = msjs.id;
 graph._nodes = [];
 graph._adjacencyMatrix = [];
-//true==clean, false==dirty
-graph._componentDirtiers = [];
 graph._tc = null;
 graph._cache = {};
 graph.NOT_UPDATED = void 0;
@@ -58,8 +56,8 @@ graph.make = function(produceFunction){
 }
 
 /**
-    The graph tracks state changes with a clock. Whenever a node is marked
-    dirty, the "time" on the clock is recorded, and the clock is advanced. The
+    The graph tracks state changes with a clock. Whenever a node updates
+    the "time" on the clock is recorded, and the clock is advanced. The
     clock may be read freely, even during an update, but never written to.
     @name clock
     @fieldOf msjs.graph#
