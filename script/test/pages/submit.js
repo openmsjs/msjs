@@ -15,35 +15,6 @@
  */
 
 var listEl =  $(<div/>).appendTo(document.body);
-var list = msjs( function(msj){
-    listEl.children().remove();
-    $.each(msj.model, function(n, model){
-        $("<div/>").text(model.first + " " + model.last).appendTo(listEl)
-        .css({
-            border : "solid 1px black",
-            padding : "5px",
-            width : "125px"
-        });
-    });
-});
-
-var model = msjs(function(msj){
-    if (msj.form && msj.form.first){
-        this._msj.push(msj.form);
-    }
-    return this._msj;
-});
-model.packMe = false;
-model.dirty = true;
-
-model._msj = [
-    {first : "abbie", last : "guggenheim"},
-    {first : "bobby", last : "hiliard"},
-    {first : "charlie", last : "ilkilkicker"}
-];
-
-
-list.set("model", model);
 
 var form = $(
     <form><div>
@@ -53,9 +24,7 @@ var form = $(
     </div></form>
 ).appendTo(document.body);
 
-var submit = msjs();
-
-form.submit( function(event){
+var submit = msjs(form, "submit",  function(event){
     var r = {
         first : form.get(0).first.value,
         last : form.get(0).last.value
@@ -63,7 +32,34 @@ form.submit( function(event){
 
     form.get(0).reset();
     form.find("input").first().focus(); //:)
-    submit.update(r);
+
+    return r;
 });
 
-model.push(submit, "form");
+var data = [
+    {first : "abbie", last : "guggenheim"},
+    {first : "bobby", last : "hiliard"},
+    {first : "charlie", last : "ilkilkicker"}
+];
+
+var initial = msjs(function(){
+    return data;
+});
+
+var updated = msjs(function(){
+    data.push(submit());
+    return data;
+}).depends(submit).setPack(false);
+
+
+var list = msjs( function(){
+    listEl.children().remove();
+    $.each(updated() || initial(), function(n, model){
+        $("<div/>").text(model.first + " " + model.last).appendTo(listEl)
+        .css({
+            border : "solid 1px black",
+            padding : "5px",
+            width : "125px"
+        });
+    });
+}).depends(initial, updated);
