@@ -69,32 +69,6 @@ node.getId = function(){
     return this._id;
 }
 
-/**
-    Adds an edge in the graph from the given node to this one. Accepts multiple arguments
-    @param {msjs.node, String} otherNodeRef A reference to another node, given as either
-    a package name to be loaded with {@link msjs#require} or as a direct reference to a
-    node in the same graph.
-    @return {msjs.node} this
-    @name depends
-    @methodOf msjs.node#
-*/
-node.depends = function(){
-    var self = this;
-    msjs.each(arguments, function(otherNodeRef){
-        var otherNode = self._resolveReference(otherNodeRef);
-        self.graph.addEdge(otherNode, self);
-    });
-    return this;
-}
-
-node._resolveReference = function(nodeOrPackage){
-    if (typeof nodeOrPackage == "string"){
-        //Treat as packagename
-        nodeOrPackage =  msjs.require(nodeOrPackage);
-    }
-
-    return nodeOrPackage;
-}
 
 /**
     Refresh this node's msj either with the supplied argument or by running the
@@ -198,6 +172,35 @@ node.setPack = function(doPack){
 }
 
 /*! msjs.server-only **/
+
+/**
+    Adds an edge in the graph from the given node to this one. Accepts multiple arguments
+    @param {msjs.node, String} otherNodeRef A reference to another node, given as either
+    a package name to be loaded with {@link msjs#require} or as a direct reference to a
+    node in the same graph.
+    @return {msjs.node} this
+    @name depends
+    @methodOf msjs.node#
+*/
+node.depends = function(){
+    var self = this;
+    msjs.each(arguments, function(otherNodeRef){
+        var otherNode = resolveReference(otherNodeRef);
+        self.graph.addEdge(otherNode, self);
+    });
+    return this;
+}
+
+resolveReference = function(nodeOrPackage){
+    if (typeof nodeOrPackage == "string"){
+        //Treat as packagename
+        nodeOrPackage =  msjs.require(nodeOrPackage);
+    }
+
+    return nodeOrPackage;
+}
+
+
 //protected
 //TODO: Document this
 node.shutdown;
