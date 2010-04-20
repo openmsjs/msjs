@@ -18,7 +18,7 @@ var assert = msjs.require("msjs.assert");
 var context = msjs.require("java.org.msjs.script.MsjsScriptContext");
 context.loadPackage("test.msjs.connection.update");
 var graph = context.bindings["msjs.graph"];
-var packed = graph.pack();
+graph.pack();
 var input = context.bindings.input;
 var output = context.bindings.output;
 
@@ -27,9 +27,11 @@ assert(initial.updateQueue.length == 0);
 assert(initial.updateQueueOffset == 0);
 
 //make sure a simple update works
+msjs.log('start');
 input('x');
 var updated = graph.getMsjForRemote();
 assert(updated.updateQueueOffset == 0);
+msjs.log(updated);
 assert(updated.updateQueue.length == 1);
 //first update, node zero
 assert(updated.updateQueue[0]['0'] == 'x');

@@ -956,8 +956,8 @@ graph._pack = function(){
     msjs.each(this._topoSort(), function(nid){
         var node = self.getNode(nid);
         //every node gets refreshed
-        node.packMe = self._determinePack(node); 
-        if (node.packMe) packMap[nid] = true;
+        node._packMe = self._determinePack(node); 
+        if (node._packMe) packMap[nid] = true;
     });
 
     for (var nid in packMap){
@@ -1057,7 +1057,7 @@ graph.getPackInfo = function(){
 }
 
 graph._determinePack = function(node){
-    if (node.packMe != null) return node.packMe;
+    if (node._packMe != null) return node._packMe;
     if (node.onLoad || node.onConnectionError) return true;
 
     //default to packing nodes
@@ -1070,7 +1070,7 @@ graph._msjs_isPackable = function(){
 
 graph._wantToPack = function(node, packMap){
     var nid = node.getId();
-    if (node.packMe == false || packMap[nid]) return;
+    if (node._packMe == false || packMap[nid]) return;
     packMap[nid] = true;
     for (var k in this._adjacencyMatrix[nid]){
         this._wantToPack(this._nodes[k], packMap);

@@ -14,30 +14,23 @@
  * the License.
  */
 
-//this is used by test.msjs.testupates
-var server = msjs();
-server.packMe = false;
-var input = function(data){
+var server = msjs().setPack(false);
+var input = msjs.mock("input", function(data){
     server.update(data);
-}
-msjs.mock("input", input);
+});
 
 var client = msjs( function(msj){
-    return msj.server;
-});
-client.set("server", server);
-client.packMe = true;
+    msjs.log('re', server());
+    return server();
+}).depends(server).setPack(true);
 
 var listener = msjs( function(msj){
-    return msj.client
-});
-listener.set("client", client);
-listener.packMe = false;
+    msjs.log('li', client());
+    return client();
+}).depends(client).setPack(false);
 
+var output = msjs.mock("output", []);
 var display = msjs( function(msj){
-    output.push(msj.listener);
-});
-var output = [];
-msjs.mock("output", output);
-display.packMe = true;
-display.set("listener", listener);
+    output.push(listener());
+    msjs.log(output);
+}).depends(listener).setPack(true);

@@ -170,16 +170,7 @@ node.unpack = function(packed){
     }
 }
 
-/**
-    Instructions about the packing disposition of this instance, for transport
-    to the client. If true, the node must be packed and transported to the
-    client. If false, the node can't be packed. If null, then msjs should decide
-    whether or not to pack the node.
-    @name packMe
-    @fieldOf msjs.node#
-    @type boolean or null
-*/
-node.packMe = null;
+node._packMe = null;
 
 /**
     Internal API. Ensure that the cached version of the given node's msj is
@@ -288,7 +279,7 @@ node.messenger = function(){
         this._messenger._msjs_isPackable = msjs._msjs_isPackable;
         this._messenger._msjs_node = this;
         this._messenger.graph = this.graph;
-        msjs.each(["depends", "update", "isUpdated", "getId", "async"], function(name){
+        msjs.each(["depends", "update", "isUpdated", "getId", "async", "setPack"], function(name){
             self._messenger[name] = function(){
                 var r = self[name].apply(self, arguments);
                 //return the messenger, not the node
@@ -310,6 +301,19 @@ node.isUpdated = function(){
     return this.getLastUpdate() == this.graph.clock;
 }
 
+/**
+    Instructions about the packing disposition of this instance, for transport
+    to the client. If true, the node must be packed and transported to the
+    client. If false, the node can't be packed. If null, then msjs should decide
+    whether or not to pack the node.
+    @name setPack
+    @methodOf msjs.node#
+*/
+node.setPack = function(doPack){
+    this._packMe = doPack;
+    return this;
+}
+
 /*! msjs.server-only **/
 //protected
 node.shutdown = function(){ }
@@ -320,7 +324,7 @@ node._asyncLock = null;
     Run a function (usually one which calls update on the node itself) asynchronously.
     This is useful for allowing a graph update to complete while a node does an
     expensive calculation or calls out to a web service. Nodes which use this method
-    must be set to packMe=false. A given node's update function is protected by its own
+    must be set to _packMe=false. A given node's update function is protected by its own
     lock, so an individual node will only run one async function at a time.
     @return {Future} A Java future representing the function run
     @param {Function} A function to run asynchronously.
@@ -398,7 +402,7 @@ node._selectForPack = function(packType, k){
     if (k == "_lastMsjRefresh") return true;
     if (packType == "cached") return false;
 
-    if (k == "packMe") return false;
+    if (k == "_packMe") return false;
     if (k == "constructor") return false;
     if (k == "graph") return false;
     if (k == "_messenger") return false;
