@@ -16,8 +16,10 @@
 
 var listEl = $(<div/>).appendTo("body");
 var sortKey = "first";
+var toggle = false;
 var list = msjs( function(msj){
-    if (msj.toggle) sortKey = sortKey == "first" ? "last" : "first";
+    if (toggle) sortKey = sortKey == "first" ? "last" : "first";
+    toggle = true;
 
     var arr = [
         { first : "alan", last: "zerta"},
@@ -47,15 +49,12 @@ var list = msjs( function(msj){
 
     return arr;
 });
-list.dirty = true;
 
 
 
-var controls = msjs();
 $(<div><input type="button" value="toggle"/></div>)
-    .appendTo("body")
-    .find("input")
-    .click(function(event){
-    controls.update(true);
+.appendTo("body")
+.find("input")
+.click(function(){
+    list.update();
 });
-list.set("toggle", controls);

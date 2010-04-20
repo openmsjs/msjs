@@ -1,20 +1,15 @@
 var inputA = $(<input/>).appendTo("body");
 var inputB = $(<input/>).appendTo("body");
 
-var a = msjs();
-var b = msjs();
-inputA.keyup(function(){a.update(inputA.val())});
-inputB.keyup(function(){b.update(inputB.val())});
+var a = msjs(inputA, "keyup", function(){return inputA.val()});
+var b = msjs(inputB, "keyup", function(){return inputB.val()});
 
-var server = msjs(function(msj){
-    return msj.a + " | " + msj.b;
-});
+var server = msjs(function(){
+    return a() + " | " + b();
+}).depends(a, b).setPack(false);
 server.packMe = false;
-server.pull(server.depends(a), "a");
-server.pull(server.depends(b), "b");
 
 var out = $(<div/>).appendTo("body");
-var renderer = msjs(function(msj){
-    out.text(msj.server);
-});
-renderer.push(server, "server");
+var renderer = msjs(function(){
+    out.text(server());
+}).depends(server);
