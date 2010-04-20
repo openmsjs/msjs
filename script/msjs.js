@@ -45,6 +45,8 @@ var msjs = function(){
         node = graph.make(arguments[arguments.length-1]);
     }
 
+    node._packageName = msjs.context.loadingPackage;
+
     return node;
 }
 

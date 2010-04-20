@@ -14,7 +14,6 @@
  * the License.
  */
 
-//need this to express the dependency
 var node = {};
 
 node.doesRemoteUpdate = false;
@@ -36,7 +35,6 @@ node.rawMake = function(){
         if (memberName == "rawMake") continue;
         self[memberName] = node[memberName];
     }
-    self._packageName = msjs.context.loadingPackage;
     return self;
 }
 
