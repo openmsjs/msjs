@@ -258,7 +258,7 @@ node.pack = function(packType){
     var packed = {};
     if (!isPacked) packed.isLocal = false;
     for (var k in this){
-        if (this._selectForPack(packType,k)){
+        if (selectForPack(this, packType,k)){
             packed[k] = msjs.pack(this[k]);
         }
     }
@@ -277,25 +277,22 @@ node.pack = function(packType){
     return packed;
 }
 
-node._msjs_getUnpacker = function(){
-    return [this._unpackF, [this.getId()] ];
-}
-
 //just a template for unpacking
-node._unpackF = function(id){
+var unpackFunction = function(id){
     return msjs.require("msjs.graph").getNode(id);
 };
 
-node._unpackMessengerF = function(id){
-    return msjs.require("msjs.graph").getNode(id).messenger();
-};
+node._msjs_getUnpacker = function(){
+    return [unpackFunction, [this.getId()] ];
+}
 
-node._selectForPack = function(packType, k){
-    if (isNotMember(this, k)) return false;
+
+selectForPack = function(node, packType, k){
+    if (isNotMember(node, k)) return false;
 
     //only pack ids of not packed nodes
     if (k == "_id") return true;
-    if (k == "_debugRef" && this._debugRef != node._debugRef) return true;
+    if (k == "_debugRef" && node._debugRef != node._debugRef) return true;
     if (packType == "notPacked") return false;
 
     //cached members
