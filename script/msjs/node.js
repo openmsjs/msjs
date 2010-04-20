@@ -235,39 +235,6 @@ node._ensureHasOwn = function(prop){
         }
     }
 }
-/**
-    The node's "super" call. Calls the next version of the named
-    method in the prorotype inheritance chain. Note that currently, incorrect
-    arguments to this function (such as the wrong fName) will yield a stack
-    overflow.
-    @param {String} fName The name of the method.
-    @param {Function} currF The currently exectuting function. Usually
-    "arguments.callee" in the context of the currently executing method.
-    @param {Array} args The list of arguments with which to call the call
-    the superclass method.
-    @name callInherited
-    @methodOf msjs.node#
-*/
-node.callInherited = function ( fName, currF, args ){
-    var p = this;
-    var foundIt = false;
-
-    while( p ){
-        if ( p[ fName ] == currF ){
-            foundIt = true;
-        } else if ( foundIt ) {
-            break;
-        }
-        p = p.constructor.prototype;
-    }
-
-    if ( p && p [fName ] ){
-        return p[ fName ].apply(this, args || msjs.THE_EMPTY_LIST);
-    } else {
-        throw( "Couldn't find method " + fName + " in " + p );
-    }
-}
-
 
 node._messenger = null;
 node.messenger = function(){
@@ -411,23 +378,8 @@ node._selectForPack = function(packType, k){
 
 }
 
-node.needsCachedMsj = function(otherNid){
-    var needsMsj = false;
-    for (var channel in this._inputs){
-        if (this._inputs[channel] == otherNid){
-            if (!this._transient[channel]) return true;
-        }
-    }
-
-    return false;
-}
-
 node.getInputs = function(){
     var inputs = {};
-    for (var channel in this._inputs){
-        inputs[(this._inputs[channel])] = true;
-    }
-
     var freeVars = msjs.context.getFreeVariables(this.produceMsj);
     for (var k in freeVars){
         var n = freeVars[k];
