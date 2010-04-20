@@ -29,12 +29,10 @@ var el = $(<div>
 var input = el.find("input").first();
 var form = el.find("form");
 
-var clearButton = msjs();
-
-el.find("button").click(function(){
+var clearButton = msjs( el.find("button"), "click", function(){
     input.val("");
     form[0].reset();
-    clearButton.update(true);
+    return true;
 });
 
 var typing = msjs(function(){
@@ -80,15 +78,18 @@ form.submit(function(){
 
 
 var out = $(<div/>).appendTo(document.body);
-var view = msjs(function(msj){
+var view = msjs(function(){
     out.children().remove();
 
-    for (var k in msj){
-        if (msj[k] === void 0) continue;
-        out.append($("<pre>"+k+"<>").text( k.toUpperCase() + ": " + msjs.toJSON(msj[k]) ));
+    var updates = {
+        "input": typing(),
+        "clearButton": clearButton.isUpdated ? clearButton() : void 0,
+        "form": submit()
     }
 
-});
-view.set("input", typing);
-view.set("clearButton", clearButton, true);
-view.set("form", submit);
+    for (var k in updates){
+        if (updates[k] === void 0) continue;
+        out.append($("<pre>"+k+"<>").text( k.toUpperCase() + ": " + msjs.toJSON(updates[k]) ));
+    }
+
+}).depends(typing, clearButton, submit);

@@ -15,50 +15,42 @@
  */
 
 var count = 0;
-var button = msjs();
-$("<div><button>Click me</button></div>").appendTo("body").click(function() {
-    button.update(count++);
-});
+var button = msjs($("<div><button>Click me</button></div>").appendTo("body"), "click", 
+    function() {
+        return count++;
+    }
+);
 
-var clientProducer = msjs( function(msj){
-    return "Client update " + msj.button;
-});
-clientProducer.set("button", button);
+var clientProducer = msjs( function(){
+    return "Client update " + button();
+}).depends(button);
 
-var serverProducer1 = msjs( function(msj){
+var serverProducer1 = msjs( function(){
     var self = this;
     this.async(function(){
         java.lang.Thread.sleep(200);
-        self.update("update " + msj.button);
+        self.update("update " + button());
     });
     return this.NOT_UPDATED;
 
-});
-serverProducer1.packMe = false;
-serverProducer1.set("button", button);
+}).depends(button).setPack(false);
 
-var serverProducer2 = msjs( function(msj){
+var serverProducer2 = msjs( function(){
     if (this._future) this._future.cancel(true);
     var self = this;
     this._future = this.async(function(){
         java.lang.Thread.sleep(200);
-        self.update("Server " + msj.model);
+        self.update("Server " + serverProducer1());
     });
     return this.NOT_UPDATED;
-});
-serverProducer2.packMe = false;
-serverProducer2.set("model", serverProducer1);
-serverProducer2._future = null;
+}).depends(serverProducer1).setPack(false);
 
-var view = msjs(function(msj){
-    if (msj.clientModel) this._addEl(msj.clientModel);
-    if (msj.serverModel) this._addEl(msj.serverModel);
-});
-
-view.set("clientModel", clientProducer, true);
-view.set("serverModel", serverProducer2, true);
-
-var result = $("<div/>").appendTo("body");
-view._addEl = function(text){
+var addEl = function(text){
     $("<div/>").text(text).appendTo(result);
 }
+var view = msjs(function(){
+    if (clientProducer.isUpdated()) addEl(clientProducer());
+    if (serverProducer2.isUpdated()) addEl(serverProducer2());
+}).depends(clientProducer, serverProducer2);
+
+var result = $("<div/>").appendTo("body");
