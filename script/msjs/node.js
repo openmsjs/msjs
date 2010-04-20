@@ -18,7 +18,6 @@ var node = {};
 
 node.doesRemoteUpdate = false;
 
-node._lastChecked = -1;
 node.lastMsjUpdate = -1;
 
 
@@ -128,7 +127,6 @@ node.updateMsj = function(msj, clock){
         this._msj = msj;
         if (clock != null){
             this.lastMsjUpdate = clock;
-            this._lastChecked = clock;
         }
     }
     return this.lastMsjUpdate;
@@ -149,12 +147,6 @@ node.isLocal = true;
 node.onLoad;
 node.onConnectionError;
 
-/**
-    Internal API. Unpack this node on the client
-    @name unpack
-    @methodOf msjs.node#
-*/
-
 node._packMe = null;
 
 /**
@@ -167,9 +159,6 @@ node._packMe = null;
 node.refreshMsj = function(){
     var tick = this.graph.clock;
 
-    //just an optimization
-    if (this._lastChecked == tick) return this.lastMsjUpdate;
-
     var dependencies = this.graph.getDependencies(this);
     //sources update at the beginning
     var maxRefreshed = dependencies.length ? -1 : 0;
@@ -177,19 +166,15 @@ node.refreshMsj = function(){
         maxRefreshed = Math.max(maxRefreshed, dependencies[i].lastMsjUpdate);
     }
 
-    var needsUpdate = (maxRefreshed>this._lastChecked);
     //msjs.log('refresh', this._debugRef, dependencies.length, maxRefreshed, needsUpdate);
-    if (needsUpdate){
+    if ( maxRefreshed>this.lastMsjUpdate ){
         this.updateMsj(this.produceMsj(), tick);
     }
-
-    this._lastChecked = this.graph.clock;
 
     return this.lastMsjUpdate;
 };
 
 node.invalidate = function(){
-    this._lastChecked = -1;
     this.lastMsjUpdate = -1;
 }
 
