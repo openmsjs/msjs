@@ -22,6 +22,10 @@ msjs.publish({dotRender: function(){
     var lines = [];
     var graph = msjs.require("msjs.graph");
 
+    function isConnectorNode(node){
+        return node._debugRef == "_msjs_connector";
+    }
+
     function getNodeName(node){
         var localName = node._debugRef || "node";
         return '"' + localName + "#" + node.getId() + '"';
@@ -35,10 +39,24 @@ msjs.publish({dotRender: function(){
         
     }
 
+    function connectsToConnector(node){
+        var dependents = graph.getDependentsByNodeId(node.getId());
+        for (var i=0; i< dependents.length; i++){
+            if (isConnectorNode(graph.getNode(dependents[i]))) return true;
+        }
+
+        return false;
+    }
+
     function printNode(node){
         var s = getNodeName(node);
         var style = ["fontcolor=gray20"];
-        if (!node.isLocal) style.push("fillcolor=gray90", "style=filled");
+        if (connectsToConnector(node)){
+            style.push("shape=hexagon");
+        } else if (!node.isLocal) {
+            style.push("fillcolor=gray90", "style=filled");
+        }
+
 
         if (style.length){
             s += "[" + style.join(",") + "]";
@@ -124,6 +142,7 @@ msjs.publish({dotRender: function(){
         var node = graph._nodes[i];
         var nodeName = getNodeName(node);
         
+        if (isConnectorNode(node)) continue;
         var nodePackage = node._packageName;
         if (nodePackage){
             if (!clusters[nodePackage]){
@@ -142,8 +161,10 @@ msjs.publish({dotRender: function(){
         var lightArrows = outEdges > 5;
 
         for (var k in row){
-            var rightSide = getNodeName(graph._nodes[k]);
+            var rightNode = graph._nodes[k];
+            var rightSide = getNodeName(rightNode);
 
+            if(isConnectorNode(rightNode)) continue;
             var line = nodeName + " -> " + rightSide + postfix;
             if (lightArrows) line += "[color=gray80]";
             else line += "[weight=2]";

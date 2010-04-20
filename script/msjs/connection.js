@@ -60,6 +60,8 @@ connection.add = function(node){
         graph.putUpdate(update);
     }
 
+    connector._setDebugInfo("_msjs_connector");
+
     var connectorMap = this.connectorMap;
     connectorMap.put(graph.id, connector);
 
