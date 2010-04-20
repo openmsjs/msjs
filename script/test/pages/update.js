@@ -14,8 +14,6 @@
  * the License.
  */
 
-var animator = msjs.require("msjs.animator");
-
 var jForm = $(
     <form><div>
         <input type="radio" name="size" value="longer" checked="checked"/> longer
@@ -28,7 +26,7 @@ var jForm = $(
 
 var form = jForm.get(0);
 
-var controls = msjs( function(){
+var controls = msjs(function(){
     var inputs = form.getElementsByTagName("input");
     var r = {
         size : "shorter",
@@ -43,17 +41,14 @@ var controls = msjs( function(){
 
     return r;
 });
-
-jForm.submit(function() {
+jForm.submit(function(){
     controls.update();
 });
-
         
 var dom = msjs.require("msjs.dom");
 var listEl = $(<div style="position:relative"/>).appendTo("body");
 var elHeight = 30;
-var list = msjs( function(msj){
-    var model = msj.model;
+var list = msjs( function(){
     var self = this;
     //hide them all to start
     listEl.find("div").each(function(i, animal) {
@@ -67,7 +62,7 @@ var list = msjs( function(msj){
     });
 
 
-    msjs.each(model, function(animal,i){
+    msjs.each(model(), function(animal,i){
         var name = animal.name;
         var el = animalMap[name];
         if (!el) {
@@ -76,10 +71,7 @@ var list = msjs( function(msj){
             //show the ones that are still present
             el.style.display = "";
             var start = Number(el.style.top.substring(0, el.style.top.length-2));
-            animator.make(400, function(val){
-                var p = val/100;
-                el.style.top = (start - p*start + p* i * elHeight) + "px";
-            });
+            $(el).animate({top :  i * elHeight}, 400);
         }
     });
 });
@@ -116,12 +108,13 @@ var animals = msjs(function(){
     }];
 });
 
-var model = msjs(function(msj){
-    var control = msj.control;
+var model = msjs(function(){
+    var control = controls();
+    var model = animals();
     var r = [];
     var l = control.size == "longer" ? 5 : 3;
     for (var i=0; i<l; i++){
-        r.push(msj.model[i]);
+        r.push(model[i]);
     }
 
     var sortF;
@@ -132,9 +125,5 @@ var model = msjs(function(msj){
     }
     r.sort(sortF);
     return r;
-});
-
-model.set("model", animals);
-list.set("model", model);
-
-model.set("control", controls);
+}).depends(animals, controls);
+list.depends(model);
