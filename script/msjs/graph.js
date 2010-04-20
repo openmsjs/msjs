@@ -953,7 +953,7 @@ graph._pack = function(){
     msjs.each(this._topoSort(), function(nid){
         var node = self.getNode(nid);
         //every node gets refreshed
-        node._packMe = self._determinePack(node); 
+        node._packMe = node.determinePack(); 
         if (node._packMe) packMap[nid] = true;
     });
 
@@ -1051,14 +1051,6 @@ graph._printDependencies = function(node){
 
 graph.getPackInfo = function(){
     return this.pack();
-}
-
-graph._determinePack = function(node){
-    if (node._packMe != null) return node._packMe;
-    if (node.onLoad || node.onConnectionError) return true;
-
-    //default to packing nodes
-    return msjs.isPackable(node) != false;
 }
 
 graph._msjs_isPackable = function(){

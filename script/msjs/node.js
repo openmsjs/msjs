@@ -373,7 +373,19 @@ function isNotMember(instance, name){
            !instance.hasOwnProperty(name);
 }
 
+//This is confusing, but determinePack inspects the members
+//of a node to see if it should be packed. _msjs_isPackable must
+//be defined to be ambivalent, so that closing over a node in a
+//produce function doesn't otherwise alter the packing disposition
+//of the node
 node._msjs_isPackable = function(){
+    return null;
+}
+
+node.determinePack = function(){
+    if (this._packMe != null) return this._packMe;
+    if (this.onLoad || this.onConnectionError) return true;
+
     var producePackable = msjs.isPackable(this.produceMsj);
     if (producePackable != null) return producePackable;
 
@@ -383,5 +395,6 @@ node._msjs_isPackable = function(){
         if (p != null) return p;
     }
 
-    return null;
+    //default to packing nodes
+    return true;
 }
