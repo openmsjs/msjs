@@ -20,17 +20,14 @@ var input = msjs.mock("input", function(data){
 });
 
 var client = msjs( function(msj){
-    msjs.log('re', server());
     return server();
 }).depends(server).setPack(true);
 
 var listener = msjs( function(msj){
-    msjs.log('li', client());
     return client();
 }).depends(client).setPack(false);
 
 var output = msjs.mock("output", []);
 var display = msjs( function(msj){
     output.push(listener());
-    msjs.log(output);
 }).depends(listener).setPack(true);

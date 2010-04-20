@@ -27,11 +27,9 @@ assert(initial.updateQueue.length == 0);
 assert(initial.updateQueueOffset == 0);
 
 //make sure a simple update works
-msjs.log('start');
 input('x');
 var updated = graph.getMsjForRemote();
 assert(updated.updateQueueOffset == 0);
-msjs.log(updated);
 assert(updated.updateQueue.length == 1);
 //first update, node zero
 assert(updated.updateQueue[0]['0'] == 'x');
