@@ -30,7 +30,7 @@ node._lastMsjRefresh = -1;
     @name msjs.node
 */
 node.rawMake = function(){
-    var self = function(){ return self.get(); }
+    var self = function(){ return msjs.copy(self._msj); }
     for (var memberName in node){
         if (memberName == "rawMake") continue;
         self[memberName] = node[memberName];
@@ -107,9 +107,7 @@ node.update = function(msj){
     this.graph.putUpdate(graphUpdate);
 }
 
-node.get = function(){
-    return msjs.copy(this._msj);
-}
+node.get = 
 
 /**
     Get the last msj produced by this node.
