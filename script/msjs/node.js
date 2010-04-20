@@ -308,21 +308,6 @@ selectForPack = function(node, packType, k){
 
 }
 
-node.getInputs = function(){
-    var inputs = {};
-    var freeVars = msjs.context.getFreeVariables(this.produceMsj);
-    for (var k in freeVars){
-        var n = freeVars[k];
-        if (!n) continue;
-        if (n instanceof java.lang.Object) continue;
-        if (n.isMsjsNode) inputs[n.getId()] = true;
-    }
-
-    var inputsList = [];
-    for (var id in inputs) inputsList.push(id);
-    return inputsList;
-}
-
 node.isMsjsNode = true;
 
 node._setDebugInfo = function(localName){

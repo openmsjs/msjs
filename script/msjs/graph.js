@@ -971,7 +971,7 @@ graph._pack = function(){
 
     msjs.each(this._nodes, function(node){
         var relevantMap = packMap[node.getId()] ? cacheMap : remoteUpdaters;
-        msjs.each(node.getInputs(), function(dependencyId){
+        msjs.each(self._getNodeInputs(node), function(dependencyId){
             relevantMap[dependencyId] = true;
         });
     });
@@ -1015,6 +1015,21 @@ graph._pack = function(){
         _tc : this.getTransitiveClosure(),
         hasPendingUpdates : this._hasPendingUpdates()
     };
+}
+
+graph._getNodeInputs = function(node){
+    var inputs = {};
+    var freeVars = msjs.context.getFreeVariables(node.produceMsj);
+    for (var k in freeVars){
+        var n = freeVars[k];
+        if (!n) continue;
+        if (n instanceof java.lang.Object) continue;
+        if (n.isMsjsNode) inputs[n.getId()] = true;
+    }
+
+    var inputsList = [];
+    for (var id in inputs) inputsList.push(id);
+    return inputsList;
 }
 
 graph._assertNoStrongComponents = function() {
