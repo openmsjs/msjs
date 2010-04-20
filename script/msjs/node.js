@@ -30,17 +30,11 @@ node.lastMsjUpdate = -1;
 */
 msjs.publish(function(){
     var self = function(){ return msjs.copy(self._msj); }
-    var l = [];
     for (var memberName in node){
         self[memberName] = node[memberName];
-        l.push(memberName);
     }
-    if (!did) msjs.log(l);
-    did = true;
     return self;
 }, "Client");
-
-var did = false;
 
 /**
     The method that this node runs to calculate its msj. This method is
@@ -121,27 +115,12 @@ node.isLocal = true;
 node.onLoad;
 node.onConnectionError;
 
-node._packMe = null;
-
 node.invalidate = function(){
     this.lastMsjUpdate = -1;
 }
 
 node.isUpdated = function(){
     return this.lastMsjUpdate == this.graph.clock;
-}
-
-/**
-    Instructions about the packing disposition of this instance, for transport
-    to the client. If true, the node must be packed and transported to the
-    client. If false, the node can't be packed. If null, then msjs should decide
-    whether or not to pack the node.
-    @name setPack
-    @methodOf msjs.node#
-*/
-node.setPack = function(doPack){
-    this._packMe = doPack;
-    return this;
 }
 
 /*! msjs.server-only **/
@@ -172,6 +151,23 @@ resolveReference = function(nodeOrPackage){
 
     return nodeOrPackage;
 }
+
+/**
+    Instructions about the packing disposition of this instance, for transport
+    to the client. If true, the node must be packed and transported to the
+    client. If false, the node can't be packed. If null, then msjs should decide
+    whether or not to pack the node.
+    @name setPack
+    @methodOf msjs.node#
+*/
+node.setPack = function(doPack){
+    this._packMe = doPack;
+    return this;
+}
+
+
+node._packMe = null;
+
 
 
 //protected
