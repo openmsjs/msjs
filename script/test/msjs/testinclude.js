@@ -15,7 +15,6 @@
  */
 
 var assert = msjs.require("msjs.assert");
-var node = msjs.require("msjs.node");
 var outer = msjs();
 
 var one = msjs.require("test.msjs.includes.one");

@@ -39,7 +39,7 @@ graph._cache = {};
     @methodOf msjs.graph#
 */
 graph.make = function(produceFunction){
-    var node = msjs.require("msjs.node").rawMake();
+    var node = msjs.require("msjs.node")();
     if (produceFunction) node.produceMsj = produceFunction;
     var id = this._nodes.length;
     this._nodes.push(node);
@@ -539,7 +539,7 @@ graph.setPackInfo = function(packed){
     var self = this;
     //Do this in two steps, so nodes can refer to one another
     this._nodes = msjs.map(packedNodes, function(packedNode){
-        var node =  msjs.require("msjs.node").rawMake();
+        var node =  msjs.require("msjs.node")();
         node.graph = self;
         return node;
     });
@@ -684,7 +684,7 @@ graph._processUpdate = function(update, secure){
             var dependent = this.getNode(nid);
             //msjs.log(i, dependent, distances[i]);
             if (!distances[nid]) continue;
-            var lastUpdate = dependent.refreshMsj();
+            var lastUpdate = this.refreshMsj(dependent);
             if (dependent.doesRemoteUpdate && lastUpdate == tick){
                 remoteUpdate = remoteUpdate || {};
                 remoteUpdate[dependent.getId()] = dependent.getMsj();
@@ -698,6 +698,31 @@ graph._processUpdate = function(update, secure){
         this._updateLock.unlock();
     }
 }
+
+/**
+    Internal API. Ensure that the cached version of the given node's msj is
+    up-to-date with the clock.
+    @return {Number} {@link msjs.graph#clock} time at which this node was last updated
+    @name refreshMsj
+    @methodOf msjs.node#
+*/
+graph.refreshMsj = function(node){
+    var tick = this.clock;
+
+    var dependencies = this.getDependencies(node);
+    //sources update at the beginning
+    var maxRefreshed = dependencies.length ? -1 : 0;
+    for (var i=0; maxRefreshed != tick && i<dependencies.length; i++){
+        maxRefreshed = Math.max(maxRefreshed, dependencies[i].lastMsjUpdate);
+    }
+
+    if ( maxRefreshed>node.lastMsjUpdate ){
+        node.updateMsj(node.produceMsj(), tick);
+    }
+
+    return node.lastMsjUpdate;
+};
+
 
 graph.putCachedResult = function(key, value, cacheName){
     if (!this._cache[cacheName]){
@@ -905,7 +930,7 @@ graph.refreshAll = function(){
     try{
         msjs.map(this._topoSort(), function(nid){
             var t= (new Date()).getTime();
-            self.getNode(nid).refreshMsj();
+            self.refreshMsj( self.getNode(nid));
             t = (new Date()).getTime() - t;
             if (t > 150){
                 bad[self.getNode(nid)._getDebugName()] = t;

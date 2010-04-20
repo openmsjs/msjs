@@ -14,7 +14,6 @@
  * the License.
  */
 
-var node = msjs.require("msjs.node");
 //construct out of order
 var c = msjs();
 var b = msjs();

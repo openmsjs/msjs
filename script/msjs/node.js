@@ -28,18 +28,18 @@ node.lastMsjUpdate = -1;
     @class A participant in the msjs graph.
     @name msjs.node
 */
-node.rawMake = function(){
+msjs.publish(function(){
     var self = function(){ return msjs.copy(self._msj); }
     var l = [];
     for (var memberName in node){
-        if (memberName == "rawMake") continue;
         self[memberName] = node[memberName];
         l.push(memberName);
     }
     if (!did) msjs.log(l);
     did = true;
     return self;
-}
+}, "Client");
+
 var did = false;
 
 /**
@@ -123,31 +123,6 @@ node.onConnectionError;
 
 node._packMe = null;
 
-/**
-    Internal API. Ensure that the cached version of the given node's msj is
-    up-to-date with the clock.
-    @return {Number} {@link msjs.graph#clock} time at which this node was last updated
-    @name refreshMsj
-    @methodOf msjs.node#
-*/
-node.refreshMsj = function(){
-    var tick = this.graph.clock;
-
-    var dependencies = this.graph.getDependencies(this);
-    //sources update at the beginning
-    var maxRefreshed = dependencies.length ? -1 : 0;
-    for (var i=0; maxRefreshed != tick && i<dependencies.length; i++){
-        maxRefreshed = Math.max(maxRefreshed, dependencies[i].lastMsjUpdate);
-    }
-
-    //msjs.log('refresh', this._debugRef, dependencies.length, maxRefreshed, needsUpdate);
-    if ( maxRefreshed>this.lastMsjUpdate ){
-        this.updateMsj(this.produceMsj(), tick);
-    }
-
-    return this.lastMsjUpdate;
-};
-
 node.invalidate = function(){
     this.lastMsjUpdate = -1;
 }
@@ -155,8 +130,6 @@ node.invalidate = function(){
 node.isUpdated = function(){
     return this.lastMsjUpdate == this.graph.clock;
 }
-
-msjs.publish(node, "Client");
 
 /**
     Instructions about the packing disposition of this instance, for transport
