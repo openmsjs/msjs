@@ -19,7 +19,7 @@ var node = {};
 node.doesRemoteUpdate = false;
 
 node._lastChecked = -1;
-node._lastMsjRefresh = -1;
+node.lastMsjUpdate = -1;
 
 
 /**
@@ -31,12 +31,17 @@ node._lastMsjRefresh = -1;
 */
 node.rawMake = function(){
     var self = function(){ return msjs.copy(self._msj); }
+    var l = [];
     for (var memberName in node){
         if (memberName == "rawMake") continue;
         self[memberName] = node[memberName];
+        l.push(memberName);
     }
+    if (!did) msjs.log(l);
+    did = true;
     return self;
 }
+var did = false;
 
 /**
     The method that this node runs to calculate its msj. This method is
@@ -122,10 +127,10 @@ node.updateMsj = function(msj, clock){
     this.dirty = false;
     if (msj !== void 0){
         this._msj = msj;
-        this._lastMsjRefresh = clock;
+        this.lastMsjUpdate = clock;
         this._lastChecked = clock;
     }
-    return this._lastMsjRefresh;
+    return this.lastMsjUpdate;
 }
 
 //Override
@@ -139,8 +144,10 @@ node._getDebugName = function(){
 //not true for nodes which are cached or notPacked
 node.isLocal = true;
 
-node.onLoad = null;
-node.onConnectionError = null;
+//TODO: Document these
+node.onLoad;
+node.onConnectionError;
+
 /**
     Internal API. Unpack this node on the client
     @name unpack
@@ -160,13 +167,13 @@ node.refreshMsj = function(){
     var tick = this.graph.clock;
 
     //just an optimization
-    if (this._lastChecked == tick) return this._lastMsjRefresh;
+    if (this._lastChecked == tick) return this.lastMsjUpdate;
 
     var dependencies = this.graph.getDependencies(this);
     //sources update at the beginning
     var maxRefreshed = dependencies.length ? -1 : 0;
     for (var i=0; maxRefreshed != tick && i<dependencies.length; i++){
-        maxRefreshed = Math.max(maxRefreshed, dependencies[i].getLastUpdate());
+        maxRefreshed = Math.max(maxRefreshed, dependencies[i].lastMsjUpdate);
     }
 
     var needsUpdate = (maxRefreshed>this._lastChecked);
@@ -177,16 +184,12 @@ node.refreshMsj = function(){
 
     this._lastChecked = this.graph.clock;
 
-    return this._lastMsjRefresh;
-};
-
-node.getLastUpdate = function(){
-    return this._lastMsjRefresh;
+    return this.lastMsjUpdate;
 };
 
 node.invalidate = function(){
     this._lastChecked = -1;
-    this._lastMsjRefresh = -1;
+    this.lastMsjUpdate = -1;
 }
 
 node.reset = function(newMsj){
@@ -195,7 +198,7 @@ node.reset = function(newMsj){
 
 
 node.isUpdated = function(){
-    return this.getLastUpdate() == this.graph.clock;
+    return this.lastMsjUpdate == this.graph.clock;
 }
 
 msjs.publish(node, "Client");
@@ -215,10 +218,11 @@ node.setPack = function(doPack){
 
 /*! msjs.server-only **/
 //protected
-node.shutdown = function(){ }
+//TODO: Document this
+node.shutdown;
 
-node._future = null;
-node._asyncLock = null;
+node._future;
+node._asyncLock;
 /**
     Run a function (usually one which calls update on the node itself) asynchronously.
     This is useful for allowing a graph update to complete while a node does an
@@ -297,7 +301,7 @@ selectForPack = function(node, packType, k){
 
     //cached members
     if (k == "_msj") return true;
-    if (k == "_lastMsjRefresh") return true;
+    if (k == "lastMsjUpdate") return true;
     if (packType == "cached") return false;
 
     //packed members

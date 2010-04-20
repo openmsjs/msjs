@@ -1126,7 +1126,7 @@ graph.shutdown = function(){
     //Let any waiting request go
     this._valve.pressurize();
     msjs.each(this._nodes, function(node){
-        node.shutdown();
+        if (node.shutdown) node.shutdown();
     });
 }
 

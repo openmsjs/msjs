@@ -31,7 +31,7 @@ var packed;
 
 var packedNode = msjs(msjF);
 packed = packedNode.pack("packed");
-//three properties, id, produceMsj, _lastMsjRefresh
+//three properties, id, produceMsj, lastMsjUpdate
 assert(countProperties(packed) == 3);
 
 assert(packed != null);
