@@ -16,12 +16,14 @@
 
 package org.msjs.page;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.msjs.config.BasicConfiguration;
-import org.msjs.script.ScriptContextTestProvider;
+import org.msjs.config.MsjsConfiguration;
+import org.msjs.config.MsjsModule;
 
-import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 public class BaseDotRendererTest {
@@ -29,10 +31,15 @@ public class BaseDotRendererTest {
 
     @BeforeClass
     public static void setup() {
-        provider = new PageContextProvider(new ScriptContextTestProvider(),
-                Executors.newSingleThreadExecutor(),
-                BasicConfiguration.getConfiguration());
+        Injector injector = getInjector(BasicConfiguration.getConfiguration());
+        provider = injector.getInstance(PageContextProvider.class);
     }
+
+    protected static Injector getInjector(final MsjsConfiguration config) {
+        return Guice.createInjector(new MsjsModule(config));
+
+    }
+
 
     protected void assertContains(final String s, final String output) {
         String [] lines = output.split("\n");

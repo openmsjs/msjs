@@ -33,4 +33,13 @@ public class TestDotRenderer extends BaseDotRendererTest {
 
     }
 
+    @Test
+    public void connectionTest(){
+        DotRenderer renderer = new DotRenderer(provider);
+        String output = renderer.render("test/pages/chat/app");
+
+        assertContains("shape=hexagon", output);
+
+    }
+
 }
