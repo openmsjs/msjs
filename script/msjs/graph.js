@@ -545,7 +545,10 @@ graph.setPackInfo = function(packed){
     });
 
     msjs.each(this._nodes, function(node, n){
-        node.unpack(packedNodes[n]);
+        var packed = packedNodes[n];
+        for (var k in packed){
+            node[k] = msjs.unpack(packed[k]);
+        }
     });
 
     //FIXME: Can this cause a race condition?

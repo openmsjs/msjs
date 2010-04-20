@@ -107,8 +107,6 @@ node.update = function(msj){
     this.graph.putUpdate(graphUpdate);
 }
 
-node.get = 
-
 /**
     Get the last msj produced by this node.
     @name getMsj
@@ -148,11 +146,6 @@ node.onConnectionError = null;
     @name unpack
     @methodOf msjs.node#
 */
-node.unpack = function(packed){
-    for (var k in packed){
-        this[k] = msjs.unpack(packed[k]);
-    }
-}
 
 node._packMe = null;
 
