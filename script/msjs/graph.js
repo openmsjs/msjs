@@ -396,6 +396,10 @@ graph._redirect = function(url){
 }
 
 graph._doReconnect = function(newId){
+    if (msjs.id == newId) {
+        //This happens if the server sends multiple updates to a dead server graph
+        return;
+    }
     msjs.id = newId;
     this.clock = 0;
     this._expectedUpdateFromRemote = 0;

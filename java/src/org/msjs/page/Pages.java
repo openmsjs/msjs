@@ -16,6 +16,8 @@
 
 package org.msjs.page;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.log4j.Logger;
@@ -33,6 +35,7 @@ public class Pages {
 
     private static final Logger logger = Logger.getLogger(Pages.class);
     private final PageContextProvider contextProvider;
+    private final BiMap<String, Page> reconnectMap = HashBiMap.create();
 
 
     @Inject
@@ -60,6 +63,7 @@ public class Pages {
 
     private void removePage(final Page page) {
         map.remove(page.getId());
+        reconnectMap.inverse().remove(page);
     }
 
     public Page getNew(final String scriptPath, final boolean allowCache) throws FileNotFoundException {
@@ -85,4 +89,19 @@ public class Pages {
         return map.values().size();
     }
 
+    private final Object reconnectMapMonitor = new Object();
+    public Page getReconnectedPage(final String id, final String location,
+                                   final boolean cacheAllowed) throws FileNotFoundException {
+        //FIXME: External synchronization, since there's no concurrent bimap implementation
+        synchronized(reconnectMapMonitor){
+
+            if (!reconnectMap.containsKey(id)){
+                reconnectMap.put(id, getNew(location, cacheAllowed));
+
+            }
+
+            return reconnectMap.get(id);
+        }
+
+    }
 }

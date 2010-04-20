@@ -151,7 +151,7 @@ public class PageServlet extends HttpServlet {
             }
 
             if (page == null){
-                page = pages.getNew(getScriptLocation(request), isCacheAllowed(request));
+                page = pages.getReconnectedPage(id, getScriptLocation(request), isCacheAllowed(request));
                 logger.trace("Reconnnect graph " + id + " to new graph " + page.getId());
                 result = page.prepareReconnect(request);
             } else {
