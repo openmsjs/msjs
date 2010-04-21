@@ -106,7 +106,10 @@ public class MsjsScriptContext extends ScriptContext {
             runScript(script, loadingScope);
 
             Object[] args ={ loadingScope };
+
+            //TODO: This isn't necessary in production config
             callMethodOnBinding("msjs", "assignDebugNames", args);
+            
             loadingPackage = outerPackage;
             loadingScope = outerScope;
             return bindings.get(name, bindings);
@@ -117,10 +120,6 @@ public class MsjsScriptContext extends ScriptContext {
 
     public String getLoadingPackage() {
         return loadingPackage;
-    }
-
-    public Scriptable getLoadingScope() {
-        return loadingScope;
     }
 
     public Object getFromSingletonScope(String name){

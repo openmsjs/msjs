@@ -12,7 +12,7 @@ var submit = msjs(form, "submit", function(){
     }
 });
 
-msjs.require("test.pages.chat.list");
+var list = msjs.require("test.pages.chat.list");
 var initializer = msjs(function(){
     return list.get();
 });

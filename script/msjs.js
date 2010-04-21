@@ -16,8 +16,8 @@
 
 /**
     A function that forms the root of the msjs API, and also makes
-    new graph nodes. When called as a function, makes new 
-    {@link msjs.node}, just like {@link msjs.graph#make}.
+    new graph nodes. When called as a function, makes a new 
+    {@link msjs.node}, just like {@link msjs.graph#make}. 
     @param {Function} produceFunction The function that will be called when dependencies for
     this node change, or, if this node has no dependencies, the function that will be called
     when the graph first starts. This argument is optional. A node with no produce function
@@ -177,24 +177,7 @@ msjs._packageIsLoading = {};
     dependency system used on the Java side.
     @return The published binding for that package name.
 */
-var mscope = this;
-msjs.require = function(){
-    var publishedList = msjs.map(arguments, function(packageName){
-        var published = msjs._require(packageName);
-        var scope = msjs.context.loadingScope;
-        if (scope){
-            var splitPname = packageName.split(".");
-            var localName = splitPname[splitPname.length -1 ];
-            scope[localName] = published; 
-        }
-
-        return published;
-    });
-
-    return arguments.length > 1 ? publishedList : publishedList[0];
-}
-
-msjs._require = function(packageName){
+msjs.require = function(packageName){
     return bindings[packageName];
 }
 
@@ -308,7 +291,7 @@ msjs.map = function(arr, f){
 /**
     Apply a function to each element in the given array, or to a non-object value.
     Does not error if passed null, but does on undefined. If the passed function
-    returns "false", the iteration stops. This method also handles java Iterables.
+    returns "false", the iteration stops. This method also accepts java Iterables.
 
     @param obj The input value
     @param {Function(elemnt n)} f The function to call with each element of
@@ -641,7 +624,7 @@ msjs.unpack = function(value){
     the function will run in the same (the only) thread, after the current computation
     stops. If msjs is running on the server, the function may be executed in a separate
     thread.
-    @fieldOf msjs#
+    @methodOf msjs#
     @param {Function} f The function to be executed
     @return A value representing the future execution of the function. On the client,
     this is the value returned by "setTimeout". On the server, this is a 
@@ -671,8 +654,8 @@ msjs.bindContext = function(context, global){
 /**
     The list of packages that were published to the client. This must be
     read only.
+    @type Array[String]
     @fieldOf msjs#
-    @type {Array[String]} 
 */
 msjs.clientPackages = ["msjs"];
 msjs._clientPublished = new java.util.HashMap();
@@ -856,7 +839,7 @@ msjs.execute = function(f){
 }
 
 var singletons = [];
-msjs._require = function(packageName){
+msjs.require = function(packageName){
     var isJava = packageName.indexOf("java.") == 0;
 
     if (!isJava && packageName.toLowerCase() != packageName){

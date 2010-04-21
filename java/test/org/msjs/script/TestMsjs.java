@@ -92,10 +92,4 @@ public class TestMsjs extends BaseScriptTest {
     public void testDeterminePack() {
         runTest("testdeterminepack");
     }
-
-    @Test
-    public void testRequireMap() {
-        runTest("testrequiremultiple");
-    }
-
 }
