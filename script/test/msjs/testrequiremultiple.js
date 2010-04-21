@@ -14,12 +14,14 @@
  * the License.
  */
 
-msjs.require({
-    set : "test.msjs.includes.set",
-    oneNode : "test.msjs.includes.one",
-    assert : "msjs.assert",
-    node : "msjs.node"
-});
+var arr = msjs.require(
+     "test.msjs.includes.set",
+     "test.msjs.includes.one",
+     "msjs.assert"
+);
 
 assert(set instanceof java.lang.Object);
-assert(oneNode.isMsjsNode);
+assert(one.isMsjsNode);
+assert(arr.length == 3);
+assert(arr[0] == set);
+assert(arr[1] == one);

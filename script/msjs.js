@@ -62,7 +62,6 @@ msjs.context = {
     setLoadingPackage: function(packageName){
         this.loadingPackage = packageName;
     },
-    loadingScope: (function(){ return this })(),
     redirect : function(url){
         location.href = url;
     },
@@ -179,20 +178,20 @@ msjs._packageIsLoading = {};
     @return The published binding for that package name.
 */
 var mscope = this;
-msjs.require = function(arg){
-    if (typeof arg == "string"){
-        return msjs._require(arg);
-    } else {
-        if (this.isClient) {
-            //FIXME: Bug #MSJS-69
-            msjs.log("Can't require map on client", arg);
-            throw "Use of map argument to require is not supported on the client."
+msjs.require = function(){
+    var publishedList = msjs.map(arguments, function(packageName){
+        var published = msjs._require(packageName);
+        var scope = msjs.context.loadingScope;
+        if (scope){
+            var splitPname = packageName.split(".");
+            var localName = splitPname[splitPname.length -1 ];
+            scope[localName] = published; 
         }
 
-        for (var k in arg){
-            msjs.context.loadingScope[k] = msjs._require(arg[k]);
-        }
-    }
+        return published;
+    });
+
+    return arguments.length > 1 ? publishedList : publishedList[0];
 }
 
 msjs._require = function(packageName){

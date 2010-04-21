@@ -95,7 +95,7 @@ public class TestMsjs extends BaseScriptTest {
 
     @Test
     public void testRequireMap() {
-        runTest("testrequiremap");
+        runTest("testrequiremultiple");
     }
 
 }
