@@ -1,7 +1,7 @@
 var form = $(<form>
     <label>Name: <input name="name"/></label>
     <br/>
-    <textarea name="message"/>
+    <textarea name="message" rows="3" cols="24"/>
     <input type="submit" value="go"/>
 </form>).appendTo("body");
 
