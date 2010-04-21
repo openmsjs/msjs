@@ -703,13 +703,6 @@ graph._processUpdate = function(update, secure){
     }
 }
 
-/**
-    Internal API. Ensure that the cached version of the given node's msj is
-    up-to-date with the clock.
-    @return {Number} {@link msjs.graph#clock} time at which this node was last updated
-    @name refreshMsj
-    @methodOf msjs.node#
-*/
 graph.refreshMsj = function(node){
     var tick = this.clock;
 
