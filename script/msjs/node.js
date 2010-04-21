@@ -24,7 +24,18 @@ node.lastMsjUpdate = -1;
 /**
     Nodes have formal dependencies on other nodes, and each has a reference to
     the graph object that contains them. Nodes are usually constructed with
-    calls to {@link msjs}.
+    calls to {@link msjs}. The node is itself a function. When called with no 
+    arguments, it returns the cached msj for this node. When called with an
+    argument, it sets the cached msj for this node to the given value and starts
+    a graph update.
+    @example
+        var updater = msjs();
+        var listener = msjs(function(){
+            return updater();
+        }).depends(updater);
+
+        updater(2);
+        assert(listener() == 2);
     @class A participant in the msjs graph.
     @name msjs.node
 */
@@ -44,22 +55,16 @@ msjs.publish(function(){
 
 /**
     The method that this node runs to calculate its msj. This method is
-    automatically called when  one of the nodes it depends on changes, when
-    update is called with no arguments, or when the graph starts, if it has no
-    dependencies. Although this is
-    usually passed in with the call to {@link msjs} it can also be set directly
-    on the node instance. When called as a result of a graph update, the
-    produceMsj function is called with an object whose keys are msj's that of
-    the nodes that this node {@link msjs.node#push}es or {@link
-    msjs.node#pull}s.  In cases where the produceMsj function returns the
+    automatically called when  one of the nodes it depends on changes, or when
+    the graph starts, if it has no dependencies. Although this member is usually
+    passed in with the call to {@link msjs} it can also be set directly on the
+    node instance.  In cases where the produceMsj function returns the
     undefined value (as distinct from null,) the node is considered "not
     updated" for this clock cycle, and nodes depending on this one will behave
     accordingly. Nodes with no given produceMsj method use the default, which
     returns undefined.
 
     @name produceMsj
-    @param {Dictionary} msj The values for msj's of nodes that are pushed or pulled
-    by this node.
     @return The msj for this node.
     @methodOf msjs.node#
 */
@@ -71,7 +76,10 @@ node.getId = function(){
 
 
 /**
-    Get the last msj produced by this node.
+    Get the last msj produced by this node. Unlike calling the node directly,
+    this method returns the actual cached value of the node's msj, so this can
+    be used to avoid copying a large msj. Just be careful not to modify values
+    returned by this method.
     @name getMsj
     @methodOf msjs.node#
     @return Last msj for this node, either returned from produceMsj or passed in by update.
@@ -118,9 +126,12 @@ node.isUpdated = function(){
 
 /**
     Adds an edge in the graph from the given node to this one. Accepts multiple arguments
-    @param {msjs.node, String} otherNodeRef A reference to another node, given as either
+    @param {msjs.node, String} otherNodeRefs References to another node, given as either
     a package name to be loaded with {@link msjs#require} or as a direct reference to a
-    node in the same graph.
+    node in the same graph. This method is variadic; it accepts multiple dependencies in
+    a single call
+    @example
+    myNode.depends(otherNode, yetAnotherNode);
     @return {msjs.node} this
     @name depends
     @methodOf msjs.node#
@@ -148,8 +159,9 @@ resolveReference = function(nodeOrPackage){
     to the client. If true, the node must be packed and transported to the
     client. If false, the node can't be packed. If null, then msjs should decide
     whether or not to pack the node.
-    @name setPack
     @methodOf msjs.node#
+    @name setPack
+    @return {msjs.node} this
 */
 node.setPack = function(doPack){
     this._packMe = doPack;
@@ -171,10 +183,19 @@ node._asyncLock;
     Run a function (usually one which calls update on the node itself) asynchronously.
     This is useful for allowing a graph update to complete while a node does an
     expensive calculation or calls out to a web service. Nodes which use this method
-    must be set to _packMe=false. A given node's update function is protected by its own
+    must be setPack(false). A given node's update function is protected by its own
     lock, so an individual node will only run one async function at a time.
+    @example
+    var keepGoingNode = msjs( function(){
+        var self = this;
+        this.async(function(){
+            self.update(slowResource.computeResult());
+        });
+        return "working";
+    });
+    
     @return {Future} A Java future representing the function run
-    @param {Function} A function to run asynchronously.
+    @param {Function} f A function to run asynchronously.
     @name async
     @methodOf msjs.node#
 */
