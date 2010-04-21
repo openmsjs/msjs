@@ -15,7 +15,7 @@
  */
 
 var server = msjs().setPack(false);
-var input = msjs.mock("input", function(data){
+var input = msjs.inject("input", function(data){
     server.update(data);
 });
 
@@ -27,7 +27,7 @@ var listener = msjs( function(msj){
     return client();
 }).depends(client).setPack(false);
 
-var output = msjs.mock("output", []);
+var output = msjs.inject("output", []);
 var display = msjs( function(msj){
     output.push(listener());
 }).depends(listener).setPack(true);

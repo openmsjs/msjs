@@ -227,7 +227,7 @@ msjs.publish = function(value, scope){
     @param binding The new binding for the given package name
     @methodOf msjs#
 */
-msjs.mock = function(packageName, binding){
+msjs.inject = function(packageName, binding){
     bindings[packageName] = binding;
     return binding;
 }
@@ -259,9 +259,11 @@ msjs.copy = function( base ){
 
 
 /**
-    Apply a function to each element in the given array, and return the array
-    consiting of the return values. The array is folded, so that nulls returned from
-    the parameter function aren't included in the result array.
+    Apply a function to each element in the given array or java Iterable, and
+    return the array consiting of the return values. The array is folded, so
+    that nulls returned from the parameter function aren't included in the
+    result array. Passing a single argument to map calls the identity function
+    on each element, and returns a new list with the original values folded.
     @param {Array} arr The input array.
     @param {Function(elemnt, n)} f The function to call with each element of
     the array. This function is called with two parameters: the first is the
@@ -634,6 +636,17 @@ msjs.unpack = function(value){
     return value;
 }
 
+/**
+    Executes the passed function at a later time. If msjs is running on the client,
+    the function will run in the same (the only) thread, after the current computation
+    stops. If msjs is running on the server, the function may be executed in a separate
+    thread.
+    @fieldOf msjs#
+    @param {Function} f The function to be executed
+    @return A value representing the future execution of the function. On the client,
+    this is the value returned by "setTimeout". On the server, this is a 
+    java.util.concurrent.Future
+*/
 msjs.execute = function(f){
     return setTimeout(f, 1);
 }
@@ -833,8 +846,8 @@ msjs._dontPackNames = {
 
 }
 
-//Only call inject if needed; otherwise you always need to invoke Guice
-//in order to run msjs
+//The rest of this stuff is overrides of client APIs
+/**#nocode+*/
 msjs.execute = function(f){
     if (!this._executor){
         this._executor = this.require("java.java.util.concurrent.ExecutorService");
@@ -842,8 +855,6 @@ msjs.execute = function(f){
     return this._executor.submit( new java.lang.Runnable({ run : f }) );
 }
 
-//The rest of this stuff is overrides of client APIs
-/**#nocode+*/
 var singletons = [];
 msjs._require = function(packageName){
     var isJava = packageName.indexOf("java.") == 0;
