@@ -634,6 +634,21 @@ msjs.unpack = function(value){
     return value;
 }
 
+msjs.execute = function(f){
+    return msjs._getExecutor().submit( new java.lang.Runnable({ run : f }) );
+}
+
+msjs._getExecutor = function(){
+    if (!this._executor){
+        this._executor = {
+            submit : function(f){
+                return setTimeout(f, 1);
+            }
+
+        }
+    }
+    return this._executor;
+}
 
 
 /*! msjs.server-only **/
@@ -833,7 +848,7 @@ msjs._dontPackNames = {
 
 //Only call inject if needed; otherwise you always need to invoke Guice
 //in order to run msjs
-msjs.getExecutor = function(){
+msjs._getExecutor = function(){
     if (!this._executor){
         this._executor = this.require("java.java.util.concurrent.ExecutorService");
     }
@@ -945,3 +960,4 @@ msjs._unpackClosure = function( $_args_$ ){
 msjs._unpackClientPublished = function(packageName){
     return msjs.require(packageName);
 }
+

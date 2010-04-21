@@ -74,16 +74,13 @@ connection.getAllConnected = function(){
     return this.connectorMap.keySet();
 }
 
-var executor = msjs.require("java.java.util.concurrent.ExecutorService");
-var handlen = 0;
 connection.handle = function(node){
     var recipientIds = this.getRecipientIds(node);
     var id = node.graph.id;
     var msj = node();
     var connectorMap = this.connectorMap;
-    var n = handlen++;
 
-    executor.submit( new java.lang.Runnable({
+    msjs.execute( new java.lang.Runnable({
         run : function(){
             msjs.each(recipientIds, function(recipientId){
                 if (recipientId == id) return;

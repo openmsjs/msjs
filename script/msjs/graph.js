@@ -1125,25 +1125,22 @@ graph.needsMsjPack = function(nid){
 graph.async = function(callback){
     this._updateCounter.incrementAndGet();
     var self = this;
-    var runnable = new java.lang.Runnable({
-        run : function(){
-            try{
-                callback();
-            } catch(e){
-                if (e.javaException &&
-                    e.javaException instanceof java.lang.InterruptedException){
-                    //ignore
-                } else{
-                    var message = e.message || (e.getMessage && e.getMessage() ) || e;
-                    msjs.log('async update error:', message);
-                    msjs.log('while running', callback);
-                }
-            } finally{
-                self._updateCounter.decrementAndGet();
+    return msjs.execute(function(){
+        try{
+            callback();
+        } catch(e){
+            if (e.javaException &&
+                e.javaException instanceof java.lang.InterruptedException){
+                //ignore
+            } else{
+                var message = e.message || (e.getMessage && e.getMessage() ) || e;
+                msjs.log('async update error:', message);
+                msjs.log('while running', callback);
             }
+        } finally{
+            self._updateCounter.decrementAndGet();
         }
     });
-    return msjs.getExecutor().submit(runnable);
 }
 graph._updateCounter = new java.util.concurrent.atomic.AtomicInteger();
 graph._updateLock = new java.util.concurrent.locks.ReentrantLock();
