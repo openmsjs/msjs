@@ -635,21 +635,8 @@ msjs.unpack = function(value){
 }
 
 msjs.execute = function(f){
-    return msjs._getExecutor().submit( new java.lang.Runnable({ run : f }) );
+    return setTimeout(f, 1);
 }
-
-msjs._getExecutor = function(){
-    if (!this._executor){
-        this._executor = {
-            submit : function(f){
-                return setTimeout(f, 1);
-            }
-
-        }
-    }
-    return this._executor;
-}
-
 
 /*! msjs.server-only **/
 msjs.isClient = false;
@@ -848,11 +835,11 @@ msjs._dontPackNames = {
 
 //Only call inject if needed; otherwise you always need to invoke Guice
 //in order to run msjs
-msjs._getExecutor = function(){
+msjs.execute = function(f){
     if (!this._executor){
         this._executor = this.require("java.java.util.concurrent.ExecutorService");
     }
-    return this._executor;
+    return this._executor.submit( new java.lang.Runnable({ run : f }) );
 }
 
 //The rest of this stuff is overrides of client APIs

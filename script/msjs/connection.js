@@ -80,23 +80,21 @@ connection.handle = function(node){
     var msj = node();
     var connectorMap = this.connectorMap;
 
-    msjs.execute( new java.lang.Runnable({
-        run : function(){
-            msjs.each(recipientIds, function(recipientId){
-                if (recipientId == id) return;
-                try {
-                    connectorMap.get(recipientId).putMsj(msj);
-                } catch (e){
-                    var errorMsg = 'Error in connection send';
-                    if (e.rhinoException){
-                        msjs.context.log(errorMsg, e.rhinoException);
-                    } else {
-                        msjs.log(errorMsg, e);
-                    }
+    msjs.each(recipientIds, function(recipientId){
+        if (recipientId == id) return;
+        msjs.execute( function(){
+            try {
+                connectorMap.get(recipientId).putMsj(msj);
+            } catch (e){
+                var errorMsg = 'Error in connection send';
+                if (e.rhinoException){
+                    msjs.context.log(errorMsg, e.rhinoException);
+                } else {
+                    msjs.log(errorMsg, e);
                 }
-            });
-        }
-    }));
+            }
+        });
+    });
 }
 
 connection._getDebugName = function(){
