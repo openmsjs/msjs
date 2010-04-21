@@ -313,7 +313,7 @@ dom.addCss = function(){
         rules : rules
     };
     this._cssRules.push(r);
-    return r;
+    return this;
 }
 
 var styleConversion = msjs.require("msjs.styleconversion");
