@@ -27,14 +27,14 @@ latch = new java.util.concurrent.CountDownLatch(2);
 a.async(function(){
     starter.await();
     returnValue[0]= true;
-    a.update(true);
+    a(true);
     latch.countDown();
 });
     
 a.async(function(){
     starter.await();
     returnValue[1]= true;
-    a.update(true);
+    a(true);
     latch.countDown();
 });
 
@@ -57,7 +57,7 @@ var future = b.async(function(){
     starter.await();
     //shouldn't get here
     returnValue[0]= true;
-    b.update(true);
+    b(true);
     latch.countDown();
 });
     
@@ -66,7 +66,7 @@ future.cancel(true);
 b.async(function(){
     starter.await();
     returnValue[1]= true;
-    b.update(true);
+    b(true);
     latch.countDown();
 });
 

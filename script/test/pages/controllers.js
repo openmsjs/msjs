@@ -27,8 +27,9 @@ var buttons = $(
 </div>
 ).appendTo("body");
 
-var twoButtons = msjs($('button'), "click", function(event) {
-    return event.target.value;
+var twoButtons = msjs()
+$('button').click(function(event) {
+    twoButtons(event.target.value);
 });
 
 var outputEl = $(<p>[no message]</p>).appendTo("body");

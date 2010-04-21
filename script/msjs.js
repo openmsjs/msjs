@@ -28,25 +28,9 @@
     useful convenience methods.
     @name msjs
 */
-var msjs = function(){
-    var graph = msjs.require("msjs.graph"),
-        node;
-
-    if (arguments.length == 3){
-        var jqObj = arguments[0];
-        var eventName = arguments[1];
-        var f = arguments[2];
-        var node = graph.make();
-
-        jqObj.bind(eventName, function(){
-            node.update(f.apply(msjs.require("global"), arguments));
-        });
-    } else {
-        node = graph.make(arguments[arguments.length-1]);
-    }
-
+var msjs = function(produceFunction){
+    var node = msjs.require("msjs.graph").make(produceFunction);
     node._packageName = msjs.context.loadingPackage;
-
     return node;
 }
 

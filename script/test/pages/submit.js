@@ -24,7 +24,8 @@ var form = $(
     </div></form>
 ).appendTo(document.body);
 
-var submit = msjs(form, "submit",  function(event){
+var submit = msjs();
+form.submit(function(event){
     var r = {
         first : form.get(0).first.value,
         last : form.get(0).last.value
@@ -33,7 +34,7 @@ var submit = msjs(form, "submit",  function(event){
     form.get(0).reset();
     form.find("input").first().focus(); //:)
 
-    return r;
+    submit(r);
 });
 
 var data = [

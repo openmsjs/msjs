@@ -34,6 +34,6 @@ assert(bNode() == 0);
 assert(bNode() == 0);
 assert(cNode() == 0);
 
-aNode.update();
+aNode(null);
 assert(bNode() == 1);
 assert(cNode() == 1);

@@ -29,7 +29,13 @@ node.lastMsjUpdate = -1;
     @name msjs.node
 */
 msjs.publish(function(){
-    var self = function(){ return msjs.copy(self._msj); }
+    var self = function(arg){ 
+        if (arg === void 0) return msjs.copy(self._msj); 
+        var graphUpdate = {};
+        graphUpdate[self.getId()] = arg;
+        self.graph.putUpdate(graphUpdate);
+    }
+
     for (var memberName in node){
         self[memberName] = node[memberName];
     }
@@ -63,21 +69,6 @@ node.getId = function(){
     return this._id;
 }
 
-
-/**
-    Refresh this node's msj either with the supplied argument or by running the
-    node's produce function. Calls {@link msjs.graph#putUpdate} with the result.
-    @name update
-    @methodOf msjs.node#
-    @param msj The new value for the node's msj. If undefined, the node's produce 
-    function will run
-*/
-node.update = function(msj){
-    if (msj === void 0) msj = this.produceMsj();
-    var graphUpdate = {};
-    graphUpdate[this.getId()] = msj;
-    this.graph.putUpdate(graphUpdate);
-}
 
 /**
     Get the last msj produced by this node.

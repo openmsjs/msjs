@@ -16,7 +16,7 @@
 
 var server = msjs().setPack(false);
 var input = msjs.inject("input", function(data){
-    server.update(data);
+    server(data);
 });
 
 var client = msjs( function(msj){

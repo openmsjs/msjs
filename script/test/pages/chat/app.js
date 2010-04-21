@@ -5,11 +5,12 @@ var form = $(<form>
     <input type="submit" value="go"/>
 </form>).appendTo("body");
 
-var submit = msjs(form, "submit", function(){
-    return {
+var submit = msjs();
+form.submit(function(){
+    submit({
         name : form[0].name.value,
         message : form[0].message.value
-    }
+    });
 });
 
 var list = msjs.require("test.pages.chat.list");

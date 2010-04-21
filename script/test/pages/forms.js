@@ -29,10 +29,11 @@ var el = $(<div>
 var input = el.find("input").first();
 var form = el.find("form");
 
-var clearButton = msjs( el.find("button"), "click", function(){
+var clearButton = msjs();
+el.find("button").click(function(){
     input.val("");
     form[0].reset();
-    return true;
+    clearButton(true);
 });
 
 var typing = msjs(function(){

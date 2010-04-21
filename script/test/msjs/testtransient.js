@@ -34,8 +34,8 @@ msjs.require("msjs.graph").refreshAll();
 var assert = msjs.require("msjs.assert");
 assert(result() == 'a');
 
-b.update();
+b("b");
 assert(result() == 'b');
 
-c.update();
+c(null);
 assert(result() == 'none');

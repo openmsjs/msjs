@@ -21,8 +21,9 @@ var form = $(<form>
     <input type="submit" value="Go"/>
 </form>).appendTo("body");
 
-var submit = msjs(form, "submit", function(){
-    return form.find("input").val();
+var submit = msjs();
+form.submit(function(){
+    submit(form.find("input").val());
 });
 
 var MD5er = new Packages.org.msjs.service.MD5();
