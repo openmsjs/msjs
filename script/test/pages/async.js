@@ -15,11 +15,10 @@
  */
 
 var count = 0;
-var button = msjs($("<div><button>Click me</button></div>").appendTo("body"), "click", 
-    function() {
-        return count++;
-    }
-);
+var button = msjs();
+$("<div><button>Click me</button></div>").appendTo("body").click(function(){
+    button(count++);
+});
 
 var clientProducer = msjs( function(){
     return "Client update " + button();
@@ -29,7 +28,7 @@ var serverProducer1 = msjs( function(){
     var self = this;
     this.async(function(){
         java.lang.Thread.sleep(200);
-        self.update("update " + button());
+        self("update " + button());
     });
 }).depends(button).setPack(false);
 
@@ -38,7 +37,7 @@ var serverProducer2 = msjs( function(){
     var self = this;
     this._future = this.async(function(){
         java.lang.Thread.sleep(200);
-        self.update("Server " + serverProducer1());
+        self("Server " + serverProducer1());
     });
 }).depends(serverProducer1).setPack(false);
 

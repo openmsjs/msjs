@@ -42,7 +42,7 @@ var typing = msjs(function(){
 typing.depends(clearButton);
 
 input.keyup( function(){
-    typing.update();
+    typing(typing.produceMsj());
 });
 
 var submit = msjs(function(){
@@ -74,7 +74,7 @@ var submit = msjs(function(){
 submit.depends(clearButton);
 
 form.submit(function(){
-    submit.update();
+    submit(submit.produceMsj());
 });
 
 

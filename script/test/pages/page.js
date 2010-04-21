@@ -74,14 +74,14 @@ var showCookies = msjs(function(msj){
         var key = escape(pair[0]);
         button.click(function(){
             document.cookie = key+"=; expires=" + retire + ";"; 
-            showCookies.update();
+            showCookies(showCookies.produceMsj());
         });
     });
 });
 showCookies.depends(init);
 
 $(<button>Refresh cookies</button>).click(function(){
-    showCookies.update();
+    showCookies(showCookies.produceMsj());
 }).appendTo("body");
 
 var form = $(<form>
@@ -92,7 +92,7 @@ var form = $(<form>
 </form>).submit(function(){
     var domForm = form.get(0);
     document.cookie = escape(domForm.key.value)+"="+ escape(domForm.val.value) + ";"; 
-    showCookies.update();
+    showCookies(showCookies.produceMsj());
 }).appendTo("body");
 
 var dom = msjs.require("msjs.dom");

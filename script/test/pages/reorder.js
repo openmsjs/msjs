@@ -56,5 +56,5 @@ $(<div><input type="button" value="toggle"/></div>)
 .appendTo("body")
 .find("input")
 .click(function(){
-    list.update();
+    list(list.produceMsj);
 });

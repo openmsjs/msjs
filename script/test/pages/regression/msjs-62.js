@@ -13,6 +13,5 @@ var renderer = msjs(function() {
 var picker = msjs();
 var handleClick = function() { 
     var info = $(this).data("info");
-    picker.update(info);
-    msjs.log(info);
+    picker(info);
 } 

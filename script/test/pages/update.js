@@ -42,7 +42,7 @@ var controls = msjs(function(){
     return r;
 });
 jForm.submit(function(){
-    controls.update();
+    controls(controls.produceMsj());
 });
         
 var dom = msjs.require("msjs.dom");

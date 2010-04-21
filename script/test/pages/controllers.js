@@ -45,7 +45,7 @@ $( <form style="margin-top:50px"><div>
     </div></form>
 ).appendTo("body").click(
     function() { 
-        checks.update();
+        checks(checks.produceMsj());
     }
 );
 
@@ -56,7 +56,6 @@ var checks = msjs(function(){
     });
     return s;
 });
-//checks.dirty = true;
 
 var output2El = $(<p/>).appendTo("body");
 var out = msjs(function(msj){

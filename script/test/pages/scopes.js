@@ -19,7 +19,7 @@ var y = {z:2};
 
 var b = msjs();
 $(<button>click me</button>).appendTo("body").click(function(event){
-    b.update(true);
+    b(true);
 });
 
 var m = msjs(function(msj){
