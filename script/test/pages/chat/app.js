@@ -12,14 +12,13 @@ var submit = msjs(form, "submit", function(){
     }
 });
 
-var list = msjs.require("test.pages.chat.list");
+msjs.require("test.pages.chat.list");
 var initializer = msjs(function(){
-    return list;
+    return list.get();
 });
 
 var updater = msjs(function(){
-    list.push(submit());
-    return list;
+    return list.add(submit());
 }).depends(submit);
 
 var out =$(<div/>).appendTo("body");
@@ -32,5 +31,4 @@ var renderer = msjs(function(){
     });
 }).depends(initializer, updater);
 
-var broadcast = msjs.require("test.pages.chat.broadcast")
-broadcast.add(updater);
+msjs.require("test.pages.chat.broadcast").add(updater);

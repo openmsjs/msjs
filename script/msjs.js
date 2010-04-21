@@ -273,14 +273,31 @@ msjs.copy = function( base ){
 */
 msjs.map = function(arr, f){
     if (!arr) return [];
-    var l = arr.length;
-    if ( l == null ) l = msjs.getLength(arr);
-    if ( !l ) return [];
+
     var r = [];
-    for(var i=0; i < l; i++){
-        var result = f ? f(arr[i], i) : arr[i];
-        if (result!=null) {
-            r.push(result);
+    if ( !this.isClient && arr instanceof java.lang.Object && 
+         "iterator" in arr && 
+         typeof arr.iterator == "function" ){
+        var it = arr.iterator();
+        var i =0;
+        while(it.hasNext()){
+            var item = it.next();
+            var result = f ? f(item, i++) : item;
+
+            if (result!=null) {
+                r.push(result);
+            }
+        }
+
+    } else {
+        var l = arr.length;
+        if ( l == null ) l = msjs.getLength(arr);
+        if ( !l ) return [];
+        for(var i=0; i < l; i++){
+            var result = f ? f(arr[i], i) : arr[i];
+            if (result!=null) {
+                r.push(result);
+            }
         }
     }
     return r;
