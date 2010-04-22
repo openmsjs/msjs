@@ -21,6 +21,11 @@
     @name msjs.graph
 */
 var graph = {};
+/**
+    A unique ID for the graph which is the same as the {@link msjs#id}
+    @name id
+    @fieldOf msjs.graph#
+*/
 graph.id = msjs.id;
 graph._nodes = [];
 graph._adjacencyMatrix = [];

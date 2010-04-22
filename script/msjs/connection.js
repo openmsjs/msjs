@@ -18,6 +18,23 @@ var connection = msjs.publish(connectionConstructor.prototype);
 
 var maker = new Packages.com.google.common.collect.MapMaker();
 
+/**
+    Connections allow similar nodes in different graphs to pass a msj to one
+    another. Connections are usually constructed with a call to {@link msjs#connection} 
+    and published in the Global namespace.
+    @class A channel for sharing messages between graphs
+    @name msjs.connection
+*/
+
+/**
+    Construct a new connection, using the supplied function as the 
+    {@link msjs.connection#getRecipientIds} function
+    @methodOf msjs.connection
+    @name make
+    @param {Function} getRecipientIds The {@link msjs.connection#getRecipientIds} function
+    for the new connection
+    @return {msjs.connection} The new connection
+*/
 connection.make = function(getRecipientIds){
     var c = new connectionConstructor();
     c.getRecipientIds = getRecipientIds;
@@ -29,8 +46,20 @@ connection.make = function(getRecipientIds){
     return c;
 };
 
-//abstract
-connection.getRecipientIds = function(){
+/**
+    The method which is called when a new message is received over the connection. It
+    should return list of graphs in which to relay the msj, as identified by their 
+    {@link msjs#id}. This method is defined on the class to return an empty list, but it
+    is over-riden with the function passed to {@link msjs.connection.make}
+    @methodOf msjs.connection#
+    @name getRecipientIds
+    @param {msjs.node} node The {@link msjs.node} which was updated. This node can
+    be called to get the msj just sent by the node.
+    @return {Array[String]|Iterable[String]} The list of msjs.id's whose node
+    should receive the msj over the connection. This can be a javascript list or a java 
+    collection since it is used within a call to {@link msjs#each} by the connection.
+*/
+connection.getRecipientIds = function(node){
     return msjs.THE_EMPTY_LIST;
 }
 
@@ -38,6 +67,15 @@ connection._msjs_isPackable = function(){
     return false;
 }
 
+/**
+    Add a given node to the connection. Only one node from a given graph can be added
+    to a single connection, though it's fine for a single graph to have multiple connections
+    for different nodes
+    @methodOf msjs.connection#
+    @name add
+    @param {msjs.node} node The {@link msjs.node} to add to this connection
+    @return {msjs.connection} this
+*/
 connection.add = function(node){
     var self = this;
 
@@ -68,8 +106,20 @@ connection.add = function(node){
     connector.shutdown = function(){
         connectorMap.remove(graph.id);
     }
+
+    return connection;
 }
 
+/**
+    Get the collection of all {@link msjs#id}'s that are listening on this connection. Although
+    to a single connection, though it's fine for a single graph to have multiple connections
+    for different nodes
+    @methodOf msjs.connection#
+    @name getAllConnected
+    @param {msjs.node} node The {@link msjs.node} to add to this connection
+    @return {Iterable[String]} The collection of all graph ids that are active and listening
+    on this connection.
+*/
 connection.getAllConnected = function(){
     return this.connectorMap.keySet();
 }
