@@ -111,10 +111,6 @@
             </fileset>
         </copy>
 
-        <copy toDir="${staging.dir}/file">
-            <fileset dir="file/"/>
-        </copy>
-
         <copy toDir="${staging.dir}/script">
             <fileset dir="script/">
                 <exclude name="document.js"/>
