@@ -47,7 +47,7 @@ var addEl = function(text){
 }
 var view = msjs(function(){
     addEl(clientProducer.ifUpdated());
-    addEl(serverProducer2,ifUpdated());
+    addEl(serverProducer2.ifUpdated());
 }).depends(clientProducer, serverProducer2);
 
 var result = $("<div/>").appendTo("body");
