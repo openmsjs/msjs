@@ -466,16 +466,6 @@ document.renderAsXHTML = function(script){
     var title = this.title;
     delete this.title;
 
-    var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
-    var webappPath = config.getWebappPath();
-
-    msjs.each(head.childNodes, function(child){
-        if (child.nodeName == "LINK" && child.rel == "stylesheet" && child.href &&
-            (child.href.indexOf("http:") != 0 && child.href.indexOf("/") != 0) ){
-            //relativize href
-            child.href = webappPath + "/file/"+child.href;
-        }
-    });
 
     head.appendChild(<title>{title}</title>);
     msjs.each(this._getScriptResources(msjs.clientPackages), function(node){
@@ -495,6 +485,9 @@ document.renderAsXHTML = function(script){
         }
     }
 
+
+    var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
+    var webappPath = config.getWebappPath();
 
     //append callback iframe
     this.body.appendChild(

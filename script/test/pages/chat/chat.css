@@ -13,15 +13,16 @@ form {
 
 div.messages {
     width : 300px;
-    overflowY : scroll;
-    overflowX : hidden;
+    overflow-y : scroll;
+    overflow-x : hidden;
     height : 200px;
-    backgroundColor : white;
+    background-color : white;
     padding : 5px;
     border : solid 1px #1C2F56;
 }
+
 label {
-    marginBottom : 5px;
+    margin-bottom : 5px;
     display : block;
 }
 .name {

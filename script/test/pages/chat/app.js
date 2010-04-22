@@ -43,4 +43,4 @@ var renderer = msjs(function(){
 
 msjs.require("test.pages.chat.broadcast").add(updater);
 
-$(<link rel="stylesheet" type="text/css" href="test/pages/chat/chat.css"/>).appendTo("head");
+msjs.require("msjs.dom").addStylesheet("test/pages/chat/chat.css");

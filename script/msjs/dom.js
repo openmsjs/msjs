@@ -253,6 +253,36 @@ dom.pack = function(request){
 
 }
 
+/**
+    Add a link to an external stylesheet to the document head.
+    @name addStylesheet
+    @methodOf msjs.dom#
+    @example
+    //served by apache, say
+    dom.addStylesheet("/myglobal.css");
+    //contained in script/my/app/style.css
+    dom.addStylesheet("my/app/style.css");
+    @param {String} url The url for the stylesheet. If the URL doesn't start
+    with a slash or "http:", the link is relativized so that it refers back to
+    correct msjs script location.
+    @return {msjs.dom} this
+*/
+dom.addStylesheet = function(url){
+    var link = document.head.appendChild( document.createElement("link") );
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    var href = url;
+
+    if (href.indexOf("http:") != 0 && href.indexOf("/") != 0){
+        var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
+        href = config.getWebappPath() + "/file/" + href;
+    }
+
+    link.href = href;
+
+    return this;
+}
+
 dom.acceptMsj = function(request){
     var inboundQueue = this._handleUpdateRequest(request);
     return msjs.require("msjs.graph").acceptMsjFromRemote(inboundQueue);
