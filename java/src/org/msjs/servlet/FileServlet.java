@@ -27,7 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class FileServlet extends ResourceServlet {
 
@@ -47,8 +51,26 @@ public class FileServlet extends ResourceServlet {
                                  final HttpServletResponse response) throws IOException {
         final String contentType = context.getMimeType(getFilePath(request));
         if (contentType != null) response.setHeader("Content-Type", contentType);
-        IOUtils.copy(new FileInputStream(getFile(request)), response.getOutputStream());
+        IOUtils.copy(getInputStream(request), response.getOutputStream());
     }
+
+    private InputStream getInputStream(final HttpServletRequest request)
+            throws IOException {
+        final File file = getFile(request);
+        if (file.exists()) return new FileInputStream(file);
+
+        final String path = getFilePath(request);
+        try{
+            final URL url = FileServlet.class.getResource(path);
+            if (url == null) throw new IOException(path);
+            URLConnection connection = url.openConnection();
+            return connection.getInputStream();
+        } catch (IOException e){
+            throw new FileNotFoundException(path);
+        }
+
+    }
+
 
     @Override
     public long getLastModified(final HttpServletRequest request) {
