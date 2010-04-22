@@ -88,6 +88,13 @@ node.getMsj = function(){
     return this._msj;
 }
 
+/**
+    Get a copy of this node's message, but only if it was updated during this
+    graph clock tick, otherwise return undefined.
+    @name ifUpdated
+    @methodOf msjs.node#
+    @return Last msj for this node, either returned from produceMsj or passed in by update.
+*/
 node.ifUpdated = function(){
     if (this.lastMsjUpdate == this.graph.clock) return this();
 }
