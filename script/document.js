@@ -365,6 +365,7 @@ domelement._isAttribute = function(attr) {
         case "_msjs_isPackable":
         case "_listeners":
         case "_isPacked":
+        case "_scrollTop":
             return false;
     }
 
