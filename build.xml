@@ -100,7 +100,7 @@
 
         <copy toDir="${staging.dir}/WEB-INF">
             <fileset dir="WEB-INF">
-                <exclude name="**/local.*"/>
+                <exclude name="**/msjs-local.*"/>
                 <exclude name="**/log/*"/>
             </fileset>
         </copy>

@@ -59,14 +59,14 @@ public class FileServlet extends ResourceServlet {
         final File file = getFile(request);
         if (file.exists()) return new FileInputStream(file);
 
-        final String path = getFilePath(request);
+        String resourcePath = request.getPathInfo();
         try{
-            final URL url = FileServlet.class.getResource(path);
-            if (url == null) throw new IOException(path);
+            final URL url = FileServlet.class.getResource(resourcePath);
+            if (url == null) throw new IOException(resourcePath);
             URLConnection connection = url.openConnection();
             return connection.getInputStream();
         } catch (IOException e){
-            throw new FileNotFoundException(path);
+            throw new FileNotFoundException(resourcePath);
         }
 
     }
