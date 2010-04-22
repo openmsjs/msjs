@@ -46,7 +46,6 @@ public class MsjsConfiguration extends PropertiesConfiguration {
 
     private static final String MSJS_ROOT = "msjs.root";
     private static final String SCRIPT_ROOT = "msjs.scriptRoot";
-    private static final String FILE_ROOT = "msjs.fileRoot";
     private static final String DO_CACHE = "msjs.doCache";
 
     private static final String LOG4J_PROPERTY = "log4j.appender.msjs.File";
@@ -126,15 +125,14 @@ public class MsjsConfiguration extends PropertiesConfiguration {
         }
         logger.info(MSJS_ROOT + ": " + getMsjsRoot());
         logger.info(SCRIPT_ROOT + ": " + getScriptRoot());
-        logger.info(FILE_ROOT + ": " + getFileRoot());
         logger.info(DO_CACHE + ": " + getBoolean(DO_CACHE));
         logger.info(LOG4J_PROPERTY + ": " + getString(LOG4J_PROPERTY));
         if (logger.isDebugEnabled()) {
             Iterator<String> iter = getKeys();
             while (iter.hasNext()) {
                 String key = iter.next();
-                if (key.equals(WEBAPP_PATH) || key.equals(MSJS_ROOT) || key.equals(SCRIPT_ROOT) ||
-                        key.equals(FILE_ROOT)) continue;
+                if (key.equals(WEBAPP_PATH) || key.equals(MSJS_ROOT) ||
+                    key.equals(SCRIPT_ROOT)) continue;
                 logger.debug(key + ": " + getString(key));
             }
         }
@@ -146,10 +144,6 @@ public class MsjsConfiguration extends PropertiesConfiguration {
 
     public String getScriptRoot() {
         return getString(SCRIPT_ROOT);
-    }
-
-    public String getFileRoot() {
-        return getString(FILE_ROOT);
     }
 
     public String getWebappPath() {
