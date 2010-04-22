@@ -88,6 +88,10 @@ node.getMsj = function(){
     return this._msj;
 }
 
+node.ifUpdated = function(){
+    if (this.isUpdated()) return this();
+}
+
 //called by graph
 node.updateMsj = function(msj, clock){
     if (msj !== void 0){
