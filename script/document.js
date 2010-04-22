@@ -366,6 +366,13 @@ domelement._isAttribute = function(attr) {
         case "_listeners":
         case "_isPacked":
         case "_scrollTop":
+        //jquery adds these
+        case "height": 
+        case "width":
+        case "marginTop":
+        case "paddingTop":
+        case "marginBottom":
+        case "paddingBottom":
             return false;
     }
 
