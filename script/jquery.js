@@ -6319,6 +6319,7 @@ jQuery._unpackObj = function(val){
 msjs.publish(jQuery, "Client");
 
 /*! msjs.server-only **/
+jQuery.fx.off = true;
 var fnUnpackF = function(members){
     var obj = jQuery();
 
