@@ -465,6 +465,18 @@ document.renderAsXHTML = function(script){
     var head = this.head;
     var title = this.title;
     delete this.title;
+
+    var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
+    var webappPath = config.getWebappPath();
+
+    msjs.each(head.childNodes, function(child){
+        if (child.nodeName == "LINK" && child.rel == "stylesheet" && child.href &&
+            (child.href.indexOf("http:") != 0 && child.href.indexOf("/") != 0) ){
+            //relativize href
+            child.href = webappPath + "/file/"+child.href;
+        }
+    });
+
     head.appendChild(<title>{title}</title>);
     msjs.each(this._getScriptResources(msjs.clientPackages), function(node){
         head.appendChild(node);
@@ -483,13 +495,11 @@ document.renderAsXHTML = function(script){
         }
     }
 
-    var config = msjs.require("java.org.msjs.config.MsjsConfiguration");
-    var webappPath = config.getWebappPath();
 
     //append callback iframe
     this.body.appendChild(
             <iframe name="_msjs_request" id="_msjs_request" frameborder="0" width="0" height="0"
-                style="display: none" src={webappPath + "/file/request.html"} />
+                style="display: none" src={webappPath + "/file/msjs/request.html"} />
     );
 
     if (scrollTops){
@@ -508,9 +518,10 @@ document.renderAsXHTML = function(script){
 
     if (this._initialfocus){
         var focusScript = 
-            "$(function(){document.getElementById('" + this._initialfocus + "').focus();})";
         this.body.appendChild(
-            <script>{focusScript}</script>
+            <script>{
+            "$(function(){document.getElementById('" + this._initialfocus + "').focus();})"
+            }</script>
         );
         this._initialfocus = null;
     }

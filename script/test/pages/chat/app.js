@@ -43,28 +43,4 @@ var renderer = msjs(function(){
 
 msjs.require("test.pages.chat.broadcast").add(updater);
 
-msjs.require('msjs.dom').addCss("form", {
-    width : "290px",
-    display: "block",
-    border : "solid 1px #1C2F56",
-    padding: "10px",
-    backgroundColor: "#EEEEEE",
-    marginTop : "8px"
-}).addCss("body", {
-    backgroundColor : "#C6D5F5"
-}).addCss("div.messages", {
-    width : "300px",
-    overflowY : "scroll",
-    overflowX : "hidden",
-    height : "200px",
-    backgroundColor : "white",
-    padding : "5px",
-    border : "solid 1px #1C2F56"
-}).addCss("label", {
-    marginBottom : "5px",
-    display : "block"
-}).addCss(".name", {
-    fontWeight : "bold"
-}).addCss("input[type=submit]", {
-    marginLeft : "5px"
-});
+$(<link rel="stylesheet" type="text/css" href="test/pages/chat/chat.css"/>).appendTo("head");

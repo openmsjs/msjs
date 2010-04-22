@@ -39,7 +39,7 @@ public class FileServlet extends ResourceServlet {
         super.init(config);
         context = config.getServletContext();
         Injector injector = (Injector) context.getAttribute(ServletListener.INJECTOR);
-        fileRoot = injector.getInstance(MsjsConfiguration.class).getFileRoot();
+        fileRoot = injector.getInstance(MsjsConfiguration.class).getScriptRoot();
     }
 
     @Override

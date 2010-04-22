@@ -1,0 +1,33 @@
+body {
+    background-color : #C6D5F5;
+}
+
+form {
+    width : 290px;
+    display: block;
+    border : solid 1px #1C2F56;
+    padding: 10px;
+    background-color: #EEEEEE;
+    margin-top : 8px;
+}
+
+div.messages {
+    width : 300px;
+    overflowY : scroll;
+    overflowX : hidden;
+    height : 200px;
+    backgroundColor : white;
+    padding : 5px;
+    border : solid 1px #1C2F56;
+}
+label {
+    marginBottom : 5px;
+    display : block;
+}
+.name {
+    font-weight : bold
+}
+
+input[type=submit]{
+    margin-left : 5px
+}
