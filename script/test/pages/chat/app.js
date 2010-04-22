@@ -30,8 +30,7 @@ var out =$(<div/>).addClass("messages").insertBefore(form);
 var messageTemplate = $(<div><span class="name"/>: <span class="message"/></div>);
 
 var renderer = msjs(function(){
-    var items =  updater.ifUpdated() || initializer.ifUpdated();
-    if (!items) return;
+    var items =  updater.ifUpdated() || initializer.ifUpdated() || null;
     msjs.each(items , function(item){
         var message = messageTemplate.clone().appendTo(out);
         message.find(".name").text(item.name);
