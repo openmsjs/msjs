@@ -24,9 +24,7 @@ var b = msjs(function(){
 
 var c  = msjs(function(){return null;});
 var result = msjs(function(){
-    if (a.isUpdated()) return a();
-    if (b.isUpdated()) return b();
-    return "none";
+    return a.ifUpdated() || b.ifUpdated() || "none";
 }).depends(a,b,c);
 
 msjs.require("msjs.graph").refreshAll();

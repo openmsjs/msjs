@@ -89,7 +89,7 @@ node.getMsj = function(){
 }
 
 node.ifUpdated = function(){
-    if (this.isUpdated()) return this();
+    if (this.lastMsjUpdate == this.graph.clock) return this();
 }
 
 //called by graph
@@ -120,10 +120,6 @@ node.onConnectionError;
 
 node.invalidate = function(){
     this.lastMsjUpdate = -1;
-}
-
-node.isUpdated = function(){
-    return this.lastMsjUpdate == this.graph.clock;
 }
 
 /*! msjs.server-only **/

@@ -84,7 +84,7 @@ var view = msjs(function(){
 
     var updates = {
         "input": typing(),
-        "clearButton": clearButton.isUpdated ? clearButton() : void 0,
+        "clearButton": clearButton.ifUpdated(),
         "form": submit()
     }
 

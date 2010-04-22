@@ -42,11 +42,12 @@ var serverProducer2 = msjs( function(){
 }).depends(serverProducer1).setPack(false);
 
 var addEl = function(text){
+    if (!text) return;
     $("<div/>").text(text).appendTo(result);
 }
 var view = msjs(function(){
-    if (clientProducer.isUpdated()) addEl(clientProducer());
-    if (serverProducer2.isUpdated()) addEl(serverProducer2());
+    addEl(clientProducer.ifUpdated());
+    addEl(serverProducer2,ifUpdated());
 }).depends(clientProducer, serverProducer2);
 
 var result = $("<div/>").appendTo("body");
