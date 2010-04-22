@@ -202,6 +202,17 @@ domelement._getDebugName = function(){
     return name;
 }
 
+var scrollTops = null;
+domelement.__defineSetter__("scrollTop",  function(val){
+    if (!scrollTops) scrollTops = {};
+    scrollTops[this.generateId()] = val;
+    this._scrollTop = val;
+});
+
+domelement.__defineGetter__("scrollTop",  function(val){
+    return this._scrollTop;
+});
+
 domelement.xhtmlNs = Packages.org.jdom.Namespace.getNamespace("http://www.w3.org/1999/xhtml");
 domelement.innerHTML = null;
 domelement.toJDOM = function(){
@@ -480,6 +491,16 @@ document.renderAsXHTML = function(script){
             <iframe name="_msjs_request" id="_msjs_request" frameborder="0" width="0" height="0"
                 style="display: none" src={webappPath + "/file/request.html"} />
     );
+
+    if (scrollTops){
+        var scrollScript = "(" + function(scrollTops){
+            for (var id in scrollTops){
+                document.getElementById(id).scrollTop = scrollTops[id];
+            }
+        } + ")";
+        scrollScript += "(" + msjs.toJSON(scrollTops) + ")";
+        this.body.appendChild( <script>{scrollScript}</script>);
+    }
 
     if (script){
         this.body.appendChild( <script>{script}</script>);
