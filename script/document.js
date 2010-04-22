@@ -507,8 +507,11 @@ document.renderAsXHTML = function(script){
     }
 
     if (this._initialfocus){
+        var focusScript = 
+            "$(function(){document.getElementById('" + this._initialfocus + "').focus();})";
         this.body.appendChild(
-            <script>"document.getElementById('" + this._initialfocus + "').focus()"</script>);
+            <script>{focusScript}</script>
+        );
         this._initialfocus = null;
     }
 
