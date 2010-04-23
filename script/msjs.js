@@ -745,13 +745,20 @@ msjs.isPackable = function(val){
                 //special check for e.g.
                 //return new java.lang.Object();
                 if ("java" in freeVars) return false;
-                return this.isPackable(freeVars);
+                for (var k in freeVars){
+                    if (this._dontPackNames[k]) continue;
+                    var isPackable = this.isPackable(freeVars[k]);
+                    if (isPackable != null) return isPackable;
+                }
+
+                //fall through
             case "object":
                 for (var k in val){
                     if (!val.hasOwnProperty(k)) continue;
                     var isPackable = this.isPackable(val[k]);
                     if (isPackable != null) return isPackable;
                 }
+                //fall through
             default:
                 return null;
         }
