@@ -27,7 +27,7 @@
     <property name="test.reports.dir" value="${out.dir}/reports"/>
     <property name="war.file" value="${out.dir}/msjs.war" />
 
-    <property name="release" value="0.7" />
+    <property name="release" value="0.8" />
     <property name="jar.file" value="msjs-${release}.jar" />
 
     <path id="build.classpath">
