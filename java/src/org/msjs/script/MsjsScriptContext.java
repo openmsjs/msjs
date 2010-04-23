@@ -239,16 +239,13 @@ public class MsjsScriptContext extends ScriptContext {
 
         ScriptableObject jsSet = makeObject();
         for (String freeVar : vars){
-            jsSet.put(freeVar, jsSet, getFromScope(scope, freeVar));
+            Object value = getFromScope(scope, freeVar);
+            if (value == Scriptable.NOT_FOUND) value = Context.getUndefinedValue();
+            jsSet.put(freeVar, jsSet, value);
         }
         return jsSet;
     }
 
-    private Object getFromScope(final Scriptable scope, final String var) {
-        if (scope == null) return Context.getUndefinedValue();
-        Object val = scope.get(var, scope);
-        return val == Scriptable.NOT_FOUND ? getFromScope(scope.getParentScope(), var) : val;
-    }
 
 
 }

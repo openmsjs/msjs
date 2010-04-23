@@ -15,8 +15,8 @@ var circular = msjs();
 circular.ref = {circular : circular}
 
 var assert = msjs.require("msjs.assert");
-referSingleton._msjs_isPackable();
-assert("Nodes that refer to singletons shouldn't be packed", 
+
+assert("Nodes that refer to singletons shouldn't be packed",
         referSingleton.determinePack() == false);
 
 assert("Nodes that refer to functions that refer to unpackable objects shouldn't be packed", 

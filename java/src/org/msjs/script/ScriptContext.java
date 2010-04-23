@@ -133,5 +133,14 @@ public class ScriptContext {
         }
     }
 
+    protected Object getFromScope(final Scriptable scope, final String var) {
+        if (scope == null) return Scriptable.NOT_FOUND;
+        Object val = scope.get(var, scope);
+        if (val == Scriptable.NOT_FOUND && scope != topLevel) {
+            if (val == Scriptable.NOT_FOUND) val = getFromScope(scope.getPrototype(), var);
+            if (val == Scriptable.NOT_FOUND) val = getFromScope(scope.getParentScope(), var);
+        }
+        return val;
+    }
 
 }

@@ -1049,8 +1049,7 @@ graph._getNodeInputs = function(node){
     var freeVars = msjs.context.getFreeVariables(node.produceMsj);
     for (var k in freeVars){
         var n = freeVars[k];
-        if (!n) continue;
-        if (n instanceof java.lang.Object) continue;
+        if (!n || n == java || n == Packages || n instanceof java.lang.Object) continue;
         if (n.isMsjsNode) inputs[n.getId()] = true;
     }
 

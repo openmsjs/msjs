@@ -46,3 +46,9 @@ assert(freeVars.c);
 assert(!freeVars.x);
 assert(!freeVars.y);
 assert(!freeVars.z);
+
+freeVarsWithNative = msjs.context.getFreeVariables(function(){
+    x = String;
+});
+
+assert(freeVarsWithNative.String == String);

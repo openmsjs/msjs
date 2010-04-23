@@ -724,12 +724,20 @@ var packStack = [];
     it can't, and null if the result is indeterminate
     @memberOf msjs#
 */
+var builtIns = [ Number, String, Math, eval, escape, unescape,
+    decodeURI, decodeURIComponent, encodeURI, encodeURIComponent,
+    isFinite, isNaN, parseFloat, parseInt, Date
+];
+
 msjs.isPackable = function(val){
     if (!val) return null;
-    if (val instanceof java.lang.Object) return false;
-    if (val && val._msjs_isPackable) return val._msjs_isPackable();
+    if (val instanceof java.lang.Object || val == java || val == Packages) return false;
 
-    if (val && typeof val == "object" ){
+    if (val._msjs_isPackable) return val._msjs_isPackable();
+
+    if (builtIns.indexOf(val) > -1) return null;
+
+    if (typeof val == "object" ){
         //circular reference
         if ( packStack.indexOf(val) > -1) return null;
         //singletons can't be packed
@@ -742,19 +750,14 @@ msjs.isPackable = function(val){
             case "function":
                 if (val instanceof RegExp) return null;
                 var freeVars = msjs.context.getFreeVariables(val);
-                //special check for e.g.
-                //return new java.lang.Object();
-                if ("java" in freeVars) return false;
-                for (var k in freeVars){
-                    if (!val.hasOwnProperty(k) || this._dontPackNames[k]) continue;
-                    var isPackable = this.isPackable(freeVars[k]);
-                    if (isPackable != null) return isPackable;
-                }
 
-                return null;
+                var isPackable = this.isPackable(freeVars);
+                if (isPackable != null) return isPackable;
+                
+                //fall through, and check the function for members' packability
             case "object":
                 for (var k in val){
-                    if (!val.hasOwnProperty(k)) continue;
+                    if (!val.hasOwnProperty(k) || k == "arguments") continue;
                     var isPackable = this.isPackable(val[k]);
                     if (isPackable != null) return isPackable;
                 }
@@ -795,6 +798,7 @@ msjs.getPackInfo = function(){
             for (var k in freeVariables){
                 var val = freeVariables[k];
                 if (k in msjs._dontPackNames) continue;
+                if (builtIns.indexOf(val) > -1) continue;
                 if (val instanceof java.lang.String) val = String(val);
                 if (val instanceof java.lang.Object) continue;
                 if (val && val._msjs_isPackable && 
@@ -845,20 +849,7 @@ msjs._dontPackNames = {
     "undefined" : true,
     "document" : true, 
     "msjs" : true, 
-    "arguments" : true,
-    "Number" : true,
-    "String" : true,
-    "eval" : true,
-    "escape" : true,
-    "unescape" : true,
-    "decodeURI" : true,
-    "decodeURIComponent" : true,
-    "encodeURI" : true,
-    "encodeURIComponent" : true,
-    "isFinite" : true,
-    "isNaN" : true,
-    "parseFloat" : true,
-    "parseInt" : true,
+    "arguments" : true
 }
 
 //The rest of this stuff is overrides of client APIs
