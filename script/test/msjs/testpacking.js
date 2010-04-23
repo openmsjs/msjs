@@ -21,7 +21,6 @@ function countProperties(packed){
     var propcount =0;
     for (var k in packed){
         propcount++;
-        //msjs.log(k, packed[k]);
     }
     return propcount;
 }
@@ -43,7 +42,6 @@ assert(packed._packageName != null);
 
 var notPackedNode = msjs(msjF);
 packed = notPackedNode.pack("notPacked");
-msjs.log(packed);
 assert(packed != null);
 assert(packed._msjF == null);
 assert(countProperties(packed) == 2);
