@@ -746,12 +746,12 @@ msjs.isPackable = function(val){
                 //return new java.lang.Object();
                 if ("java" in freeVars) return false;
                 for (var k in freeVars){
-                    if (this._dontPackNames[k]) continue;
+                    if (!val.hasOwnProperty(k) || this._dontPackNames[k]) continue;
                     var isPackable = this.isPackable(freeVars[k]);
                     if (isPackable != null) return isPackable;
                 }
 
-                //fall through
+                return null;
             case "object":
                 for (var k in val){
                     if (!val.hasOwnProperty(k)) continue;
@@ -859,8 +859,6 @@ msjs._dontPackNames = {
     "isNaN" : true,
     "parseFloat" : true,
     "parseInt" : true,
-    "_msjs_node" : true
-
 }
 
 //The rest of this stuff is overrides of client APIs
