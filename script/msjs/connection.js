@@ -55,7 +55,7 @@ connection.make = function(getRecipientIds){
     @name getRecipientIds
     @param {msjs.node} node The {@link msjs.node} which was updated. This node can
     be called to get the msj just sent by the node.
-    @return {Array[String]|Iterable[String]} The list of msjs.id's whose node
+    @return {Array[String]|Iterable[String]} The list of graph.id's whose node
     should receive the msj over the connection. This can be a javascript list or a java 
     collection since it is used within a call to {@link msjs#each} by the connection.
 */

@@ -211,7 +211,7 @@ msjs.inject = function(packageName, binding){
     @methodOf msjs#
     @param {Function} getRecipientIds This function will be called whenever a msj is received
     over the connection with a single argument, which is the node that sent the update. It
-    should return a list of msjs.id's for the graphs in which to relay the msj.
+    should return a list of graph.id's for the graphs in which to relay the msj.
     See {@link msjs.connection} for more on connections.
     @return {msjs.connection} A new {@link msjs.connection}
 */
@@ -583,7 +583,6 @@ msjs._newlines = /\n/g;
 msjs.THE_EMPTY_LIST = [];
 
 msjs.setPackInfo = function(packInfo){
-    this.id = packInfo.pop();
     this._packed = packInfo;
 }
 
@@ -647,13 +646,6 @@ msjs.execute = function(f){
     return setTimeout(f, 1);
 }
 
-/**
-    A unique ID for this instance of msjs.
-    @fieldOf msjs#
-    @name id
-*/
-msjs.id;
-
 /*! msjs.server-only **/
 msjs.isClient = false;
 
@@ -668,7 +660,6 @@ msjs.isClient = false;
 msjs.bindContext = function(context, global){
     // Server overrides context value
     this.context = context;
-    this.id = context.id;
     global.msjs = this;
     bindings.global = global;
     return bindings;
@@ -838,9 +829,6 @@ msjs.getPackInfo = function(){
         }
     };
 
-    //This is messy, but push the msjs.id on the pack list.
-    //Using a hash with pre-stringified JSON is ungainly.
-    unpackPairs.push(msjs.toJSON(this.id));
     return '[' + unpackPairs.join() + ']';
 }
 

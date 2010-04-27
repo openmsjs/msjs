@@ -41,12 +41,14 @@ public class Page {
 
     private static final Object[] EMPTY_LIST = new Object[]{};
     private long lastActiveTime;
+    private final String id;
 
     private static final AtomicInteger pollCount = new AtomicInteger(0);
 
     @Inject
     public Page(MsjsScriptContext context) {
         this.context = context;
+        id = (String) context.callMethodOnBinding("msjs.graph", "getId", EMPTY_LIST);
         updateActiveTime();
     }
 
@@ -144,7 +146,7 @@ public class Page {
     }
 
     public String getId() {
-        return context.getId();
+        return id;
     }
 
     //number of miliseconds to wait after hearing from a client page before cleaning it up

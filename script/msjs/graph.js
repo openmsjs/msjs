@@ -26,11 +26,14 @@ var graph = {};
     @name id
     @fieldOf msjs.graph#
 */
-graph.id = msjs.id;
 graph._nodes = [];
 graph._adjacencyMatrix = [];
 graph._tc = null;
 graph._cache = {};
+graph.id;
+graph.getId = function(){
+    return this.id;
+}
 
 /**
     Make a new {@link msjs.node}
@@ -385,7 +388,7 @@ graph._sendQueuedMsjsFromIframe = function(failOk) {
     //NB: This sends even if there are no msjs in queue
     var jsonQ = this.getMsjForRemoteAsJSON();
     //msjs.log(jsonQ);
-    var params = "id=" + msjs.id + "&q=" + encodeURIComponent(jsonQ);
+    var params = "id=" + graph.id + "&q=" + encodeURIComponent(jsonQ);
 
     this._addConnection(request);
 
@@ -401,11 +404,11 @@ graph._redirect = function(url){
 }
 
 graph._doReconnect = function(newId){
-    if (msjs.id == newId) {
+    if (graph.id == newId) {
         //This happens if the server sends multiple updates to a dead server graph
         return;
     }
-    msjs.id = newId;
+    graph.id = newId;
     this.clock = 0;
     this._expectedUpdateFromRemote = 0;
     this._acknowledgedUpdate = 0;
@@ -537,6 +540,7 @@ graph._abortConnections = function() {
     @methodOf msjs.graph#
 */
 graph.setPackInfo = function(packed){
+    this.id = packed.id;
     this.clock =packed.clock;
     this.hasRemote = true;
     this._adjacencyMatrix = packed._adjacencyMatrix;
@@ -811,7 +815,7 @@ graph._getMinimumDistances = function(map){
 
 //Override
 graph._getDebugName = function(){
-    return "graph " + msjs.id;
+    return "graph " + graph.id;
 }
 
 graph._updateLock = {
@@ -972,7 +976,7 @@ graph.pack = function() {
 // This is unsynchronized. It shouldn't be run w/o protection from _pack.
 graph._pack = function(){
     if (this.hasRemote){
-        throw "Graph was already packed! " + msjs.id;
+        throw "Graph was already packed! " + graph.id;
     }
     this._assertNoStrongComponents();
 
@@ -1040,7 +1044,8 @@ graph._pack = function(){
         profile : this.profile,
         _adjacencyMatrix : this._adjacencyMatrix,
         _tc : this.getTransitiveClosure(),
-        hasPendingUpdates : this._hasPendingUpdates()
+        hasPendingUpdates : this._hasPendingUpdates(),
+        id : this.id
     };
 }
 
@@ -1162,3 +1167,7 @@ graph.getTransitiveClosure = function(){
 graph.setTimeout = function(f, dur){
     f();
 }
+
+var uuid = msjs.require("msjs.uuid");
+//on the client, this is assigned when the pack info is set
+graph.id = uuid();

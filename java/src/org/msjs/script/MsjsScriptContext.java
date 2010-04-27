@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -51,7 +50,6 @@ public class MsjsScriptContext extends ScriptContext {
     private Injector injector;
     private static final ConcurrentHashMap<String,Object> singletonScope =
             new ConcurrentHashMap<String, Object>();
-    private final UUID uuid;
     private final ScriptableObject bindings;
     private String loadingPackage;
     private Scriptable loadingScope;
@@ -71,7 +69,6 @@ public class MsjsScriptContext extends ScriptContext {
                              FunctionParser functionParser) {
         super(cxFactory);
         this.locator = locator;
-        this.uuid = UUID.randomUUID();
         this.functionParser = functionParser;
 
 
@@ -180,10 +177,6 @@ public class MsjsScriptContext extends ScriptContext {
         }catch (Exception e){
             throw launderException(e);
         }
-    }
-
-    public String getId(){
-        return uuid.toString();
     }
 
     public static void clearSingletonScope() {
