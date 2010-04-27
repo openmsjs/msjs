@@ -94,9 +94,8 @@ public class MsjsScriptContext extends ScriptContext {
      * Load a package by name, such as "msjs.node", using this instance's ScriptLocator.
      *
      * @param name The name of the package to load.
-     * @return The value returned by the script.
      */
-    public Object loadPackage(String name) {
+    public void loadPackage(String name) {
         try{
             final Script script = locator.getScript(name);
             String outerPackage = loadingPackage;
@@ -112,7 +111,6 @@ public class MsjsScriptContext extends ScriptContext {
             
             loadingPackage = outerPackage;
             loadingScope = outerScope;
-            return bindings.get(name, bindings);
         } catch (Exception e){
             throw launderException(e);
         }
