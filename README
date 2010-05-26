@@ -1,5 +1,1 @@
-See our website at http://openmsjs.org
-
 msjs is a framework for developing server-connected apps that run in the web browser. A msjs program is composed out of a group of identical data processing objects that we call "nodes." These nodes just wrap a function which returns a message, defined as a simple javascript value that can be serialized as JSON. Furthermore, nodes can be wired together in dependency chains, so that when one node sends an updated message, all the dependent node messages are recalculated. Within a msjs program, these dependencies form a directed acyclic graph (DAG). This is an implementation of a lesser-known software architecture called "dataflow".
-
-Find out more at http://openmsjs.org
